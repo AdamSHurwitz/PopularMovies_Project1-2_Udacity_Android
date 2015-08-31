@@ -1,5 +1,5 @@
 # PopularMovies_Project1_Udacity_Android
-This is Project 1 of the Google/Udacity Android Nanodegree. Upon launch, the app presents the user with a grid arrangement of movie posters allowing the user to change sort order via a setting: The sort order can be by most popular, or by highest-rated. The user can also tap on a movie poster and transition to a details screen with additional movie details.
+This is Project 1 of the Google/Udacity Android Nanodegree. The app presents a grid arrangement of movies allowing the user to change sort order by most popular or by highest-rated. The user can also tap on a movie poster to receive more details.
 
 Note to the users:
 
