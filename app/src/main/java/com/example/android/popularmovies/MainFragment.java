@@ -373,7 +373,6 @@ public class MainFragment extends Fragment {
         public void onPostExecute(ArrayList<Movie> movies) {
             arrayAdapter.notifyDataSetChanged();
         }
-
     }
 
 }
