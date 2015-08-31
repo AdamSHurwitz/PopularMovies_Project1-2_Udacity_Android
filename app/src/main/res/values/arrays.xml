@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="entries">
+        <item>popularity</item>
+        <item>ratings</item>
+    </string-array>
+    <string-array name="entry_values">
+        <item>popularity</item>
+        <item>ratings</item>
+    </string-array>
+</resources>

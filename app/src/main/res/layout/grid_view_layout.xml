@@ -1,0 +1,31 @@
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/window_background">
+
+    <!--can adjust columnWidth below to determine how many grid items
+      can appear in row, originally set at 100dp-->
+    <GridView
+        android:id="@+id/grid_view_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:columnWidth="185dp"
+        android:drawSelectorOnTop="true"
+        android:gravity="center"
+        android:numColumns="auto_fit"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="5dp"
+        android:focusable="true"
+        android:clickable="true"
+        android:background="@color/window_background"/>
+
+</FrameLayout>
+
+
+<!--Original 4-per-row layout: change 'columnWidth' to 100dp and
+ grid_item_layout.xml view to 100dp-->
+
+
+

@@ -1,0 +1,40 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <!-- color of action bar (use 500 color) -->
+        <item name="colorPrimary">#2196F3</item>
+        <!-- color of statusbar (use 700 color) -->
+        <item name="colorPrimaryDark">#1976D2</item>
+        <!-- status bar to transparent -->
+        <!--<item name="@android:statusBarColor">#1976D2</item>-->
+        <!-- color of action bar text-->
+        <item name="android:textColor">#FFFFFF</item>
+        <!-- color of action bar menu text-->
+        <item name="android:actionMenuTextColor">#FFFFFF</item>
+        <!-- color of popup menu-->
+        <item name="actionOverflowMenuStyle">@style/CMOptionsMenu</item>
+        <!-- color of navigation bar-->
+        <item name="@android:navigationBarColor">#2196F3</item>
+        <!-- enable overlay mode -->
+        <item name="android:windowActionBarOverlay">true</item>
+
+
+        <!-- activity elements -->
+        <!-- window background -->
+        <item name="@android:windowBackground">@color/window_background</item>
+        <!-- text color -->
+        <item name="android:textColorPrimary">#FFFFFF</item>
+        <!-- accent coloring for views (ie: Checkboxes, EditText) -->
+        <item name="colorAccent">#FF5252</item>
+        <!--background color of buttons-->
+        <item name="colorButtonNormal">#2196F3</item>
+    </style>
+
+    <!-- color of popup menu-->
+    <style name="CMOptionsMenu" parent="Widget.AppCompat.PopupMenu.Overflow">
+        <item name="android:popupBackground">#2196F3</item>
+    </style>
+
+</resources>

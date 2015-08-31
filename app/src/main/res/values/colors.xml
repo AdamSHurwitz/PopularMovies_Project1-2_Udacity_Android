@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="grid_color_selector" type="color">@android:color/transparent</item>
+
+    <item name="detail_background_color" type="color">@android:color/black</item>
+
+    <item name="window_background" type="color">#727272</item>
+</resources>
