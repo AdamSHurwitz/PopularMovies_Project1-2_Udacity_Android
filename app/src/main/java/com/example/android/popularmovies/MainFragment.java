@@ -246,7 +246,7 @@ public class MainFragment extends Fragment {
 
             // remove '?' before 'api_key' and '=' after, the Uri class builds it for you
             String kb = "api_key";
-            String kc = "81696f0358507756b5119609b0fae31e";
+            String kc = "";
             String sort = "sort_by";
             // added to assign User Setting to this String
             String sortBy = "";
