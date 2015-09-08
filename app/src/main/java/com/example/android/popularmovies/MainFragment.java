@@ -1,4 +1,5 @@
 package com.example.android.popularmovies;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -38,6 +39,9 @@ import java.util.ArrayList;
  * A placeholder fragment containing a simple view.
  */
 public class MainFragment extends Fragment {
+
+    // commented out → using API data
+
     // static final variable to store dummmy data
 //    private final Integer[] dummyData = {R.drawable.ant, R.drawable.deadpool, R.drawable.fantastic,
 //            R.drawable.goodnight, R.drawable.mission, R.drawable.southpaw,
@@ -50,6 +54,7 @@ public class MainFragment extends Fragment {
     // create EXTRA_MESSAGE
     public static final String EXTRA_MESSAGE = "com.example.android.popularmovies";
 
+
     // inflating menu
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,6 +62,18 @@ public class MainFragment extends Fragment {
         // Add this line in order for this fragment to handle menu events.
         setHasOptionsMenu(true);
 
+    }
+
+    // loads GridView with current Setting selected
+    @Override
+    public void onStart() {
+        super.onStart();  // Always call the superclass method first
+        movieObjects.clear();
+        arrayAdapter.notifyDataSetChanged();
+        FetchMovieTask movieTask = new FetchMovieTask();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String sortBy = prefs.getString("sortBy_key", "0");
+        movieTask.execute(sortBy);
     }
 
 //    @Override
@@ -107,6 +124,13 @@ public class MainFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.grid_view_layout, container, false);
 
+        // commented out in order to use arrayAdapter
+        /*dummyDataAdapter = new GridViewAdapter(
+                // current context (this fragment's containing activity)
+                getActivity(),
+                // ID of view item layout, not needed since we get it in getView()
+                R.layout.grid_item_layout);*/
+
         arrayAdapter = new GridViewAdapter(
                 // current context (this fragment's containing activity)
                 getActivity(),
@@ -138,13 +162,19 @@ public class MainFragment extends Fragment {
 
         // doInBackground -> commented out to make doInBackground that checks for Settings
         /**FetchMovieTask movieTask = new FetchMovieTask();
-        movieTask.execute("popularity.desc");*/
+         movieTask.execute("popularity.desc");*/
 
-        // looks for doInBackground
-        FetchMovieTask movieTask = new FetchMovieTask();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String sortBy = prefs.getString("sortBy_key", "0");
-        movieTask.execute(sortBy);
+
+        if (savedInstanceState == null || !savedInstanceState.containsKey("key")) {
+            // looks for doInBackground
+            FetchMovieTask movieTask = new FetchMovieTask();
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String sortBy = prefs.getString("sortBy_key", "0");
+            movieTask.execute(sortBy);
+        } else {
+            movieObjects = savedInstanceState.getParcelableArrayList("key");
+        }
+
 
         return view;
     }
@@ -164,7 +194,8 @@ public class MainFragment extends Fragment {
         // creates contructor to create GridViewAdapter object
         public GridViewAdapter(Context context, int resource) {
 
-            //no longer used since passing in Movie Objects
+            // commented out → no longer used since passing in Movie Objects
+
             //super(context, resource, dummyData);
 
             super(context, resource, movieObjects);
@@ -173,20 +204,7 @@ public class MainFragment extends Fragment {
 
         // get view to create view, telling Adapter what's included in the grid_item_layout
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            // layout inflator
-            LayoutInflater inflater = ((Activity) context).getLayoutInflater();
-            // need inflator to inflate the grid_item_layout
-            View view = inflater.inflate(R.layout.grid_item_layout, parent, false);
-            // once view is inflated we can grab elements, getting and saving grid_item_imageview
-            // as ImageView
-            ImageView gridItem = (ImageView) view.findViewById(R.id.grid_item_imageview);
-            TextView titleItem = (TextView) view.findViewById(R.id.grid_item_textview);
-            // use setter method setImageResource() to set ImaveView image from dummyData Array
-
-            // commented out because linking adapter to old dummyData Array index
-            //gridItem.setImageResource(dummyData[position]);
-
+        public View getView(int position, View view, ViewGroup parent) {
             // Construct the URL to query images in Picasso
             final String PICASSO_BASE_URL = "http://image.tmdb.org/t/p/";
             final String imageUrl = movieObjects.get(position).getImage();
@@ -199,17 +217,84 @@ public class MainFragment extends Fragment {
             Log.v(LOG_TAG, "Built URI " + builtUri.toString());
             // generate images with Picasso
 
-            Picasso.with(context)
-                    .load(builtUri)
+
+            // new method to only use memory when view is being used
+            // layout inflater
+            LayoutInflater inflater = ((Activity) context).getLayoutInflater();
+
+            // holder will hold the references to your views
+            ViewHolder holder;
+
+            // first clutter of views
+            if (view == null) {
+                // need inflater to inflate the grid_item_layout
+                view = inflater.inflate(R.layout.grid_item_layout, parent, false);
+                holder = new ViewHolder();
+                // once view is inflated we can grab elements, getting and saving grid_item_imageview
+                // as ImageView
+                holder.gridItem = (ImageView) view.findViewById(R.id.grid_item_imageview);
+                holder.titleItem = (TextView) view.findViewById(R.id.grid_item_textview);
+                view.setTag(holder);
+                // if view is not empty, re-use view to repopulate w/ data
+            } else {
+                holder = (ViewHolder) view.getTag();
+            }
+
+            // commented out --> linking adapter to old dummyData Array index
+
+            // use setter method setImageResource() to set ImageView image from dummyData Array
+            //gridItem.setImageResource(dummyData[position]);
+
+            Picasso.with(context).
+                    load(builtUri)
                     .resize(500, 500)
                     .centerCrop()
                     .placeholder(R.drawable.user_placeholder)
                     .error(R.drawable.user_placeholder_error)
-                    .into(gridItem);
+                    .into(holder.gridItem);
+            holder.titleItem.setText(movieObjects.get(position).getTitle());
 
-            titleItem.setText(movieObjects.get(position).getTitle());
 
             return view;
+        }
+
+        class ViewHolder {
+            // declare your views here
+            TextView titleItem;
+            ImageView gridItem;
+
+        /*// commented out in order to implement test to only use memory for View showing
+
+            // once view is inflated we can grab elements, getting and saving grid_item_imageview
+            // as ImageView
+              // layout inflator
+            LayoutInflater inflater = ((Activity) context).getLayoutInflater();
+            View view = inflater.inflate(R.layout.grid_item_layout, parent, false);
+            ImageView gridItem = (ImageView) view.findViewById(R.id.grid_item_imageview);
+            TextView titleItem = (TextView) view.findViewById(R.id.grid_item_textview);
+
+
+        // use setter method setImageResource() to set ImageView image from dummyData Array
+        // commented out because linking adapter to old dummyData Array index
+        //gridItem.setImageResource(dummyData[position]);
+
+        // Construct the URL to query images in Picasso
+        final String PICASSO_BASE_URL = "http://image.tmdb.org/t/p/";
+        final String imageUrl = movieObjects.get(position).getImage();
+
+        Uri builtUri = Uri.parse(PICASSO_BASE_URL).buildUpon()
+                // appending size and image source
+                .appendPath("w500")
+                .appendPath(imageUrl.substring(1))
+                .build();
+        Log.v(LOG_TAG,"Built URI "+builtUri.toString());
+            // generate images with Picasso
+
+            Picasso.with(context).load(builtUri).resize(500, 500).centerCrop().placeholder(R.drawable.user_placeholder).error(R.drawable.user_placeholder_error).into(gridItem);
+            titleItem.setText(movieObjects.get(position).getTitle()
+        );
+
+        return view;*/
         }
     }
 
@@ -221,8 +306,9 @@ public class MainFragment extends Fragment {
 // param1 passes into doInBackground()
 // param3 declares return type for doInBackground()
 
-    // removed below since now returning Array of Objects
-    // public class FetchMovieTask extends AsyncTask<String, Void, String>
+// commented out --> now returning Array of Objects
+
+// public class FetchMovieTask extends AsyncTask<String, Void, String>
 
     public class FetchMovieTask extends AsyncTask<String, Void, ArrayList<Movie>> {
 
@@ -246,17 +332,18 @@ public class MainFragment extends Fragment {
 
             // remove '?' before 'api_key' and '=' after, the Uri class builds it for you
             String kb = "api_key";
-            String kc = "";
+            String kc = "81696f0358507756b5119609b0fae31e";
             String sort = "sort_by";
             // added to assign User Setting to this String
             String sortBy = "";
 
             // builds correct HTTP request based on User Setting passed in onCreateView()
             // through Shared Preferences
-            if(params[0].equals("popularity")){
+            if (params[0].equals("popularity")) {
                 sortBy = "popularity.desc";
+            } else {
+                sortBy = "vote_average.desc";
             }
-            else{ sortBy = "vote_average.desc";}
 
             try {
                 // Construct the URL for the moviedb query
@@ -373,6 +460,13 @@ public class MainFragment extends Fragment {
         public void onPostExecute(ArrayList<Movie> movies) {
             arrayAdapter.notifyDataSetChanged();
         }
+
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList("key", movieObjects);
+        super.onSaveInstanceState(outState);
     }
 
 }
