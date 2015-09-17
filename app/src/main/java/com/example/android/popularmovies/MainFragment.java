@@ -61,7 +61,6 @@ public class MainFragment extends Fragment {
         super.onCreate(savedInstanceState);
         // Add this line in order for this fragment to handle menu events.
         setHasOptionsMenu(true);
-
     }
 
     // loads GridView with current Setting selected
@@ -110,6 +109,7 @@ public class MainFragment extends Fragment {
         }
     }
 
+
     // declaring ArrayAdapter
 
     // used dummyDataAdapter before
@@ -123,6 +123,7 @@ public class MainFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.grid_view_layout, container, false);
+
 
         // commented out in order to use arrayAdapter
         /*dummyDataAdapter = new GridViewAdapter(
