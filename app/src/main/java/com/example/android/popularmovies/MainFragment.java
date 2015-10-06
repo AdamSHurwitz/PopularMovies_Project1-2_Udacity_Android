@@ -42,11 +42,11 @@ public class MainFragment extends Fragment {
 
     // commented out → using API data
 
-    // static final variable to store dummmy data
-//    private final Integer[] dummyData = {R.drawable.ant, R.drawable.deadpool, R.drawable.fantastic,
-//            R.drawable.goodnight, R.drawable.mission, R.drawable.southpaw,
-//            R.drawable.star_wars, R.drawable.straight, R.drawable.terminator,
-//            R.drawable.the_gift, R.drawable.the_man, R.drawable.wet_hot_summer};
+  /*   static final variable to store dummmy data
+    private final Integer[] dummyData = {R.drawable.ant, R.drawable.deadpool, R.drawable.fantastic,
+            R.drawable.goodnight, R.drawable.mission, R.drawable.southpaw,
+            R.drawable.star_wars, R.drawable.straight, R.drawable.terminator,
+            R.drawable.the_gift, R.drawable.the_man, R.drawable.wet_hot_summer};*/
 
     // creating ArrayList of Movies
     ArrayList<Movie> movieObjects = new ArrayList<Movie>();
