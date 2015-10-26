@@ -333,7 +333,7 @@ public class MainFragment extends Fragment {
 
             // remove '?' before 'api_key' and '=' after, the Uri class builds it for you
             String kb = "api_key";
-            String kc = {API KEY GOES HERE};
+            String kc = "API_KEY_GOES_HERE";
             String sort = "sort_by";
             // added to assign User Setting to this String
             String sortBy = "";

@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="@color/grid_color_selector"
     android:orientation="vertical">
     <!--can adjust image view size below in order to determine how big the grid items appear,
     originally set at 100dp by 100dp resulting in 4 rows accross-->
     <ImageView
         android:id="@+id/grid_item_imageview"
-        android:layout_width="185dp"
-        android:layout_height="185dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:scaleType="centerCrop" />
 
     <LinearLayout
