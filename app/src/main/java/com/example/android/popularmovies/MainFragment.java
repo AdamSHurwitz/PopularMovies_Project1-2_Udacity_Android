@@ -49,7 +49,7 @@ public class MainFragment extends Fragment {
             R.drawable.the_gift, R.drawable.the_man, R.drawable.wet_hot_summer};*/
 
     // creating ArrayList of Movies
-    ArrayList<Movie> movieObjects = new ArrayList<Movie>();
+    ArrayList<MovieData> movieDataObjects = new ArrayList<MovieData>();
 
     // create EXTRA_MESSAGE
     public static final String EXTRA_MESSAGE = "com.example.android.popularmovies";
@@ -67,7 +67,7 @@ public class MainFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();  // Always call the superclass method first
-        movieObjects.clear();
+        movieDataObjects.clear();
         arrayAdapter.notifyDataSetChanged();
         FetchMovieTask movieTask = new FetchMovieTask();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -143,20 +143,31 @@ public class MainFragment extends Fragment {
         gridView.setAdapter(arrayAdapter);
 
 
-        // create Toast
+        // Create Toast
         // gridView.setOnItemClickListener(new OnItem... [auto-completes])
+        /*gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            // parent = parent view, view = grid_item view, position = grid_item position
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // removed and replaced w/ Explicit Intent
+                Toast.makeText(getActivity(), movieDataObjects.get(position).getTitle(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });*/
+
+        // Click Listener
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             // parent = parent view, view = grid_item view, position = grid_item position
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // removed and replaced w/ Explicit Intent
-                //Toast.makeText(getActivity(), movieObjects.get(position).getTitle() , Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getActivity(), movieDataObjects.get(position).getTitle() , Toast.LENGTH_SHORT).show();
 
                 Intent intent = new Intent(getActivity(), com.example.android.popularmovies.DetailActivity.class);
-                /**String message = movieObjects.get(position).getTitle();
-                 intent.putExtra(EXTRA_MESSAGE, message);*/
+                String message = movieDataObjects.get(position).getTitle();
+                 intent.putExtra(EXTRA_MESSAGE, message);
 
-                intent.putExtra(EXTRA_MESSAGE, movieObjects.get(position));
+                intent.putExtra(EXTRA_MESSAGE, movieDataObjects.get(position));
                 startActivity(intent);
             }
         });
@@ -173,7 +184,7 @@ public class MainFragment extends Fragment {
             String sortBy = prefs.getString("sortBy_key", "0");
             movieTask.execute(sortBy);
         } else {
-            movieObjects = savedInstanceState.getParcelableArrayList("key");
+            movieDataObjects = savedInstanceState.getParcelableArrayList("key");
         }
 
 
@@ -183,7 +194,7 @@ public class MainFragment extends Fragment {
     // used for Array of Integers when using dummy data
     // private class GridViewAdapter extends ArrayAdapter<Integer>
 
-    private class GridViewAdapter extends ArrayAdapter<Movie> {
+    private class GridViewAdapter extends ArrayAdapter<MovieData> {
         private final String LOG_TAG = GridViewAdapter.class.getSimpleName();
         // declare Context variable
         Context context;
@@ -195,11 +206,11 @@ public class MainFragment extends Fragment {
         // creates contructor to create GridViewAdapter object
         public GridViewAdapter(Context context, int resource) {
 
-            // commented out → no longer used since passing in Movie Objects
+            // commented out → no longer used since passing in MovieData Objects
 
             //super(context, resource, dummyData);
 
-            super(context, resource, movieObjects);
+            super(context, resource, movieDataObjects);
             this.context = context;
         }
 
@@ -208,7 +219,7 @@ public class MainFragment extends Fragment {
         public View getView(int position, View view, ViewGroup parent) {
             // Construct the URL to query images in Picasso
             final String PICASSO_BASE_URL = "http://image.tmdb.org/t/p/";
-            final String imageUrl = movieObjects.get(position).getImage();
+            final String imageUrl = movieDataObjects.get(position).getImage();
 
             Uri builtUri = Uri.parse(PICASSO_BASE_URL).buildUpon()
                     // appending size and image source
@@ -253,7 +264,7 @@ public class MainFragment extends Fragment {
                     .placeholder(R.drawable.user_placeholder)
                     .error(R.drawable.user_placeholder_error)
                     .into(holder.gridItem);
-            holder.titleItem.setText(movieObjects.get(position).getTitle());
+            holder.titleItem.setText(movieDataObjects.get(position).getTitle());
 
 
             return view;
@@ -281,7 +292,7 @@ public class MainFragment extends Fragment {
 
         // Construct the URL to query images in Picasso
         final String PICASSO_BASE_URL = "http://image.tmdb.org/t/p/";
-        final String imageUrl = movieObjects.get(position).getImage();
+        final String imageUrl = movieDataObjects.get(position).getImage();
 
         Uri builtUri = Uri.parse(PICASSO_BASE_URL).buildUpon()
                 // appending size and image source
@@ -292,7 +303,7 @@ public class MainFragment extends Fragment {
             // generate images with Picasso
 
             Picasso.with(context).load(builtUri).resize(500, 500).centerCrop().placeholder(R.drawable.user_placeholder).error(R.drawable.user_placeholder_error).into(gridItem);
-            titleItem.setText(movieObjects.get(position).getTitle()
+            titleItem.setText(movieDataObjects.get(position).getTitle()
         );
 
         return view;*/
@@ -311,17 +322,17 @@ public class MainFragment extends Fragment {
 
 // public class FetchMovieTask extends AsyncTask<String, Void, String>
 
-    public class FetchMovieTask extends AsyncTask<String, Void, ArrayList<Movie>> {
+    public class FetchMovieTask extends AsyncTask<String, Void, ArrayList<MovieData>> {
 
         private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
 
         @Override
         // change return type to String in order to return output String
 
-        // changed from String to ArrayList<Movie>
+        // changed from String to ArrayList<MovieData>
         // protected String doInBackground(String... params) {
 
-        protected ArrayList<Movie> doInBackground(String... params) {
+        protected ArrayList<MovieData> doInBackground(String... params) {
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
             HttpURLConnection urlConnection = null;
@@ -333,7 +344,7 @@ public class MainFragment extends Fragment {
 
             // remove '?' before 'api_key' and '=' after, the Uri class builds it for you
             String kb = "api_key";
-            String kc = "API_KEY_GOES_HERE";
+            String kc = "INSERT_KEY_HERE";
             String sort = "sort_by";
             // added to assign User Setting to this String
             String sortBy = "";
@@ -425,12 +436,12 @@ public class MainFragment extends Fragment {
             // returns output from API in a String variable
             // return movieJsonStr;
 
-            // return ArrayList of Movie Objects
+            // return ArrayList of MovieData Objects
             return parseJSONObject(movieJsonStr);
         }
 
-        // method that takes in String of output and returns Array of Movie Objects
-        private ArrayList<Movie> parseJSONObject(String jsonString) {
+        // method that takes in String of output and returns Array of MovieData Objects
+        private ArrayList<MovieData> parseJSONObject(String jsonString) {
             try {
                 // converting output String to JSONObject
                 JSONObject jsonObject = new JSONObject(jsonString);
@@ -447,8 +458,8 @@ public class MainFragment extends Fragment {
                     String summary = movieJSONObject.getString("overview");
                     String rating = movieJSONObject.getString("vote_average");
                     String releaseDate = movieJSONObject.getString("release_date");
-                    Movie movieItem = new Movie(title, image, summary, rating, releaseDate);
-                    movieObjects.add(movieItem);
+                    MovieData movieDataItem = new MovieData(title, image, summary, rating, releaseDate);
+                    movieDataObjects.add(movieDataItem);
                 }
                 //
             } catch (JSONException e) {
@@ -458,7 +469,7 @@ public class MainFragment extends Fragment {
         }
 
         @Override
-        public void onPostExecute(ArrayList<Movie> movies) {
+        public void onPostExecute(ArrayList<MovieData> movies) {
             arrayAdapter.notifyDataSetChanged();
         }
 
@@ -466,7 +477,7 @@ public class MainFragment extends Fragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList("key", movieObjects);
+        outState.putParcelableArrayList("key", movieDataObjects);
         super.onSaveInstanceState(outState);
     }
 

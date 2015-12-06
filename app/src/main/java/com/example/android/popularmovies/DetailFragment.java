@@ -37,12 +37,12 @@ public class DetailFragment extends Fragment {
              textView.setTextSize(40);
              textView.setText(message);*/
 
-            //Create Movie Poster Within 'fragment_detail.xml'
+            //Create MovieData Poster Within 'fragment_detail.xml'
             ImageView detail_movie_image = (ImageView) view.findViewById(R.id.detail_movie_image);
-            Movie movie = intent.getParcelableExtra(com.example.android.popularmovies.MainFragment.EXTRA_MESSAGE);
+            MovieData movieData = intent.getParcelableExtra(com.example.android.popularmovies.MainFragment.EXTRA_MESSAGE);
             // Construct the URL to query images in Picasso
             final String PICASSO_BASE_URL = "http://image.tmdb.org/t/p/";
-            final String imageUrl = movie.getImage();
+            final String imageUrl = movieData.getImage();
             Uri builtUri = Uri.parse(PICASSO_BASE_URL).buildUpon()
                     // appending size and image source
                     .appendPath("w780")
@@ -58,21 +58,21 @@ public class DetailFragment extends Fragment {
                     .error(R.drawable.user_placeholder_error)
                     .into(detail_movie_image);
 
-            //Create Movie Title within 'fragment_detail.xml'
+            //Create MovieData Title within 'fragment_detail.xml'
             TextView title = (TextView) view.findViewById(R.id.detail_title);
-            title.setText(movie.getTitle());
+            title.setText(movieData.getTitle());
 
-            //Create Movie User Rating Within 'fragment_detail.xml'
+            //Create MovieData User Rating Within 'fragment_detail.xml'
             TextView rating = (TextView) view.findViewById(R.id.detail_rating);
-            rating.setText(movie.getRating() + " out of 10");
+            rating.setText(movieData.getRating() + " out of 10");
 
-            //Create Movie User Release Date Within 'fragment_detail.xml'
+            //Create MovieData User Release Date Within 'fragment_detail.xml'
             TextView releaseDate = (TextView) view.findViewById(R.id.detail_releasedate);
-            releaseDate.setText("released: " + movie.getReleaseDate());
+            releaseDate.setText("released: " + movieData.getReleaseDate());
 
-            //Create Movie Synopsis Within 'fragment_detail.xml'
+            //Create MovieData Synopsis Within 'fragment_detail.xml'
             TextView synopsis = (TextView) view.findViewById(R.id.detail_synopsis);
-            synopsis.setText(movie.getSummary());
+            synopsis.setText(movieData.getSummary());
 
 
             //setContentView(textView);
