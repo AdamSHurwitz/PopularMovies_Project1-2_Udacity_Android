@@ -152,11 +152,9 @@ public class FetchMovieTask extends AsyncTask<String, Void, ArrayList<MovieData>
         // returns output from API in a String variable
         // return movieJsonStr;
 
-        // TODO: Changed while troubleshooting
         // return ArrayList of MovieData Objects
         return parseJSONObject(doodleDataJsonResponse);
 
-        // TODO: Changed while troubleshooting
         // Any other case that gets here is an error that was not caught, so return null.
         //return null;
     }
