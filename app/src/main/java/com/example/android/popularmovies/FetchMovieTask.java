@@ -32,7 +32,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, ArrayList<MovieData>
 
     // remove '?' before 'api_key' and '=' after, the Uri class builds it for you
     public static final String kb = "api_key";
-    public static final String kc = "81696f0358507756b5119609b0fae31e";
+    public static final String kc = "API_KEY_GOES_HERE";
     public static final String sort = "sort_by";
     // added to assign User Setting to this String
     public static String sortBy = "";
