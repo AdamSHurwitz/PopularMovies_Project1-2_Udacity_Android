@@ -54,6 +54,7 @@ public class DetailFragment extends Fragment {
                     .load(builtUri)
                     .resize(780, 780)
                     .centerCrop()
+                    // TODO: Add in Animated Placeholder
                     .placeholder(R.drawable.user_placeholder)
                     .error(R.drawable.user_placeholder_error)
                     .into(detail_movie_image);
@@ -74,11 +75,9 @@ public class DetailFragment extends Fragment {
             TextView synopsis = (TextView) view.findViewById(R.id.detail_synopsis);
             synopsis.setText(movieData.getSummary());
 
-
             //setContentView(textView);
 
             //setContentView(R.layout.activity_detail);
-
         }
 
         return view;

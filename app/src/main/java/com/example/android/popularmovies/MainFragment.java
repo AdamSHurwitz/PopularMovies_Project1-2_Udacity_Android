@@ -1,38 +1,17 @@
 package com.example.android.popularmovies;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -49,11 +28,17 @@ public class MainFragment extends Fragment {
             R.drawable.the_gift, R.drawable.the_man, R.drawable.wet_hot_summer};*/
 
     // creating ArrayList of Movies
-    ArrayList<MovieData> movieDataObjects = new ArrayList<MovieData>();
-
+    private ArrayList<MovieData> movieDataObjects = new ArrayList<MovieData>();
+    // creating GridViewAsyncAdapter
+    private GridViewAsyncAdapter gridViewAsyncAdapter;
     // create EXTRA_MESSAGE
     public static final String EXTRA_MESSAGE = "com.example.android.popularmovies";
 
+    /**
+     * Empty constructor for the MainFragment class.
+     */
+    public MainFragment(){
+    }
 
     // inflating menu
     @Override
@@ -68,8 +53,8 @@ public class MainFragment extends Fragment {
     public void onStart() {
         super.onStart();  // Always call the superclass method first
         movieDataObjects.clear();
-        arrayAdapter.notifyDataSetChanged();
-        FetchMovieTask movieTask = new FetchMovieTask();
+        gridViewAsyncAdapter.notifyDataSetChanged();
+        FetchMovieTask movieTask = new FetchMovieTask(gridViewAsyncAdapter, movieDataObjects);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String sortBy = prefs.getString("sortBy_key", "0");
         movieTask.execute(sortBy);
@@ -115,8 +100,6 @@ public class MainFragment extends Fragment {
     // used dummyDataAdapter before
     // private ArrayAdapter dummyDataAdapter;
 
-    private ArrayAdapter arrayAdapter;
-
     @Override
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -132,15 +115,16 @@ public class MainFragment extends Fragment {
                 // ID of view item layout, not needed since we get it in getView()
                 R.layout.grid_item_layout);*/
 
-        arrayAdapter = new GridViewAdapter(
+        gridViewAsyncAdapter = new GridViewAsyncAdapter(
                 // current context (this fragment's containing activity)
                 getActivity(),
                 // ID of view item layout, not needed since we get it in getView()
-                R.layout.grid_item_layout);
+                R.layout.grid_item_layout,
+                movieDataObjects);
 
         // Get a reference to GridView, and attach this adapter to it
         GridView gridView = (GridView) view.findViewById(R.id.grid_view_layout);
-        gridView.setAdapter(arrayAdapter);
+        gridView.setAdapter(gridViewAsyncAdapter);
 
 
         // Create Toast
@@ -179,7 +163,7 @@ public class MainFragment extends Fragment {
 
         if (savedInstanceState == null || !savedInstanceState.containsKey("key")) {
             // looks for doInBackground
-            FetchMovieTask movieTask = new FetchMovieTask();
+            FetchMovieTask movieTask = new FetchMovieTask(gridViewAsyncAdapter, movieDataObjects);;
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
             String sortBy = prefs.getString("sortBy_key", "0");
             movieTask.execute(sortBy);
@@ -189,290 +173,6 @@ public class MainFragment extends Fragment {
 
 
         return view;
-    }
-
-    // used for Array of Integers when using dummy data
-    // private class GridViewAdapter extends ArrayAdapter<Integer>
-
-    private class GridViewAdapter extends ArrayAdapter<MovieData> {
-        private final String LOG_TAG = GridViewAdapter.class.getSimpleName();
-        // declare Context variable
-        Context context;
-
-        /**
-         * @param context  is the Context
-         * @param resource is the grid_view_layout
-         */
-        // creates contructor to create GridViewAdapter object
-        public GridViewAdapter(Context context, int resource) {
-
-            // commented out → no longer used since passing in MovieData Objects
-
-            //super(context, resource, dummyData);
-
-            super(context, resource, movieDataObjects);
-            this.context = context;
-        }
-
-        // get view to create view, telling Adapter what's included in the grid_item_layout
-        @Override
-        public View getView(int position, View view, ViewGroup parent) {
-            // Construct the URL to query images in Picasso
-            final String PICASSO_BASE_URL = "http://image.tmdb.org/t/p/";
-            final String imageUrl = movieDataObjects.get(position).getImage();
-
-            Uri builtUri = Uri.parse(PICASSO_BASE_URL).buildUpon()
-                    // appending size and image source
-                    .appendPath("w500")
-                    .appendPath(imageUrl.substring(1))
-                    .build();
-            Log.v(LOG_TAG, "Built URI " + builtUri.toString());
-            // generate images with Picasso
-
-
-            // new method to only use memory when view is being used
-            // layout inflater
-            LayoutInflater inflater = ((Activity) context).getLayoutInflater();
-
-            // holder will hold the references to your views
-            ViewHolder holder;
-
-            // first clutter of views
-            if (view == null) {
-                // need inflater to inflate the grid_item_layout
-                view = inflater.inflate(R.layout.grid_item_layout, parent, false);
-                holder = new ViewHolder();
-                // once view is inflated we can grab elements, getting and saving grid_item_imageview
-                // as ImageView
-                holder.gridItem = (ImageView) view.findViewById(R.id.grid_item_imageview);
-                holder.titleItem = (TextView) view.findViewById(R.id.grid_item_textview);
-                view.setTag(holder);
-                // if view is not empty, re-use view to repopulate w/ data
-            } else {
-                holder = (ViewHolder) view.getTag();
-            }
-
-            // commented out --> linking adapter to old dummyData Array index
-
-            // use setter method setImageResource() to set ImageView image from dummyData Array
-            //gridItem.setImageResource(dummyData[position]);
-
-            Picasso.with(context).
-                    load(builtUri)
-                    .resize(500, 500)
-                    .centerCrop()
-                    .placeholder(R.drawable.user_placeholder)
-                    .error(R.drawable.user_placeholder_error)
-                    .into(holder.gridItem);
-            holder.titleItem.setText(movieDataObjects.get(position).getTitle());
-
-
-            return view;
-        }
-
-        class ViewHolder {
-            // declare your views here
-            TextView titleItem;
-            ImageView gridItem;
-
-        /*// commented out in order to implement test to only use memory for View showing
-
-            // once view is inflated we can grab elements, getting and saving grid_item_imageview
-            // as ImageView
-              // layout inflator
-            LayoutInflater inflater = ((Activity) context).getLayoutInflater();
-            View view = inflater.inflate(R.layout.grid_item_layout, parent, false);
-            ImageView gridItem = (ImageView) view.findViewById(R.id.grid_item_imageview);
-            TextView titleItem = (TextView) view.findViewById(R.id.grid_item_textview);
-
-
-        // use setter method setImageResource() to set ImageView image from dummyData Array
-        // commented out because linking adapter to old dummyData Array index
-        //gridItem.setImageResource(dummyData[position]);
-
-        // Construct the URL to query images in Picasso
-        final String PICASSO_BASE_URL = "http://image.tmdb.org/t/p/";
-        final String imageUrl = movieDataObjects.get(position).getImage();
-
-        Uri builtUri = Uri.parse(PICASSO_BASE_URL).buildUpon()
-                // appending size and image source
-                .appendPath("w500")
-                .appendPath(imageUrl.substring(1))
-                .build();
-        Log.v(LOG_TAG,"Built URI "+builtUri.toString());
-            // generate images with Picasso
-
-            Picasso.with(context).load(builtUri).resize(500, 500).centerCrop().placeholder(R.drawable.user_placeholder).error(R.drawable.user_placeholder_error).into(gridItem);
-            titleItem.setText(movieDataObjects.get(position).getTitle()
-        );
-
-        return view;*/
-        }
-    }
-
-
-    /**
-     * Encapsulates fetching the forecast and displaying it as a {@link ListView} layout.
-     */
-
-// param1 passes into doInBackground()
-// param3 declares return type for doInBackground()
-
-// commented out --> now returning Array of Objects
-
-// public class FetchMovieTask extends AsyncTask<String, Void, String>
-
-    public class FetchMovieTask extends AsyncTask<String, Void, ArrayList<MovieData>> {
-
-        private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
-
-        @Override
-        // change return type to String in order to return output String
-
-        // changed from String to ArrayList<MovieData>
-        // protected String doInBackground(String... params) {
-
-        protected ArrayList<MovieData> doInBackground(String... params) {
-            // These two need to be declared outside the try/catch
-            // so that they can be closed in the finally block.
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-
-            // Will contain the raw JSON response as a string.
-            String movieJsonStr = null;
-
-
-            // remove '?' before 'api_key' and '=' after, the Uri class builds it for you
-            String kb = "api_key";
-            String kc = "INSERT_KEY_HERE";
-            String sort = "sort_by";
-            // added to assign User Setting to this String
-            String sortBy = "";
-
-            // builds correct HTTP request based on User Setting passed in onCreateView()
-            // through Shared Preferences
-            if (params[0].equals("popularity")) {
-                sortBy = "popularity.desc";
-            } else {
-                sortBy = "vote_average.desc";
-            }
-
-            try {
-                // Construct the URL for the moviedb query
-                // Possible parameters are available at moviedb API page, at
-                // http://docs.themoviedb.apiary.io/#
-                final String MOVIE_BASE_URL = "https://api.themoviedb.org/3/discover/movie";
-
-                Uri builtUri = Uri.parse(MOVIE_BASE_URL).buildUpon()
-                        // not needed
-                        // .appendPath(params[0])
-
-                        // looking at 0th param of what is passed from 'execute()' method into
-                        // 'doInBackground()' param to append URL path to base
-                        // --> commented out to pass in User Preference
-                        // .appendQueryParameter(sort, params[0])
-                        .appendQueryParameter(sort, sortBy)
-                                // appending parameter
-                        .appendQueryParameter(kb, kc)
-                        .build();
-
-
-                URL url = new URL(builtUri.toString());
-                Log.v(LOG_TAG, "Built URI " + builtUri.toString());
-
-
-                // Create the request to themoviedb, and open the connection
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                // Read the input stream into a String
-
-                // .getInputStream() pings moviedb API
-                InputStream inputStream = urlConnection.getInputStream();
-
-                // grabs the output from movidedb API call and places output in buffer
-                StringBuffer buffer = new StringBuffer();
-                if (inputStream == null) {
-                    // Nothing to do.
-                    return null;
-                }
-                reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                    // But it does make debugging a *lot* easier if you print out the completed
-                    // buffer for debugging.
-                    buffer.append(line + "\n");
-                }
-
-                if (buffer.length() == 0) {
-                    // Stream was empty.  No point in parsing.
-                    return null;
-                }
-
-                // saving buffer which contains the output to a string variable
-                movieJsonStr = buffer.toString();
-
-            } catch (IOException e) {
-                Log.e(LOG_TAG, "Error ", e);
-                // If the code didn't successfully get the weather data, there's no point in attemping
-                // to parse it.
-                return null;
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (final IOException e) {
-                        Log.e(LOG_TAG, "Error closing stream", e);
-                    }
-                }
-            }
-
-            // returns output from API in a String variable
-            // return movieJsonStr;
-
-            // return ArrayList of MovieData Objects
-            return parseJSONObject(movieJsonStr);
-        }
-
-        // method that takes in String of output and returns Array of MovieData Objects
-        private ArrayList<MovieData> parseJSONObject(String jsonString) {
-            try {
-                // converting output String to JSONObject
-                JSONObject jsonObject = new JSONObject(jsonString);
-                // parsing JSONObject into JSONArray
-                JSONArray results = jsonObject.getJSONArray("results");
-                // create For Loop to loop through each index in "results" ArrayList
-                // and parse for movieJSONObject by ArrayList index
-                for (int i = 0; i < results.length(); i++) {
-                    // parse out each movie in Array
-                    JSONObject movieJSONObject = results.getJSONObject(i);
-                    // parsing JSONObject Values into Strings based on the Key
-                    String title = movieJSONObject.getString("original_title");
-                    String image = movieJSONObject.getString("backdrop_path");
-                    String summary = movieJSONObject.getString("overview");
-                    String rating = movieJSONObject.getString("vote_average");
-                    String releaseDate = movieJSONObject.getString("release_date");
-                    MovieData movieDataItem = new MovieData(title, image, summary, rating, releaseDate);
-                    movieDataObjects.add(movieDataItem);
-                }
-                //
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        public void onPostExecute(ArrayList<MovieData> movies) {
-            arrayAdapter.notifyDataSetChanged();
-        }
-
     }
 
     @Override
