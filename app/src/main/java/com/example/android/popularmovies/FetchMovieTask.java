@@ -1,9 +1,16 @@
 package com.example.android.popularmovies;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ListView;
+
+import com.example.android.popularmovies.data.CursorContract;
+import com.example.android.popularmovies.data.CursorDbHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,7 +22,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 
 /**
  * Encapsulates fetching the forecast and displaying it as a {@link ListView} layout.
@@ -28,42 +34,43 @@ import java.util.ArrayList;
 
 // public class FetchMovieTask extends AsyncTask<String, Void, String>
 
-public class FetchMovieTask extends AsyncTask<String, Void, ArrayList<MovieData>> {
+public class FetchMovieTask extends AsyncTask<String, Void, Void> {
 
     // remove '?' before 'api_key' and '=' after, the Uri class builds it for you
     public static final String kb = "api_key";
-    public static final String kc = "API_KEY_GOES_HERE";
+    public static final String kc = "81696f0358507756b5119609b0fae31e";
     public static final String sort = "sort_by";
     // added to assign User Setting to this String
     public static String sortBy = "";
 
     private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
-    private ArrayList<MovieData> movieDataObjects = new ArrayList<>();
-    private GridViewAsyncAdapter gridViewAdapter;
+    private AsyncCursorAdapter asyncCursorAdapter;
+    private final Context context;
 
     /**
      * Constructor for the FetchDoodleDataTask object.
-     * @param gridViewAdapter An adapter to recycle items correctly in the grid view.
-     * @param movieDataObjects A list of objects with information about Movies.
+     *
+     * @param asyncCursorAdapter An adapter to recycle items correctly in the grid view.
+     * @param context            Provides context.
      */
-    public FetchMovieTask(GridViewAsyncAdapter gridViewAdapter,
-                               ArrayList<MovieData> movieDataObjects) {
-        this.movieDataObjects = movieDataObjects;
-        this.gridViewAdapter = gridViewAdapter;
+    public FetchMovieTask(AsyncCursorAdapter asyncCursorAdapter,
+                          Context context) {
+        this.asyncCursorAdapter = asyncCursorAdapter;
+        this.context = context;
     }
 
     @Override
     // change return type to String in order to return output String
     // changed from String to ArrayList<MovieData>
     // protected String doInBackground(String... params) {
-    protected ArrayList<MovieData> doInBackground(String... params) {
+    protected Void doInBackground(String... params) {
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
 
         // Will contain the raw JSON response as a string.
-        String  doodleDataJsonResponse = null;
+        String doodleDataJsonResponse = null;
 
         // builds correct HTTP request based on User Setting passed in onCreateView()
         // through Shared Preferences
@@ -147,13 +154,20 @@ public class FetchMovieTask extends AsyncTask<String, Void, ArrayList<MovieData>
                     Log.e(LOG_TAG, "Error closing stream", e);
                 }
             }
+
+            // If valid data was returned, return the parsed data.
+            try {
+                Log.i(LOG_TAG, "The Google doodle data that was returned is: " +
+                        doodleDataJsonResponse);
+                parseDoodleDataJsonResponse(doodleDataJsonResponse);
+                return null;
+            } catch (JSONException e) {
+                Log.e(LOG_TAG, e.getMessage(), e);
+                e.printStackTrace();
+            }
         }
 
-        // returns output from API in a String variable
-        // return movieJsonStr;
-
-        // return ArrayList of MovieData Objects
-        return parseJSONObject(doodleDataJsonResponse);
+        return null;
 
         // Any other case that gets here is an error that was not caught, so return null.
         //return null;
@@ -165,36 +179,91 @@ public class FetchMovieTask extends AsyncTask<String, Void, ArrayList<MovieData>
      * so that the items in the grid view can appropriately reflect the changes.
      * @param movieDataObjects A list of objects with information about the Movies.
      */
-    public void onPostExecute(ArrayList<MovieData> movieDataObjects) {
-        gridViewAdapter.notifyDataSetChanged();
+    public void onPostExecute(Void param) {
+        asyncCursorAdapter.notifyDataSetChanged();
     }
 
-    // method that takes in String of output and returns Array of MovieData Objects
-    private ArrayList<MovieData> parseJSONObject(String jsonString) {
+    /**
+     * Parses the JSON response for information about the Google doodles.
+     *
+     * @param doodleDataJsonResponse A JSON string which needs to be parsed for data about the
+     *                               Google doodles.
+     */
+    private void parseDoodleDataJsonResponse(String doodleDataJsonResponse)
+            throws JSONException {
         try {
-            // converting output String to JSONObject
-            JSONObject jsonObject = new JSONObject(jsonString);
-            // parsing JSONObject into JSONArray
-            JSONArray results = jsonObject.getJSONArray("results");
-            // create For Loop to loop through each index in "results" ArrayList
-            // and parse for movieJSONObject by ArrayList index
-            for (int i = 0; i < results.length(); i++) {
-                // parse out each movie in Array
-                JSONObject movieJSONObject = results.getJSONObject(i);
-                // parsing JSONObject Values into Strings based on the Key
-                String title = movieJSONObject.getString("original_title");
-                String image = movieJSONObject.getString("backdrop_path");
-                String summary = movieJSONObject.getString("overview");
-                String rating = movieJSONObject.getString("vote_average");
-                String releaseDate = movieJSONObject.getString("release_date");
-                MovieData movieDataItem = new MovieData(title, image, summary, rating, releaseDate);
-                movieDataObjects.add(movieDataItem);
+            Log.v("parseDoodleDataJson", "called here");
+            JSONArray doodlesInfo = new JSONArray(doodleDataJsonResponse);
+            for (int index = 0; index < doodlesInfo.length(); index++) {
+                JSONObject doodleDataJson = doodlesInfo.getJSONObject(index);
+                putDoodleDataIntoDb(
+                        doodleDataJson.getString("original_title"),
+                        doodleDataJson.getString("backdrop_path"),
+                        doodleDataJson.getString("overview"),
+                        doodleDataJson.getString("vote_average"),
+                        doodleDataJson.getString("release_date"));
             }
-            //
         } catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
         }
-        return null;
     }
 
+    public void putDoodleDataIntoDb(String title, String image_url, String summary, String
+            rating, String release_date) {
+        Log.v("putInfoIntoDatabase", "called here");
+
+        // Access database
+        CursorDbHelper mDbHelper = new CursorDbHelper(context);
+
+        // Put Info into Database
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        // Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        values.put(CursorContract.MovieData.COLUMN_NAME_TITLE, title);
+        values.put(CursorContract.MovieData.COLUMN_NAME_IMAGEURL, image_url);
+        values.put(CursorContract.MovieData.COLUMN_NAME_SUMMARY, summary);
+        values.put(CursorContract.MovieData.COLUMN_NAME_RATING, rating);
+        values.put(CursorContract.MovieData.COLUMN_NAME_RELEASEDATE, release_date);
+
+        // How you want the results sorted in the resulting Cursor
+        String sortOrder =
+                CursorContract.MovieData._ID + " DESC";
+        String whereValue[] = {title};
+
+        // Insert the new row, returning the primary key value of the new row
+        long thisRowID;
+
+        // If you are querying entire table, can leave everything as Null
+        // Querying when Item ID Exists
+        Cursor cursor = db.query(
+                CursorContract.MovieData.TABLE_NAME,  // The table to query
+                null,                                // The columns to return
+                CursorContract.MovieData._ID + "= ?", // The columns for the WHERE clause
+                whereValue, // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                sortOrder                                 // The sort order
+        );
+
+        // If the Item ID Does Not Exist, Insert All Values
+        if (cursor.getCount() == 0) {
+            thisRowID = db.insert(
+                    CursorContract.MovieData.TABLE_NAME,
+                    null,
+                    values);
+        }
+
+        // If the Item ID Does Exist, Update All Values
+        else {
+            thisRowID = db.update(
+                    CursorContract.MovieData.TABLE_NAME,
+                    values,
+                    CursorContract.MovieData._ID + "= ?",
+                    whereValue);
+        }
+    }
 }

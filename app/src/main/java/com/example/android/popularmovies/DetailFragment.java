@@ -31,18 +31,19 @@ public class DetailFragment extends Fragment {
         //Activity has intent, must get intent from Activity
         Intent intent = getActivity().getIntent();
         if (intent != null) {
-            /**String message = intent.getStringExtra(com.example.android.popularmovies.MainFragment.EXTRA_MESSAGE);
-             // display the message
-             TextView textView = new TextView(this);
-             textView.setTextSize(40);
-             textView.setText(message);*/
+
+            String[] movie_data = intent.getStringArrayExtra("Cursor Doodle Attributes");
+            // movie_data[0] = title
+            // movie_data[1] = image
+            // movie_data[2] = summary
+            // movie_data[3] = rating
+            // movie_data[4] = release_date
 
             //Create MovieData Poster Within 'fragment_detail.xml'
             ImageView detail_movie_image = (ImageView) view.findViewById(R.id.detail_movie_image);
-            MovieData movieData = intent.getParcelableExtra(com.example.android.popularmovies.MainFragment.EXTRA_MESSAGE);
             // Construct the URL to query images in Picasso
             final String PICASSO_BASE_URL = "http://image.tmdb.org/t/p/";
-            final String imageUrl = movieData.getImage();
+            final String imageUrl = movie_data[1];
             Uri builtUri = Uri.parse(PICASSO_BASE_URL).buildUpon()
                     // appending size and image source
                     .appendPath("w780")
@@ -61,19 +62,19 @@ public class DetailFragment extends Fragment {
 
             //Create MovieData Title within 'fragment_detail.xml'
             TextView title = (TextView) view.findViewById(R.id.detail_title);
-            title.setText(movieData.getTitle());
+            title.setText(movie_data[0]);
 
             //Create MovieData User Rating Within 'fragment_detail.xml'
             TextView rating = (TextView) view.findViewById(R.id.detail_rating);
-            rating.setText(movieData.getRating() + " out of 10");
+            rating.setText(movie_data[3] + " out of 10");
 
             //Create MovieData User Release Date Within 'fragment_detail.xml'
             TextView releaseDate = (TextView) view.findViewById(R.id.detail_releasedate);
-            releaseDate.setText("released: " + movieData.getReleaseDate());
+            releaseDate.setText("released: " + movie_data[4]);
 
             //Create MovieData Synopsis Within 'fragment_detail.xml'
             TextView synopsis = (TextView) view.findViewById(R.id.detail_synopsis);
-            synopsis.setText(movieData.getSummary());
+            synopsis.setText(movie_data[2]);
 
             //setContentView(textView);
 

@@ -1,104 +1,221 @@
 package com.example.android.popularmovies;
 
+import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-import java.util.ArrayList;
+import com.example.android.popularmovies.data.CursorContract;
+import com.example.android.popularmovies.data.CursorDbHelper;
+
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class MainFragment extends Fragment {
 
-    // commented out → using API data
-
-  /*   static final variable to store dummmy data
-    private final Integer[] dummyData = {R.drawable.ant, R.drawable.deadpool, R.drawable.fantastic,
-            R.drawable.goodnight, R.drawable.mission, R.drawable.southpaw,
-            R.drawable.star_wars, R.drawable.straight, R.drawable.terminator,
-            R.drawable.the_gift, R.drawable.the_man, R.drawable.wet_hot_summer};*/
-
-    // creating ArrayList of Movies
-    private ArrayList<MovieData> movieDataObjects = new ArrayList<MovieData>();
-    // creating GridViewAsyncAdapter
-    private GridViewAsyncAdapter gridViewAsyncAdapter;
-    // create EXTRA_MESSAGE
-    public static final String EXTRA_MESSAGE = "com.example.android.popularmovies";
+    private AsyncCursorAdapter asyncCursorAdapter;
 
     /**
-     * Empty constructor for the MainFragment class.
+     * Empty constructor for the AsyncParcelableFragment1() class.
      */
-    public MainFragment(){
+    public MainFragment() {
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.grid_view_layout, container, false);
+
+        setHasOptionsMenu(true);
+
+        // Access database
+        CursorDbHelper mDbHelper = new CursorDbHelper(getContext());
+        // Gets the data repository in read mode
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+        // How you want the results sorted in the resulting Cursor
+        String sortOrder =
+                CursorContract.MovieData._ID + " DESC";
+        String[] wherevalues = {"1"};
+
+        // If you are querying entire table, can leave everything as Null
+        Cursor cursor = db.query(
+                CursorContract.MovieData.TABLE_NAME,  // The table to query
+                null,                               // The columns to return
+                null,  // The columns for the WHERE clause
+                null,                            // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                sortOrder                                 // The sort order
+        );
+
+        asyncCursorAdapter = new AsyncCursorAdapter(getActivity(), cursor, 0);
+        Log.v("CursorAdapter Called", "HERE");
+
+        // Get a reference to the grid view layout and attach the adapter to it.
+        GridView gridView = (GridView) view.findViewById(R.id.grid_view_layout);
+        gridView.setAdapter(asyncCursorAdapter);
+
+
+        // Create Toast
+
+        // gridView.setOnItemClickListener(new OnItem... [auto-completes])
+        /*gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            // parent = parent view, view = grid_item view, position = grid_item position
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // removed and replaced w/ Explicit Intent
+                Toast.makeText(getActivity(), doodleDataList.get(position).getTitle(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });*/
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+                String title = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
+                        .COLUMN_NAME_TITLE));
+                String image_url = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
+                        .COLUMN_NAME_IMAGEURL));
+                String summary = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
+                        .COLUMN_NAME_SUMMARY));
+                String rating = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
+                        .COLUMN_NAME_RATING));
+                String release_date = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
+                        .COLUMN_NAME_RELEASEDATE));
+
+                String[] doodleDataItems = {title, image_url, summary, rating, release_date};
+
+                Intent intent = new Intent(getActivity(),
+                        DetailActivity.class);
+
+                intent.putExtra("Cursor Doodle Attributes", doodleDataItems);
+
+                startActivity(intent);
+            }
+        });
+
+        return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        asyncCursorAdapter.notifyDataSetChanged();
+        getDoodleData();
+    }
+
+    private void getDoodleData() {
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+                this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+
+        // Make sure that the device is actually connected to the internet before trying to get data
+        // about the Google doodles.
+        if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
+            FetchMovieTask doodleTask = new FetchMovieTask(asyncCursorAdapter,
+                    getContext());
+            doodleTask.execute("release_date.desc", "vintage");
+
+        }
+    }
+
+
+}
+
+/**
+ * A placeholder fragment containing a simple view.
+ */
+/*
+public class MainFragment extends Fragment {
+
+    // creating Adapter
+    private AsyncCursorAdapter asyncCursorAdapter;
+
+    */
+/**
+     * Empty constructor for the MainFragment class.
+     *//*
+
+    public MainFragment() {
     }
 
     // inflating menu
-    @Override
+    */
+/*@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Add this line in order for this fragment to handle menu events.
         setHasOptionsMenu(true);
-    }
+    }*//*
+
 
     // loads GridView with current Setting selected
     @Override
     public void onStart() {
         super.onStart();  // Always call the superclass method first
-        movieDataObjects.clear();
-        gridViewAsyncAdapter.notifyDataSetChanged();
-        FetchMovieTask movieTask = new FetchMovieTask(gridViewAsyncAdapter, movieDataObjects);
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String sortBy = prefs.getString("sortBy_key", "0");
-        movieTask.execute(sortBy);
+        asyncCursorAdapter.notifyDataSetChanged();
+        getDoodleData();
     }
 
-//    @Override
-//    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-//        inflater.inflate(R.menu.menu_main, menu);
-//    }
+    private void getDoodleData() {
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+                this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+
+        // Make sure that the device is actually connected to the internet before trying to get data
+        // about the Google doodles.
+        if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
+            FetchMovieTask movieTask = new FetchMovieTask(asyncCursorAdapter, getContext());
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String sortBy = prefs.getString("sortBy_key", "0");
+            movieTask.execute(sortBy);
+        }
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
 
         switch (item.getItemId()) {
-            /*case R.id.action_refresh:
+            */
+/*case R.id.action_refresh:
                  FetchMovieTask movieTask = new FetchMovieTask();
                  movieTask.execute("popularity.desc");
-                return true;*/
+                return true;*//*
+
             case R.id.action_settings:
                 startActivity(new Intent(getActivity(), SettingsActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
 
-            /** if (id == R.id.action_refresh) {
+            */
+/** if (id == R.id.action_refresh) {
              // looks for doInBackground --> commented out to move into onCreateView()
-             /**FetchMovieTask movieTask = new FetchMovieTask();
+             */
+/**FetchMovieTask movieTask = new FetchMovieTask();
              movieTask.execute("popularity.desc");
              return true;
              }
-             return super.onOptionsItemSelected(item); */
+             return super.onOptionsItemSelected(item); *//*
+
 
         }
     }
-
-
-    // declaring ArrayAdapter
-
-    // used dummyDataAdapter before
-    // private ArrayAdapter dummyDataAdapter;
 
     @Override
 
@@ -107,29 +224,45 @@ public class MainFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.grid_view_layout, container, false);
 
+        setHasOptionsMenu(true);
 
-        // commented out in order to use arrayAdapter
-        /*dummyDataAdapter = new GridViewAdapter(
-                // current context (this fragment's containing activity)
-                getActivity(),
-                // ID of view item layout, not needed since we get it in getView()
-                R.layout.grid_item_layout);*/
+        // Access database
+        CursorDbHelper mDbHelper = new CursorDbHelper(getContext());
+        // Gets the data repository in read mode
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+        // How you want the results sorted in the resulting Cursor
+        String sortOrder =
+                CursorContract.MovieData._ID + " DESC";
+        String[] wherevalues = {"1"};
 
-        gridViewAsyncAdapter = new GridViewAsyncAdapter(
+        // If you are querying entire table, can leave everything as Null
+        Cursor cursor = db.query(
+                CursorContract.MovieData.TABLE_NAME,  // The table to query
+                null,                               // The columns to return
+                // TODO: Implement Favorites - Where clause =
+                // CursorContract.MovieData.COLUMN_NAME_FAVORITE + " = ?"
+                null,  // The columns for the WHERE clause
+                // TODO: Implement Favorites - Where value = 1
+                null,                            // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                sortOrder                                 // The sort order
+        );
+
+
+        asyncCursorAdapter = new AsyncCursorAdapter(
                 // current context (this fragment's containing activity)
-                getActivity(),
-                // ID of view item layout, not needed since we get it in getView()
-                R.layout.grid_item_layout,
-                movieDataObjects);
+                getActivity(), cursor, 0);
 
         // Get a reference to GridView, and attach this adapter to it
         GridView gridView = (GridView) view.findViewById(R.id.grid_view_layout);
-        gridView.setAdapter(gridViewAsyncAdapter);
+        gridView.setAdapter(asyncCursorAdapter);
 
 
         // Create Toast
         // gridView.setOnItemClickListener(new OnItem... [auto-completes])
-        /*gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        */
+/*gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             // parent = parent view, view = grid_item view, position = grid_item position
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -137,48 +270,50 @@ public class MainFragment extends Fragment {
                 Toast.makeText(getActivity(), movieDataObjects.get(position).getTitle(),
                         Toast.LENGTH_SHORT).show();
             }
-        });*/
+        });*//*
+
 
         // Click Listener
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            // parent = parent view, view = grid_item view, position = grid_item position
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // removed and replaced w/ Explicit Intent
-                //Toast.makeText(getActivity(), movieDataObjects.get(position).getTitle() , Toast.LENGTH_SHORT).show();
+                Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+                String title = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
+                        .COLUMN_NAME_TITLE));
+                String image = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
+                        .COLUMN_NAME_IMAGEURL));
+                String summary = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
+                        .COLUMN_NAME_SUMMARY));
+                String rating = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
+                        .COLUMN_NAME_RATING));
+                String release_date = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
+                        .COLUMN_NAME_RELEASEDATE));
 
-                Intent intent = new Intent(getActivity(), com.example.android.popularmovies.DetailActivity.class);
-                String message = movieDataObjects.get(position).getTitle();
-                 intent.putExtra(EXTRA_MESSAGE, message);
+                String[] doodleDataItems = {title, image, summary, rating, release_date};
 
-                intent.putExtra(EXTRA_MESSAGE, movieDataObjects.get(position));
+                Intent intent = new Intent(getActivity(),
+                        DetailActivity.class);
+
+                intent.putExtra("Cursor Doodle Attributes", doodleDataItems);
+
                 startActivity(intent);
             }
         });
 
-        // doInBackground -> commented out to make doInBackground that checks for Settings
-        /**FetchMovieTask movieTask = new FetchMovieTask();
-         movieTask.execute("popularity.desc");*/
-
-
         if (savedInstanceState == null || !savedInstanceState.containsKey("key")) {
             // looks for doInBackground
-            FetchMovieTask movieTask = new FetchMovieTask(gridViewAsyncAdapter, movieDataObjects);;
+            FetchMovieTask movieTask = new FetchMovieTask(asyncCursorAdapter, getContext());
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
             String sortBy = prefs.getString("sortBy_key", "0");
             movieTask.execute(sortBy);
-        } else {
-            movieDataObjects = savedInstanceState.getParcelableArrayList("key");
+
+            return view;
         }
-
-
         return view;
     }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList("key", movieDataObjects);
-        super.onSaveInstanceState(outState);
-    }
-
 }
+*/
+
+
+
+
