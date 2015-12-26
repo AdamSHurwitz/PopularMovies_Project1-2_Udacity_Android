@@ -27,7 +27,8 @@ public class CursorDbHelper extends SQLiteOpenHelper {
                 MovieData.COLUMN_NAME_TITLE + " TEXT NOT NULL, " +
                 MovieData.COLUMN_NAME_IMAGEURL + " TEXT NOT NULL, " +
                 MovieData.COLUMN_NAME_SUMMARY + " TEXT NOT NULL, " +
-                MovieData.COLUMN_NAME_RATING + " REAL NOT NULL, " +
+                MovieData.COLUMN_NAME_VOTEAVERAGE + " REAL NOT NULL, " +
+                MovieData.COLUMN_NAME_POPULARITY + " REAL NOT NULL, " +
                 MovieData.COLUMN_NAME_RELEASEDATE + " STRING NOT NULL " +
                 " );";
 

@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.ListView;
 
 import com.example.android.popularmovies.data.CursorContract;
 import com.example.android.popularmovies.data.CursorDbHelper;
@@ -23,27 +22,20 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-/**
- * Encapsulates fetching the forecast and displaying it as a {@link ListView} layout.
- */
-
 // param1 passes into doInBackground()
 // param3 declares return type for doInBackground()
 
-// commented out --> now returning Array of Objects
 
 // public class FetchMovieTask extends AsyncTask<String, Void, String>
 
 public class FetchMovieTask extends AsyncTask<String, Void, Void> {
 
-    // remove '?' before 'api_key' and '=' after, the Uri class builds it for you
-    public static final String kb = "api_key";
-    public static final String kc = "81696f0358507756b5119609b0fae31e";
-    public static final String sort = "sort_by";
-    // added to assign User Setting to this String
-    public static String sortBy = "";
-
     private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
+    public static final String BASE_URL = "https://api.themoviedb.org/3/discover/movie";
+    public static final String SORT_PARAMETER = "sort_by";
+    public static final String KEY_PARAMETER = "api_key";
+    public static final String KEY_CODE = "81696f0358507756b5119609b0fae31e";
+
     private AsyncCursorAdapter asyncCursorAdapter;
     private final Context context;
 
@@ -53,16 +45,13 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
      * @param asyncCursorAdapter An adapter to recycle items correctly in the grid view.
      * @param context            Provides context.
      */
-    public FetchMovieTask(AsyncCursorAdapter asyncCursorAdapter,
-                          Context context) {
+    public FetchMovieTask(AsyncCursorAdapter asyncCursorAdapter, Context context) {
         this.asyncCursorAdapter = asyncCursorAdapter;
         this.context = context;
     }
 
+
     @Override
-    // change return type to String in order to return output String
-    // changed from String to ArrayList<MovieData>
-    // protected String doInBackground(String... params) {
     protected Void doInBackground(String... params) {
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
@@ -70,80 +59,49 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
         BufferedReader reader = null;
 
         // Will contain the raw JSON response as a string.
-        String doodleDataJsonResponse = null;
-
-        // builds correct HTTP request based on User Setting passed in onCreateView()
-        // through Shared Preferences
-        if (params[0].equals("popularity")) {
-            sortBy = "popularity.desc";
-        } else {
-            sortBy = "vote_average.desc";
-        }
+        String jsonResponse = null;
 
         try {
-            // Construct the URL for the moviedb query
-            // Possible parameters are available at moviedb API page, at
-            // http://docs.themoviedb.apiary.io/#
-            final String MOVIE_BASE_URL = "https://api.themoviedb.org/3/discover/movie";
-
-            Uri builtUri = Uri.parse(MOVIE_BASE_URL).buildUpon()
-                    // not needed
-                    // .appendPath(params[0])
-
-                    // looking at 0th param of what is passed from 'execute()' method into
-                    // 'doInBackground()' param to append URL path to base
-                    // --> commented out to pass in User Preference
-                    // .appendQueryParameter(sort, params[0])
-                    .appendQueryParameter(sort, sortBy)
-                            // appending parameter
-                    .appendQueryParameter(kb, kc)
+            // Construct the URL to fetch data from and make the connection.
+            Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                    .appendQueryParameter(SORT_PARAMETER, params[0])
+                    .appendQueryParameter(KEY_PARAMETER, KEY_CODE)
                     .build();
-
-
             URL url = new URL(builtUri.toString());
-            Log.v(LOG_TAG, "Built URI " + builtUri.toString());
-
-
-            // Create the request to themoviedb, and open the connection
+            Log.v(LOG_TAG, "Built URL " + builtUri.toString());
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
 
-            // Read the input stream into a String
-
-            // .getInputStream() pings moviedb API
+            // See if the input stream is not null and a connection could be made. If it is null, do
+            // not process any further.
             InputStream inputStream = urlConnection.getInputStream();
-
-            // grabs the output from movidedb API call and places output in buffer
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder buffer = new StringBuilder();
             if (inputStream == null) {
-                // Nothing to do.
                 return null;
             }
-            reader = new BufferedReader(new InputStreamReader(inputStream));
 
+            // Read the input stream to see if any valid response was give.
+            reader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
             while ((line = reader.readLine()) != null) {
-                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                // But it does make debugging a *lot* easier if you print out the completed
-                // buffer for debugging.
-                buffer.append(line + "\n");
+                // Add new to make debugging easier.
+                buffer.append(line).append("\n");
             }
-
             if (buffer.length() == 0) {
-                // Stream was empty.  No point in parsing.
+                // If the stream is empty, do not process any further.
                 return null;
             }
 
-            // saving buffer which contains the output to a string variable
-            doodleDataJsonResponse = buffer.toString();
+            jsonResponse = buffer.toString();
 
         } catch (IOException e) {
-            Log.e(LOG_TAG, "Error ", e);
-            // If the code didn't successfully get the weather data, there's no point in attemping
-            // to parse it.
+            // If there was no valid Google doodle data returned, there is no point in attempting to
+            // parse it.
+            Log.e(LOG_TAG, "Error, IOException.", e);
             return null;
         } finally {
+            // Make sure to close the connection and the reader no matter what.
             if (urlConnection != null) {
                 urlConnection.disconnect();
             }
@@ -151,26 +109,27 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
                 try {
                     reader.close();
                 } catch (final IOException e) {
-                    Log.e(LOG_TAG, "Error closing stream", e);
+                    Log.e(LOG_TAG, "Error closing stream ", e);
                 }
-            }
-
-            // If valid data was returned, return the parsed data.
-            try {
-                Log.i(LOG_TAG, "The Google doodle data that was returned is: " +
-                        doodleDataJsonResponse);
-                parseDoodleDataJsonResponse(doodleDataJsonResponse);
-                return null;
-            } catch (JSONException e) {
-                Log.e(LOG_TAG, e.getMessage(), e);
-                e.printStackTrace();
             }
         }
 
-        return null;
+        // If valid data was returned, return the parsed data.
+        /*try {
+            parseJsonObject(dataJsonResponse);
+            Log.v(LOG_TAG, "The data returned is: " +
+                    dataJsonResponse);
+            return null;
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
+            e.printStackTrace();
+        }*/
+
+        // return ArrayList of MovieData Objects
+        parseJSONResponse(jsonResponse);
 
         // Any other case that gets here is an error that was not caught, so return null.
-        //return null;
+        return null;
     }
 
     @Override
@@ -186,32 +145,39 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
     /**
      * Parses the JSON response for information about the Google doodles.
      *
-     * @param doodleDataJsonResponse A JSON string which needs to be parsed for data about the
-     *                               Google doodles.
+     * @param jsonResponse A JSON string which needs to be parsed for data about the
+     *                           Google doodles.
      */
-    private void parseDoodleDataJsonResponse(String doodleDataJsonResponse)
-            throws JSONException {
+    private void parseJSONResponse(String jsonResponse)
+    //throws JSONException
+    {
         try {
-            Log.v("parseDoodleDataJson", "called here");
-            JSONArray doodlesInfo = new JSONArray(doodleDataJsonResponse);
-            for (int index = 0; index < doodlesInfo.length(); index++) {
-                JSONObject doodleDataJson = doodlesInfo.getJSONObject(index);
-                putDoodleDataIntoDb(
-                        doodleDataJson.getString("original_title"),
-                        doodleDataJson.getString("backdrop_path"),
-                        doodleDataJson.getString("overview"),
-                        doodleDataJson.getString("vote_average"),
-                        doodleDataJson.getString("release_date"));
+            // convert String output into JSONObject
+            JSONObject jsonObject = new JSONObject(jsonResponse);
+            // parse JSONObject into JSONArray
+            JSONArray jsonArray = jsonObject.getJSONArray("results");
+            // create ForLoop to loop through each index in "results" ArrayList
+            // and parse for JSONObject by ArrayList index
+            for (int i = 0; i < jsonArray.length(); i++) {
+                // parse out each movie in Array
+                JSONObject jObject = jsonArray.getJSONObject(i);
+                putDataIntoDb(
+                        jObject.getString("original_title"),
+                        jObject.getString("backdrop_path"),
+                        jObject.getString("overview"),
+                        jObject.getDouble("vote_average"),
+                        jObject.getDouble("popularity"),
+                        jObject.getString("release_date"));
+                Log.v("JSON_RESPONSE", "putDataIntoDb here");
             }
         } catch (JSONException e) {
-            Log.e(LOG_TAG, e.getMessage(), e);
+            Log.e(LOG_TAG, "PARSING ERROR " + e.getMessage(), e);
             e.printStackTrace();
         }
     }
 
-    public void putDoodleDataIntoDb(String title, String image_url, String summary, String
-            rating, String release_date) {
-        Log.v("putInfoIntoDatabase", "called here");
+    public void putDataIntoDb(String title, String image_url, String summary, Double
+            vote_average, Double popularity, String release_date) {
 
         // Access database
         CursorDbHelper mDbHelper = new CursorDbHelper(context);
@@ -226,8 +192,11 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
         values.put(CursorContract.MovieData.COLUMN_NAME_TITLE, title);
         values.put(CursorContract.MovieData.COLUMN_NAME_IMAGEURL, image_url);
         values.put(CursorContract.MovieData.COLUMN_NAME_SUMMARY, summary);
-        values.put(CursorContract.MovieData.COLUMN_NAME_RATING, rating);
+        values.put(CursorContract.MovieData.COLUMN_NAME_VOTEAVERAGE, vote_average);
+        values.put(CursorContract.MovieData.COLUMN_NAME_POPULARITY, popularity);
         values.put(CursorContract.MovieData.COLUMN_NAME_RELEASEDATE, release_date);
+
+        Log.v("Print_Title", title);
 
         // How you want the results sorted in the resulting Cursor
         String sortOrder =
@@ -242,7 +211,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
         Cursor cursor = db.query(
                 CursorContract.MovieData.TABLE_NAME,  // The table to query
                 null,                                // The columns to return
-                CursorContract.MovieData._ID + "= ?", // The columns for the WHERE clause
+                CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?", // The columns for the WHERE clause
                 whereValue, // The values for the WHERE clause
                 null,                                     // don't group the rows
                 null,                                     // don't filter by row groups
@@ -262,7 +231,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
             thisRowID = db.update(
                     CursorContract.MovieData.TABLE_NAME,
                     values,
-                    CursorContract.MovieData._ID + "= ?",
+                    CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
                     whereValue);
         }
     }

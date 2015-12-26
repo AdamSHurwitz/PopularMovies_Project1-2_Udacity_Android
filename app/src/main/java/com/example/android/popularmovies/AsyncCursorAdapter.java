@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +14,6 @@ import android.widget.ImageView;
 import com.example.android.popularmovies.data.CursorContract;
 import com.example.android.popularmovies.data.CursorDbHelper;
 import com.squareup.picasso.Picasso;
-
 
 
 public class AsyncCursorAdapter extends android.widget.CursorAdapter {
@@ -26,7 +26,7 @@ public class AsyncCursorAdapter extends android.widget.CursorAdapter {
      *
      * @param context The context in which this adapter is called.
      * @param cursor  Cursor from which to get the data
-     * @param flags Determine behavior of adapter
+     * @param flags   Determine behavior of adapter
      */
     // creates constructor to create StaticArrayAdapter object
     public AsyncCursorAdapter(Context context, Cursor cursor, int flags) {
@@ -73,11 +73,26 @@ public class AsyncCursorAdapter extends android.widget.CursorAdapter {
 
         String imageURL = cursor.getString(
                 cursor.getColumnIndexOrThrow(CursorContract.MovieData.COLUMN_NAME_IMAGEURL));
-        Log.v("IMAGE CALLED HERE", imageURL);
+
+        final String MOVIEDB_BASE_URL = "http://image.tmdb.org/t/p/";
+
+        // Build URL
+        Uri builtUri = Uri.parse(MOVIEDB_BASE_URL).buildUpon()
+                .appendPath("w500")
+                .appendPath(imageURL.substring(1))
+                .build();
+
+        Log.v("IMAGE_URL", imageURL);
+        Log.v("Built_URI", builtUri.toString());
 
         // Holder for a view
         ViewHolder holder = (ViewHolder) view.getTag();
-        Picasso.with(context).load(imageURL).noFade()
+        Picasso.with(context)
+                .load(builtUri)
+                .resize(500, 500)
+                .centerCrop()
+                .placeholder(R.drawable.user_placeholder)
+                .error(R.drawable.user_placeholder_error)
                 .into(holder.gridItem);
     }
 
