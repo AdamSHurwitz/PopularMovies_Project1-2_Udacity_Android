@@ -33,6 +33,13 @@ public class MainFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        asyncCursorAdapter.notifyDataSetChanged();
+        getDoodleData();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.grid_view_layout, container, false);
@@ -46,7 +53,6 @@ public class MainFragment extends Fragment {
         // How you want the results sorted in the resulting Cursor
         String sortOrder =
                 CursorContract.MovieData._ID + " DESC";
-
         // If you are querying entire table, can leave everything as Null
         Cursor cursor = db.query(
                 CursorContract.MovieData.TABLE_NAME,  // The table to query
@@ -64,7 +70,6 @@ public class MainFragment extends Fragment {
         // Get a reference to the grid view layout and attach the adapter to it.
         GridView gridView = (GridView) view.findViewById(R.id.grid_view_layout);
         gridView.setAdapter(asyncCursorAdapter);
-
 
         // Create Toast
 
@@ -110,13 +115,6 @@ public class MainFragment extends Fragment {
         return view;
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        asyncCursorAdapter.notifyDataSetChanged();
-        getDoodleData();
-    }
-
     private void getDoodleData() {
         ConnectivityManager connectivityManager = (ConnectivityManager)
                 this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -127,13 +125,8 @@ public class MainFragment extends Fragment {
         if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
             FetchMovieTask doodleTask = new FetchMovieTask(asyncCursorAdapter,
                     getContext());
-            doodleTask.execute("vote_average.desc");
+            doodleTask.execute("popularity.desc");
         }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
     }
 }
 

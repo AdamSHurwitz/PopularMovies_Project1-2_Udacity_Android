@@ -200,7 +200,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
 
         // How you want the results sorted in the resulting Cursor
         String sortOrder =
-                CursorContract.MovieData._ID + " DESC";
+                CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
         String whereValue[] = {title};
 
         // Insert the new row, returning the primary key value of the new row
@@ -218,12 +218,13 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
                 sortOrder                                 // The sort order
         );
 
-        // If the Item ID Does Not Exist, Insert All Values
+        // If the Title Does Not Exist, Insert All Values
         if (cursor.getCount() == 0) {
             thisRowID = db.insert(
                     CursorContract.MovieData.TABLE_NAME,
                     null,
                     values);
+            Log.v("Table_IS_EMPTY_INSERT: ", values.toString());
         }
 
         // If the Item ID Does Exist, Update All Values
