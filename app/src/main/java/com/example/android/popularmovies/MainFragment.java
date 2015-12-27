@@ -33,38 +33,13 @@ public class MainFragment extends Fragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        asyncCursorAdapter.notifyDataSetChanged();
-        getDoodleData();
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.grid_view_layout, container, false);
 
         setHasOptionsMenu(true);
 
-        // Access database
-        CursorDbHelper mDbHelper = new CursorDbHelper(getContext());
-        // Gets the data repository in read mode
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
-        // How you want the results sorted in the resulting Cursor
-        String sortOrder =
-                CursorContract.MovieData._ID + " DESC";
-        // If you are querying entire table, can leave everything as Null
-        Cursor cursor = db.query(
-                CursorContract.MovieData.TABLE_NAME,  // The table to query
-                null,                               // The columns to return
-                null,  // The columns for the WHERE clause
-                null,                            // The values for the WHERE clause
-                null,                                     // don't group the rows
-                null,                                     // don't filter by row groups
-                sortOrder                                 // The sort order
-        );
-
-        asyncCursorAdapter = new AsyncCursorAdapter(getActivity(), cursor, 0);
+        asyncCursorAdapter = new AsyncCursorAdapter(getActivity(), null, 0);
         Log.v("CursorAdapter_Called", "HERE");
 
         // Get a reference to the grid view layout and attach the adapter to it.
@@ -115,6 +90,12 @@ public class MainFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        getDoodleData();
+    }
+
     private void getDoodleData() {
         ConnectivityManager connectivityManager = (ConnectivityManager)
                 this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -123,9 +104,39 @@ public class MainFragment extends Fragment {
         // Make sure that the device is actually connected to the internet before trying to get data
         // about the Google doodles.
         if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
-            FetchMovieTask doodleTask = new FetchMovieTask(asyncCursorAdapter,
-                    getContext());
+            FetchMovieTask doodleTask = new FragmentFetchMovieTask(getContext());
             doodleTask.execute("popularity.desc");
+        }
+    }
+
+    private class FragmentFetchMovieTask extends FetchMovieTask {
+        public FragmentFetchMovieTask(Context context) {
+            super(context);
+        }
+
+        @Override
+
+        /** Override the onPostExecute method to notify the grid view adapter that new data was received
+         * so that the items in the grid view can appropriately reflect the changes.
+         * @param movieDataObjects A list of objects with information about the Movies.
+         */
+
+        public void onPostExecute(Void param) {
+            String sortOrder =
+                    CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
+            CursorDbHelper cursorDbHelper = new CursorDbHelper(getContext());
+            SQLiteDatabase db = cursorDbHelper.getWritableDatabase();
+            Cursor cursor = db.query(
+                    CursorContract.MovieData.TABLE_NAME,  // The table to query
+                    null,                               // The columns to return
+                    null,  // The columns for the WHERE clause
+                    null,                            // The values for the WHERE clause
+                    null,                                     // don't group the rows
+                    null,                                     // don't filter by row groups
+                    sortOrder                                 // The sort order
+            );
+            asyncCursorAdapter.changeCursor(cursor);
+            asyncCursorAdapter.notifyDataSetChanged();
         }
     }
 }

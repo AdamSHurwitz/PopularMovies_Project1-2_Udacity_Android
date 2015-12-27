@@ -28,7 +28,7 @@ import java.net.URL;
 
 // public class FetchMovieTask extends AsyncTask<String, Void, String>
 
-public class FetchMovieTask extends AsyncTask<String, Void, Void> {
+public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
 
     private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
     public static final String BASE_URL = "https://api.themoviedb.org/3/discover/movie";
@@ -36,17 +36,14 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
     public static final String KEY_PARAMETER = "api_key";
     public static final String KEY_CODE = "81696f0358507756b5119609b0fae31e";
 
-    private AsyncCursorAdapter asyncCursorAdapter;
     private final Context context;
 
     /**
      * Constructor for the FetchDoodleDataTask object.
      *
-     * @param asyncCursorAdapter An adapter to recycle items correctly in the grid view.
      * @param context            Provides context.
      */
-    public FetchMovieTask(AsyncCursorAdapter asyncCursorAdapter, Context context) {
-        this.asyncCursorAdapter = asyncCursorAdapter;
+    public FetchMovieTask(Context context) {
         this.context = context;
     }
 
@@ -114,32 +111,11 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
             }
         }
 
-        // If valid data was returned, return the parsed data.
-        /*try {
-            parseJsonObject(dataJsonResponse);
-            Log.v(LOG_TAG, "The data returned is: " +
-                    dataJsonResponse);
-            return null;
-        } catch (JSONException e) {
-            Log.e(LOG_TAG, e.getMessage(), e);
-            e.printStackTrace();
-        }*/
-
         // return ArrayList of MovieData Objects
         parseJSONResponse(jsonResponse);
 
         // Any other case that gets here is an error that was not caught, so return null.
         return null;
-    }
-
-    @Override
-    /**
-     * Override the onPostExecute method to notify the grid view adapter that new data was received
-     * so that the items in the grid view can appropriately reflect the changes.
-     * @param movieDataObjects A list of objects with information about the Movies.
-     */
-    public void onPostExecute(Void param) {
-        asyncCursorAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -162,6 +138,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
                 // parse out each movie in Array
                 JSONObject jObject = jsonArray.getJSONObject(i);
                 putDataIntoDb(
+                        //CursorContract.MovieData._ID,
                         jObject.getString("original_title"),
                         jObject.getString("backdrop_path"),
                         jObject.getString("overview"),
@@ -176,7 +153,9 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
         }
     }
 
-    public void putDataIntoDb(String title, String image_url, String summary, Double
+    public void putDataIntoDb(
+            //String id,
+            String title, String image_url, String summary, Double
             vote_average, Double popularity, String release_date) {
 
         // Access database
@@ -201,7 +180,8 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
         // How you want the results sorted in the resulting Cursor
         String sortOrder =
                 CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
-        String whereValue[] = {title};
+        String whereValueTitle[] = {title};
+        //String whereValueId[] = {CursorContract.MovieData._ID};
 
         // Insert the new row, returning the primary key value of the new row
         long thisRowID;
@@ -212,7 +192,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
                 CursorContract.MovieData.TABLE_NAME,  // The table to query
                 null,                                // The columns to return
                 CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?", // The columns for the WHERE clause
-                whereValue, // The values for the WHERE clause
+                whereValueTitle, // The values for the WHERE clause
                 null,                                     // don't group the rows
                 null,                                     // don't filter by row groups
                 sortOrder                                 // The sort order
@@ -232,8 +212,8 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
             thisRowID = db.update(
                     CursorContract.MovieData.TABLE_NAME,
                     values,
-                    CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
-                    whereValue);
+                    CursorContract.MovieData._ID + "= ?",
+                    whereValueTitle);
         }
     }
 }
