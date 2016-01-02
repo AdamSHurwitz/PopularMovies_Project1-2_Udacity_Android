@@ -135,6 +135,22 @@ public class MainFragment extends Fragment {
             super(context);
         }
 
+        Integer favResponse;
+
+        public void favoritesSelector(Integer pressed) {
+            switch (pressed) {
+                case 1:
+                    favResponse = 1;
+                    break;
+                case 0:
+                    favResponse = 0;
+                    break;
+                default:
+                    favResponse = 0;
+                    break;
+            }
+        }
+
         @Override
 
         /** Override the onPostExecute method to notify the grid view adapter that new data was received
@@ -146,21 +162,24 @@ public class MainFragment extends Fragment {
             SharedPreferences sql_pref = PreferenceManager.getDefaultSharedPreferences(getContext());
             String sort_value = sql_pref.getString("sort_key", "popularity.desc");
 
+            //TODO: Add If/Else to sort by favorites when favResponse = 1
+
             String sortOrder = "";
+            Boolean sort_favorites = false;
 
             switch (sort_value) {
                 case "popularity.desc":
                     sortOrder = CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
-                    Toast.makeText(getContext(),"Sorting by Popularity...",Toast.LENGTH_SHORT)
+                    Toast.makeText(getContext(), "Sorting by Popularity...", Toast.LENGTH_SHORT)
                             .show();
                     break;
                 case "vote_average.desc":
                     sortOrder = CursorContract.MovieData.COLUMN_NAME_VOTEAVERAGE + " DESC";
-                    Toast.makeText(getContext(),"Sorting by Ratings...",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Sorting by Ratings...", Toast.LENGTH_SHORT).show();
                     break;
                 default:
                     sortOrder = CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
-                    Toast.makeText(getContext(),"Sorting by Popularity...",Toast.LENGTH_SHORT)
+                    Toast.makeText(getContext(), "Sorting by Popularity...", Toast.LENGTH_SHORT)
                             .show();
                     break;
             }

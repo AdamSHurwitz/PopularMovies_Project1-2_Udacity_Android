@@ -25,6 +25,9 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"/>
 
+            <!-- TODO: Add Favorites button and logic in DetailFragment to handle when pressed and
+            not pressed -->
+
                 <TextView
                     android:id="@+id/detail_title"
                     android:layout_width="wrap_content"
