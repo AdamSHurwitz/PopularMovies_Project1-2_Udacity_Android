@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -95,6 +96,17 @@ public class MainFragment extends Fragment {
         super.onStart();
         getDoodleData();
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        switch (item.getItemId()){
+            case R.id.settings:
+                startActivity(new Intent(getActivity(), SettingsActivity.class));
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
 
     private void getDoodleData() {
         ConnectivityManager connectivityManager = (ConnectivityManager)
