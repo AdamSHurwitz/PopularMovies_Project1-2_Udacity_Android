@@ -1,18 +1,5 @@
 <resources>
     <string name="title_activity_settings">Settings</string>
-
-    <!-- Strings related to Settings -->
-
-    <!-- Example General settings -->
-    <string name="pref_header_general">General</string>
-
-    <string name="pref_title_sortBy" translatable="false">Filter</string>
-    <string name="pref_description_sortBy" translatable="false">sort by popularity or ratings
-    </string>
-    <string name="sort_key">sort_key</string>
-
-
-
     <!-- Example settings for Data & Sync -->
     <string name="pref_header_data_sync">Data &amp; sync</string>
     <string name="pref_title_system_sync_settings">System sync settings</string>

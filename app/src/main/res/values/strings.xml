@@ -2,10 +2,15 @@
     <string name="app_name">PopularMovies</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-
     <string name="no_connection">Sadly, No Network Connection</string>
     <string name="refresh">Refresh</string>
     <string name="title_activity_detail">DetailActivity</string>
-
     <string name="detail_summarytitle">Summary</string>
+
+    <!-- Settings -->
+    <string name="pref_header_general">General</string>
+    <string name="pref_title_sortBy" translatable="false">Filter</string>
+    <string name="pref_description_sortBy" translatable="false">sort by popularity or ratings
+    </string>
+    <string name="sort_key">sort_key</string>
 </resources>

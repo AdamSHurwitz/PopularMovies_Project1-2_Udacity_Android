@@ -145,7 +145,6 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
                         jObject.getDouble("vote_average"),
                         jObject.getDouble("popularity"),
                         jObject.getString("release_date"));
-                Log.v("JSON_RESPONSE", "putDataIntoDb here");
             }
         } catch (JSONException e) {
             Log.e(LOG_TAG, "PARSING ERROR " + e.getMessage(), e);
@@ -175,7 +174,7 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
         values.put(CursorContract.MovieData.COLUMN_NAME_POPULARITY, popularity);
         values.put(CursorContract.MovieData.COLUMN_NAME_RELEASEDATE, release_date);
 
-        Log.v("Print_Title", title);
+        //Log.v("Print_Title", title);
 
         // How you want the results sorted in the resulting Cursor
         String sortOrder =

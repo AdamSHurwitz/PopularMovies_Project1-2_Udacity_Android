@@ -2,11 +2,13 @@ package com.example.android.popularmovies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import com.example.android.popularmovies.data.CursorContract;
 import com.example.android.popularmovies.data.CursorDbHelper;
@@ -98,8 +101,8 @@ public class MainFragment extends Fragment {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item){
-        switch (item.getItemId()){
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
             case R.id.settings:
                 startActivity(new Intent(getActivity(), SettingsActivity.class));
             default:
@@ -113,10 +116,16 @@ public class MainFragment extends Fragment {
                 this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
 
-        // Make sure that the device is actually connected to the internet before trying to get data
-        // about the Google doodles.
+        // Get saved settings value
+        String executeValue = "";
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        String pref_result = prefs.getString("sort_key", "popularity");
+
+
         if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
             FetchMovieTask doodleTask = new FragmentFetchMovieTask(getContext());
+            /*doodleTask.execute(pref_result);
+            Toast.makeText(getContext(), pref_result, Toast.LENGTH_SHORT).show();*/
             doodleTask.execute("popularity.desc");
         }
     }
@@ -134,8 +143,30 @@ public class MainFragment extends Fragment {
          */
 
         public void onPostExecute(Void param) {
-            String sortOrder =
-                    CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
+            SharedPreferences sql_pref = PreferenceManager.getDefaultSharedPreferences(getContext());
+            String sort_value = sql_pref.getString("sort_key", "popularity.desc");
+
+            String sortOrder = "";
+
+            switch (sort_value) {
+                case "popularity.desc":
+                    sortOrder = CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
+                    Toast.makeText(getContext(),"Sorting by Popularity...",Toast.LENGTH_SHORT)
+                            .show();
+                    break;
+                case "vote_average.desc":
+                    sortOrder = CursorContract.MovieData.COLUMN_NAME_VOTEAVERAGE + " DESC";
+                    Toast.makeText(getContext(),"Sorting by Ratings...",Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    sortOrder = CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
+                    Toast.makeText(getContext(),"Sorting by Popularity...",Toast.LENGTH_SHORT)
+                            .show();
+                    break;
+            }
+
+        /*String sortOrder =
+                CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";*/
             CursorDbHelper cursorDbHelper = new CursorDbHelper(getContext());
             SQLiteDatabase db = cursorDbHelper.getWritableDatabase();
             Cursor cursor = db.query(

@@ -5,7 +5,7 @@
         <item>ratings</item>
     </string-array>
     <string-array name="sort_entry_values">
-        <item>popularity</item>
-        <item>ratings</item>
+        <item>popularity.desc</item>
+        <item>vote_average.desc</item>
     </string-array>
 </resources>
