@@ -123,10 +123,10 @@ public class MainFragment extends Fragment {
 
 
         if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
-            FetchMovieTask doodleTask = new FragmentFetchMovieTask(getContext());
+            FetchMovieTask task = new FragmentFetchMovieTask(getContext());
             /*doodleTask.execute(pref_result);
             Toast.makeText(getContext(), pref_result, Toast.LENGTH_SHORT).show();*/
-            doodleTask.execute("popularity.desc");
+            task.execute("popularity.desc");
         }
     }
 
