@@ -29,7 +29,8 @@ public class CursorDbHelper extends SQLiteOpenHelper {
                 MovieData.COLUMN_NAME_SUMMARY + " TEXT NOT NULL, " +
                 MovieData.COLUMN_NAME_VOTEAVERAGE + " REAL NOT NULL, " +
                 MovieData.COLUMN_NAME_POPULARITY + " REAL NOT NULL, " +
-                MovieData.COLUMN_NAME_RELEASEDATE + " STRING NOT NULL " +
+                MovieData.COLUMN_NAME_RELEASEDATE + " STRING NOT NULL, " +
+                MovieData.COLUMN_NAME_FAVORITE + " INTEGER NOT NULL " +
                 " );";
 
         sqLiteDatabase.execSQL(SQL_CREATE_PRODUCTTABLE);
