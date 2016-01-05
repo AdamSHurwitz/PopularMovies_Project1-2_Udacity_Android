@@ -1,6 +1,9 @@
 package com.example.android.popularmovies;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,6 +15,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.popularmovies.data.CursorContract;
+import com.example.android.popularmovies.data.CursorDbHelper;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -71,6 +76,7 @@ public class DetailFragment extends Fragment {
             //Create MovieData Title within 'fragment_detail.xml'
             TextView title = (TextView) view.findViewById(R.id.detail_title);
             title.setText(movie_data[0]);
+            movieTitle = movie_data[0];
 
             //Create MovieData User Rating Within 'fragment_detail.xml'
             TextView rating = (TextView) view.findViewById(R.id.detail_rating);
@@ -84,6 +90,13 @@ public class DetailFragment extends Fragment {
             TextView synopsis = (TextView) view.findViewById(R.id.detail_synopsis);
             synopsis.setText(movie_data[2]);
 
+            //TODO: Display correct on/off status for favorite button
+            if (movie_data[5].equals("2")) {
+                favoriteButton.setImageResource(R.drawable.star_pressed_18dp);
+            } else if (movie_data[5].equals("1")) {
+                favoriteButton.setImageResource(R.drawable.star_default_18dp);
+            }
+
             // Click listener for favorite button
             favoriteButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
@@ -93,6 +106,67 @@ public class DetailFragment extends Fragment {
                     if (toggle == "off") {
                         toggle = "on";
                         favoriteButton.setImageResource(R.drawable.star_pressed_18dp);
+
+                        // Update Database to Set Favorites True For Given Title
+                        CursorDbHelper dbHelper2 = new CursorDbHelper(getContext());
+                        SQLiteDatabase db2 = dbHelper2.getWritableDatabase();
+
+                        // Query Database
+                        String[] whereValue2 = {movieTitle};
+                        String sortOrder2 =
+                                CursorContract.MovieData._ID + " DESC";
+
+                        Cursor c2 = db2.query(
+                                CursorContract.MovieData.TABLE_NAME,  // The table to query
+                                null,                               // The columns to return
+                                CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?", // The columns for the WHERE clause
+                                whereValue2,                            // The values for the WHERE clause
+                                null,                                     // don't group the rows
+                                null,                                     // don't filter by row groups
+                                sortOrder2                                 // The sort order
+                        );
+
+                        // Get first entry
+
+                        if (c2.moveToFirst()) {
+                            String favoriteColumn = c2.getString(
+                                    c2.getColumnIndexOrThrow(CursorContract.MovieData.COLUMN_NAME_FAVORITE));
+                            // New value column
+                            ContentValues values = new ContentValues();
+                            values.put(CursorContract.MovieData.COLUMN_NAME_FAVORITE, 2);
+
+                            // Which row to update, based on the ID
+                            String selection = CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?";
+                            String[] selectionArgs = {movieTitle};
+
+                            // Update
+                            int count = db2.update(
+                                    CursorContract.MovieData.TABLE_NAME,
+                                    values,
+                                    selection,
+                                    selectionArgs);
+                        }
+
+                       // Updates All Rows Instead of Just Current
+                       /* if (c2.moveToFirst()) {
+                            String favoriteColumn = c2.getString(
+                                    c2.getColumnIndexOrThrow(CursorContract.MovieData.COLUMN_NAME_FAVORITE));
+                            // New value column
+                            ContentValues values = new ContentValues();
+                            values.put(CursorContract.MovieData.COLUMN_NAME_FAVORITE, 2);
+
+                            // Which row to update, based on the ID
+                            String selection = CursorContract.MovieData.COLUMN_NAME_FAVORITE + " LIKE ?";
+                            String[] selectionArgs = {favoriteColumn};
+
+                            // Update
+                            int count = db2.update(
+                                    CursorContract.MovieData.TABLE_NAME,
+                                    values,
+                                    selection,
+                                    selectionArgs);
+                        }*/
+                        c2.close();
 
                     }
                     // Turn button off
