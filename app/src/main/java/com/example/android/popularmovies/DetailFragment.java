@@ -7,8 +7,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -20,12 +22,17 @@ public class DetailFragment extends Fragment {
     public DetailFragment() {
     }
 
+    String movieTitle = "";
+    String toggle = "off";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_detail, container, false);
+
+        // get id for favorite_btn
+        final ImageButton favoriteButton = (ImageButton) view.findViewById(R.id.favorite_btn);
 
         //receive the intent
         //Activity has intent, must get intent from Activity
@@ -55,7 +62,7 @@ public class DetailFragment extends Fragment {
                     .load(builtUri)
                     .resize(780, 780)
                     .centerCrop()
-                    // TODO: Add in Animated Placeholder
+                            // TODO: Add in Animated Placeholder
                     .placeholder(R.drawable.user_placeholder)
                     .error(R.drawable.user_placeholder_error)
                     .into(detail_movie_image);
@@ -76,11 +83,30 @@ public class DetailFragment extends Fragment {
             TextView synopsis = (TextView) view.findViewById(R.id.detail_synopsis);
             synopsis.setText(movie_data[2]);
 
-            //setContentView(textView);
+            // Click listener for favorite button
+            favoriteButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    // Perform action on click
 
-            //setContentView(R.layout.activity_detail);
+                    // Turn button on
+                    if (toggle == "off") {
+                        toggle = "on";
+                        favoriteButton.setImageResource(R.drawable.star_pressed_18dp);
+
+                    }
+                    // Turn button off
+                    else if (toggle == "on") {
+                        toggle = "off";
+                        favoriteButton.setImageResource(R.drawable.star_default_18dp);
+                        //TODO: update favorite to 0 for title
+
+                    }
+
+                    Toast.makeText(getContext(), toggle + " " + movieTitle, Toast.LENGTH_SHORT).show();
+                }
+            });
+
         }
-
         return view;
     }
 }
