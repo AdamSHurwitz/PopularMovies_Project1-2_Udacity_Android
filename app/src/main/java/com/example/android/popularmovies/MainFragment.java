@@ -152,53 +152,121 @@ public class MainFragment extends Fragment {
             //TODO: Add If/Else to sort by favorites when favResponse = 1
 
             String whereColumns = "";
-            String[] whereClause = {""};
+            //String[] whereValues = {""};
             String sortOrder = "";
 
             switch (sort_value) {
                 case "popularity.desc":
+                    CursorDbHelper cursorDbHelper1 = new CursorDbHelper(getContext());
+                    SQLiteDatabase db1 = cursorDbHelper1.getWritableDatabase();
+                    Cursor cursor1 = db1.query(
+                            CursorContract.MovieData.TABLE_NAME,  // The table to query
+                            null,                               // The columns to return
+                            null,  // The columns for the WHERE clause
+                            null,                            // The values for the WHERE clause
+                            null,                                     // don't group the rows
+                            null,                                     // don't filter by row groups
+                            CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC" // The sort order
+                    );
+                    asyncCursorAdapter.changeCursor(cursor1);
+                    asyncCursorAdapter.notifyDataSetChanged();
+                    Toast.makeText(getContext(), "Sorting by Popularity...", Toast.LENGTH_SHORT)
+                            .show();
+                    break;
+                case "vote_average.desc":
+                    CursorDbHelper cursorDbHelper2 = new CursorDbHelper(getContext());
+                    SQLiteDatabase db2 = cursorDbHelper2.getWritableDatabase();
+                    Cursor cursor2 = db2.query(
+                            CursorContract.MovieData.TABLE_NAME,  // The table to query
+                            null,                               // The columns to return
+                            null,  // The columns for the WHERE clause
+                            null,                            // The values for the WHERE clause
+                            null,                                     // don't group the rows
+                            null,                                     // don't filter by row groups
+                            CursorContract.MovieData.COLUMN_NAME_VOTEAVERAGE + " DESC" // The sort order
+                    );
+                    asyncCursorAdapter.changeCursor(cursor2);
+                    asyncCursorAdapter.notifyDataSetChanged();
+                    Toast.makeText(getContext(), "Sorting by Ratings...", Toast.LENGTH_SHORT).show();
+                    break;
+                case "favorites":
+                    String[] whereValues = {"2"};
+                    CursorDbHelper cursorDbHelper3 = new CursorDbHelper(getContext());
+                    SQLiteDatabase db3 = cursorDbHelper3.getWritableDatabase();
+                    Cursor cursor3 = db3.query(
+                            CursorContract.MovieData.TABLE_NAME,  // The table to query
+                            null,                               // The columns to return
+                            CursorContract.MovieData.COLUMN_NAME_FAVORITE + "= ?",  // The columns for the WHERE clause
+                            whereValues,                            // The values for the WHERE clause
+                            null,                                     // don't group the rows
+                            null,                                     // don't filter by row groups
+                            sortOrder                                 // The sort order
+                    );
+                    asyncCursorAdapter.changeCursor(cursor3);
+                    asyncCursorAdapter.notifyDataSetChanged();
+                    Toast.makeText(getContext(), "Sorting by Favorites...", Toast.LENGTH_SHORT)
+                            .show();
+                    break;
+                default:
+                    CursorDbHelper cursorDbHelper4 = new CursorDbHelper(getContext());
+                    SQLiteDatabase db4 = cursorDbHelper4.getWritableDatabase();
+                    Cursor cursor4 = db4.query(
+                            CursorContract.MovieData.TABLE_NAME,  // The table to query
+                            null,                               // The columns to return
+                            null,  // The columns for the WHERE clause
+                            null,                            // The values for the WHERE clause
+                            null,                                     // don't group the rows
+                            null,                                     // don't filter by row groups
+                            CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC" // The sort order
+                    );
+                    asyncCursorAdapter.changeCursor(cursor4);
+                    asyncCursorAdapter.notifyDataSetChanged();
+                    Toast.makeText(getContext(), "Sorting by Popularity...", Toast.LENGTH_SHORT)
+                            .show();
+                    break;
+            }
+
+            /*switch (sort_value) {
+                case "popularity.desc":
                     whereColumns = null;
-                    whereClause[0] = "null";
+                    whereValues[0] = null;
                     sortOrder = CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
                     Toast.makeText(getContext(), "Sorting by Popularity...", Toast.LENGTH_SHORT)
                             .show();
                     break;
                 case "vote_average.desc":
                     whereColumns = null;
-                    whereClause[0] = "null";
+                    whereValues[0] = null;
                     sortOrder = CursorContract.MovieData.COLUMN_NAME_VOTEAVERAGE + " DESC";
                     Toast.makeText(getContext(), "Sorting by Ratings...", Toast.LENGTH_SHORT).show();
                     break;
                 case "favorites":
-                    //whereColumns = null;
                     whereColumns = CursorContract.MovieData.COLUMN_NAME_FAVORITE + "= ?";
-                    whereClause[0] = "2";
+                    whereValues[0] = null;
                     sortOrder = CursorContract.MovieData._ID + " DESC";
                     break;
                 default:
                     whereColumns = null;
-                    whereClause[0] = "null";
+                    whereValues[0] = null;
                     sortOrder = CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
                     Toast.makeText(getContext(), "Sorting by Popularity...", Toast.LENGTH_SHORT)
                             .show();
                     break;
-            }
+            }*/
 
-        /*String sortOrder =
-                CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";*/
-            CursorDbHelper cursorDbHelper = new CursorDbHelper(getContext());
+          /*  CursorDbHelper cursorDbHelper = new CursorDbHelper(getContext());
             SQLiteDatabase db = cursorDbHelper.getWritableDatabase();
             Cursor cursor = db.query(
                     CursorContract.MovieData.TABLE_NAME,  // The table to query
                     null,                               // The columns to return
                     whereColumns,  // The columns for the WHERE clause
-                    null,                            // The values for the WHERE clause
+                    whereValues,                            // The values for the WHERE clause
                     null,                                     // don't group the rows
                     null,                                     // don't filter by row groups
                     sortOrder                                 // The sort order
             );
             asyncCursorAdapter.changeCursor(cursor);
-            asyncCursorAdapter.notifyDataSetChanged();
+            asyncCursorAdapter.notifyDataSetChanged();*/
         }
     }
 }
