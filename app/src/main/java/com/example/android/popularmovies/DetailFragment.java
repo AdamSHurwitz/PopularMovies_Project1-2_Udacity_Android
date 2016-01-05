@@ -92,9 +92,11 @@ public class DetailFragment extends Fragment {
 
             //TODO: Display correct on/off status for favorite button
             if (movie_data[5].equals("2")) {
+                toggle = "on";
                 favoriteButton.setImageResource(R.drawable.star_pressed_18dp);
             } else if (movie_data[5].equals("1")) {
                 favoriteButton.setImageResource(R.drawable.star_default_18dp);
+                toggle = "off";
             }
 
             // Click listener for favorite button
@@ -146,7 +148,8 @@ public class DetailFragment extends Fragment {
                                     selectionArgs);
                         }
                         c1.close();
-
+                        String favorite = movie_data[5];
+                        Toast.makeText(getContext(), toggle + " " + movieTitle + " " + favorite, Toast.LENGTH_SHORT).show();
                     }
                     // Turn button off
                     else if (toggle.equals("on")) {
@@ -191,12 +194,11 @@ public class DetailFragment extends Fragment {
                                     selectionArgs);
                         }
                         c2.close();
+                        String favorite = movie_data[5];
+                        Toast.makeText(getContext(), toggle + " " + movieTitle + " " + favorite, Toast.LENGTH_SHORT).show();
                     }
-
-                    String favorite = movie_data[5];
-
-                    Toast.makeText(getContext(), toggle + " " + movieTitle + " " + favorite, Toast.LENGTH_SHORT).show();
                 }
+
             });
 
         }

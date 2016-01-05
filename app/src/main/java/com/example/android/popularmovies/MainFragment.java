@@ -138,22 +138,6 @@ public class MainFragment extends Fragment {
             super(context);
         }
 
-        Integer favResponse;
-
-        public void favoritesSelector(Integer pressed) {
-            switch (pressed) {
-                case 1:
-                    favResponse = 1;
-                    break;
-                case 0:
-                    favResponse = 0;
-                    break;
-                default:
-                    favResponse = 0;
-                    break;
-            }
-        }
-
         @Override
 
         /** Override the onPostExecute method to notify the grid view adapter that new data was received
@@ -167,20 +151,33 @@ public class MainFragment extends Fragment {
 
             //TODO: Add If/Else to sort by favorites when favResponse = 1
 
+            String whereColumns = "";
+            String[] whereClause = {""};
             String sortOrder = "";
-            Boolean sort_favorites = false;
 
             switch (sort_value) {
                 case "popularity.desc":
+                    whereColumns = null;
+                    whereClause[0] = "null";
                     sortOrder = CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
                     Toast.makeText(getContext(), "Sorting by Popularity...", Toast.LENGTH_SHORT)
                             .show();
                     break;
                 case "vote_average.desc":
+                    whereColumns = null;
+                    whereClause[0] = "null";
                     sortOrder = CursorContract.MovieData.COLUMN_NAME_VOTEAVERAGE + " DESC";
                     Toast.makeText(getContext(), "Sorting by Ratings...", Toast.LENGTH_SHORT).show();
                     break;
+                case "favorites":
+                    //whereColumns = null;
+                    whereColumns = CursorContract.MovieData.COLUMN_NAME_FAVORITE + "= ?";
+                    whereClause[0] = "2";
+                    sortOrder = CursorContract.MovieData._ID + " DESC";
+                    break;
                 default:
+                    whereColumns = null;
+                    whereClause[0] = "null";
                     sortOrder = CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
                     Toast.makeText(getContext(), "Sorting by Popularity...", Toast.LENGTH_SHORT)
                             .show();
@@ -194,7 +191,7 @@ public class MainFragment extends Fragment {
             Cursor cursor = db.query(
                     CursorContract.MovieData.TABLE_NAME,  // The table to query
                     null,                               // The columns to return
-                    null,  // The columns for the WHERE clause
+                    whereColumns,  // The columns for the WHERE clause
                     null,                            // The values for the WHERE clause
                     null,                                     // don't group the rows
                     null,                                     // don't filter by row groups
