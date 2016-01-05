@@ -79,8 +79,11 @@ public class MainFragment extends Fragment {
                         .COLUMN_NAME_POPULARITY));
                 String release_date = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
                         .COLUMN_NAME_RELEASEDATE));
+                String favorite = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
+                .COLUMN_NAME_FAVORITE));
 
-                String[] doodleDataItems = {title, image_url, summary, rating, release_date};
+                String[] doodleDataItems = {title, image_url, summary, rating, release_date,
+                        favorite};
 
                 Intent intent = new Intent(getActivity(),
                         DetailActivity.class);

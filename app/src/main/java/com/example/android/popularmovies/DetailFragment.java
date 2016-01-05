@@ -45,6 +45,7 @@ public class DetailFragment extends Fragment {
             // movie_data[2] = summary
             // movie_data[3] = rating
             // movie_data[4] = release_date
+            // movie_data[5] = favorite
 
             //Create MovieData Poster Within 'fragment_detail.xml'
             ImageView detail_movie_image = (ImageView) view.findViewById(R.id.detail_movie_image);
