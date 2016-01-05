@@ -39,7 +39,7 @@ public class DetailFragment extends Fragment {
         Intent intent = getActivity().getIntent();
         if (intent != null) {
 
-            String[] movie_data = intent.getStringArrayExtra("Cursor Doodle Attributes");
+            final String[] movie_data = intent.getStringArrayExtra("Cursor Doodle Attributes");
             // movie_data[0] = title
             // movie_data[1] = image
             // movie_data[2] = summary
@@ -103,7 +103,9 @@ public class DetailFragment extends Fragment {
 
                     }
 
-                    Toast.makeText(getContext(), toggle + " " + movieTitle, Toast.LENGTH_SHORT).show();
+                    String favorite = movie_data[5];
+
+                    Toast.makeText(getContext(), toggle + " " + movieTitle + " " + favorite, Toast.LENGTH_SHORT).show();
                 }
             });
 

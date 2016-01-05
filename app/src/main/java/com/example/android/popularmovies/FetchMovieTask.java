@@ -173,6 +173,7 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
         values.put(CursorContract.MovieData.COLUMN_NAME_VOTEAVERAGE, vote_average);
         values.put(CursorContract.MovieData.COLUMN_NAME_POPULARITY, popularity);
         values.put(CursorContract.MovieData.COLUMN_NAME_RELEASEDATE, release_date);
+        values.put(CursorContract.MovieData.COLUMN_NAME_FAVORITE, "1");
 
         //Log.v("Print_Title", title);
 
