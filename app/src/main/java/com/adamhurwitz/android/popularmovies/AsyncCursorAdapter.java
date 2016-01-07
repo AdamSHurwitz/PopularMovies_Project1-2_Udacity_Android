@@ -1,4 +1,4 @@
-package com.example.android.popularmovies;
+package com.adamhurwitz.android.popularmovies;
 
 import android.app.Activity;
 import android.content.Context;
@@ -11,8 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.example.android.popularmovies.data.CursorContract;
-import com.example.android.popularmovies.data.CursorDbHelper;
+import com.adamhurwitz.android.popularmovies.data.CursorContract;
+import com.adamhurwitz.android.popularmovies.data.CursorDbHelper;
 import com.squareup.picasso.Picasso;
 
 

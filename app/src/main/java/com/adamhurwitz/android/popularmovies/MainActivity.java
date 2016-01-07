@@ -1,4 +1,4 @@
-package com.example.android.popularmovies;
+package com.adamhurwitz.android.popularmovies;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;

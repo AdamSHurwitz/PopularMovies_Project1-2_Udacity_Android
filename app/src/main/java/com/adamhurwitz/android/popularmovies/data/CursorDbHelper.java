@@ -1,10 +1,10 @@
-package com.example.android.popularmovies.data;
+package com.adamhurwitz.android.popularmovies.data;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.example.android.popularmovies.data.CursorContract.MovieData;
+import com.adamhurwitz.android.popularmovies.data.CursorContract.MovieData;
 
 /**
  * Manages a local database.
@@ -21,7 +21,7 @@ public class CursorDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        final String SQL_CREATE_PRODUCTTABLE = "CREATE TABLE " + MovieData.TABLE_NAME + "(" +
+        final String SQL_CREATE_MOVIETABLE = "CREATE TABLE " + MovieData.TABLE_NAME + "(" +
                 // AutoIncrement
                 MovieData._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 MovieData.COLUMN_NAME_TITLE + " TEXT NOT NULL, " +
@@ -33,7 +33,7 @@ public class CursorDbHelper extends SQLiteOpenHelper {
                 MovieData.COLUMN_NAME_FAVORITE + " INTEGER " +
                 " );";
 
-        sqLiteDatabase.execSQL(SQL_CREATE_PRODUCTTABLE);
+        sqLiteDatabase.execSQL(SQL_CREATE_MOVIETABLE);
     }
 
     @Override

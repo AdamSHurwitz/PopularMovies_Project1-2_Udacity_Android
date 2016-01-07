@@ -1,4 +1,4 @@
-package com.example.android.popularmovies;
+package com.adamhurwitz.android.popularmovies;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -8,8 +8,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.example.android.popularmovies.data.CursorContract;
-import com.example.android.popularmovies.data.CursorDbHelper;
+import com.adamhurwitz.android.popularmovies.data.CursorContract;
+import com.adamhurwitz.android.popularmovies.data.CursorDbHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,7 +34,7 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
     public static final String BASE_URL = "https://api.themoviedb.org/3/discover/movie";
     public static final String SORT_PARAMETER = "sort_by";
     public static final String KEY_PARAMETER = "api_key";
-    public static final String KEY_CODE = "81696f0358507756b5119609b0fae31e";
+    public static final String KEY_CODE = "API_KEY_GOES_HERE";
 
     private final Context context;
 
@@ -175,12 +175,12 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
         values.put(CursorContract.MovieData.COLUMN_NAME_RELEASEDATE, release_date);
         values.put(CursorContract.MovieData.COLUMN_NAME_FAVORITE, "1");
 
-        //Log.v("Print_Title", title);
+        Log.v(LOG_TAG, "Content Values " + values.toString());
 
         // How you want the results sorted in the resulting Cursor
         String sortOrder =
                 CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
-        String whereValueTitle[] = {title};
+        String[] whereValueTitle = {title};
         //String whereValueId[] = {CursorContract.MovieData._ID};
 
         // Insert the new row, returning the primary key value of the new row
@@ -207,13 +207,14 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
             Log.v("Table_IS_EMPTY_INSERT: ", values.toString());
         }
 
+        // No updates for now, don't want to wipe out Favorites selection
         // If the Item ID Does Exist, Update All Values
-        else {
+      /*  else {
             thisRowID = db.update(
                     CursorContract.MovieData.TABLE_NAME,
                     values,
                     CursorContract.MovieData._ID + "= ?",
                     whereValueTitle);
-        }
+        }*/
     }
 }

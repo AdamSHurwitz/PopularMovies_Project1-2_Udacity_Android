@@ -1,4 +1,4 @@
-package com.example.android.popularmovies;
+package com.adamhurwitz.android.popularmovies;
 
 
 // used for Array of Integers when using dummy data

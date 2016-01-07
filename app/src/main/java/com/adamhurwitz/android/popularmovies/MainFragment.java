@@ -1,4 +1,4 @@
-package com.example.android.popularmovies;
+package com.adamhurwitz.android.popularmovies;
 
 import android.content.Context;
 import android.content.Intent;
@@ -19,16 +19,16 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
 
-import com.example.android.popularmovies.data.CursorContract;
-import com.example.android.popularmovies.data.CursorDbHelper;
+import com.adamhurwitz.android.popularmovies.data.CursorContract;
+import com.adamhurwitz.android.popularmovies.data.CursorDbHelper;
 
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class MainFragment extends Fragment {
-
-    private AsyncCursorAdapter asyncCursorAdapter;
+    private final String LOG_TAG = MainFragment.class.getSimpleName();
+    private com.adamhurwitz.android.popularmovies.AsyncCursorAdapter asyncCursorAdapter;
 
     /**
      * Empty constructor for the AsyncParcelableFragment1() class.
@@ -43,7 +43,7 @@ public class MainFragment extends Fragment {
 
         setHasOptionsMenu(true);
 
-        asyncCursorAdapter = new AsyncCursorAdapter(getActivity(), null, 0);
+        asyncCursorAdapter = new com.adamhurwitz.android.popularmovies.AsyncCursorAdapter(getActivity(), null, 0);
         Log.v("CursorAdapter_Called", "HERE");
 
         // Get a reference to the grid view layout and attach the adapter to it.
@@ -80,15 +80,17 @@ public class MainFragment extends Fragment {
                 String release_date = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
                         .COLUMN_NAME_RELEASEDATE));
                 String favorite = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
-                .COLUMN_NAME_FAVORITE));
+                        .COLUMN_NAME_FAVORITE));
+
+                Toast.makeText(getContext(), favorite, Toast.LENGTH_SHORT).show();
 
                 String[] doodleDataItems = {title, image_url, summary, rating, release_date,
                         favorite};
 
                 Intent intent = new Intent(getActivity(),
-                        DetailActivity.class);
+                        com.adamhurwitz.android.popularmovies.DetailActivity.class);
 
-                intent.putExtra("Cursor Doodle Attributes", doodleDataItems);
+                intent.putExtra("Cursor Movie Attributes", doodleDataItems);
 
                 startActivity(intent);
             }
@@ -126,14 +128,14 @@ public class MainFragment extends Fragment {
 
 
         if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
-            FetchMovieTask task = new FragmentFetchMovieTask(getContext());
+            com.adamhurwitz.android.popularmovies.FetchMovieTask task = new FragmentFetchMovieTask(getContext());
             /*doodleTask.execute(pref_result);
             Toast.makeText(getContext(), pref_result, Toast.LENGTH_SHORT).show();*/
             task.execute("popularity.desc");
         }
     }
 
-    private class FragmentFetchMovieTask extends FetchMovieTask {
+    private class FragmentFetchMovieTask extends com.adamhurwitz.android.popularmovies.FetchMovieTask {
         public FragmentFetchMovieTask(Context context) {
             super(context);
         }

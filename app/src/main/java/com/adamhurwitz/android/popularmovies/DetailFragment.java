@@ -1,4 +1,4 @@
-package com.example.android.popularmovies;
+package com.adamhurwitz.android.popularmovies;
 
 import android.content.ContentValues;
 import android.content.Intent;
@@ -15,8 +15,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.android.popularmovies.data.CursorContract;
-import com.example.android.popularmovies.data.CursorDbHelper;
+import com.adamhurwitz.android.popularmovies.R;
+import com.adamhurwitz.android.popularmovies.data.CursorContract;
+import com.adamhurwitz.android.popularmovies.data.CursorDbHelper;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -26,9 +27,8 @@ public class DetailFragment extends Fragment {
 
     public DetailFragment() {
     }
-
-    String movieTitle = "";
     String toggle = "off";
+    String movieTitle = "";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -44,7 +44,7 @@ public class DetailFragment extends Fragment {
         Intent intent = getActivity().getIntent();
         if (intent != null) {
 
-            final String[] movie_data = intent.getStringArrayExtra("Cursor Doodle Attributes");
+            final String[] movie_data = intent.getStringArrayExtra("Cursor Movie Attributes");
             // movie_data[0] = title
             // movie_data[1] = image
             // movie_data[2] = summary
@@ -90,13 +90,13 @@ public class DetailFragment extends Fragment {
             TextView synopsis = (TextView) view.findViewById(R.id.detail_synopsis);
             synopsis.setText(movie_data[2]);
 
-            //TODO: Display correct on/off status for favorite button
+            // Display correct on/off status for favorite button
             if (movie_data[5].equals("2")) {
                 toggle = "on";
                 favoriteButton.setImageResource(R.drawable.star_pressed_18dp);
             } else if (movie_data[5].equals("1")) {
-                favoriteButton.setImageResource(R.drawable.star_default_18dp);
                 toggle = "off";
+                favoriteButton.setImageResource(R.drawable.star_default_18dp);
             }
 
             // Click listener for favorite button
@@ -111,7 +111,7 @@ public class DetailFragment extends Fragment {
 
                         // Update Database to Set Favorites True For Given Title
                         CursorDbHelper dbHelper1 = new CursorDbHelper(getContext());
-                        SQLiteDatabase db1 = dbHelper1.getWritableDatabase();
+                        SQLiteDatabase db1 = dbHelper1.getReadableDatabase();
 
                         // Query Database
                         String[] whereValue1 = {movieTitle};
@@ -131,35 +131,35 @@ public class DetailFragment extends Fragment {
                         // Update current movie favorites to be set as on
                         if (c1.moveToFirst()) {
                             String favoriteColumn = c1.getString(
-                                    c1.getColumnIndexOrThrow(CursorContract.MovieData.COLUMN_NAME_FAVORITE));
+                                    c1.getColumnIndexOrThrow(CursorContract.MovieData
+                                            .COLUMN_NAME_FAVORITE));
                             // New value column
                             ContentValues values = new ContentValues();
                             values.put(CursorContract.MovieData.COLUMN_NAME_FAVORITE, 2);
 
                             // Which row to update, based on the ID
-                            String selection = CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?";
-                            String[] selectionArgs = {movieTitle};
+                            String whereColumn = CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?";
+                            String[] whereValue = {movieTitle};
 
                             // Update
                             int count = db1.update(
                                     CursorContract.MovieData.TABLE_NAME,
                                     values,
-                                    selection,
-                                    selectionArgs);
+                                    whereColumn,
+                                    whereValue);
                         }
                         c1.close();
-                        String favorite = movie_data[5];
-                        Toast.makeText(getContext(), toggle + " " + movieTitle + " " + favorite, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), toggle + " " + movieTitle + " " +
+                                movie_data[5], Toast.LENGTH_SHORT).show();
                     }
                     // Turn button off
                     else if (toggle.equals("on")) {
                         toggle = "off";
                         favoriteButton.setImageResource(R.drawable.star_default_18dp);
-                        //TODO: update favorite to 0 for title
                         // Update current movie favorites to be set as off
                         // Update Database to Set Favorites True For Given Title
                         CursorDbHelper dbHelper2 = new CursorDbHelper(getContext());
-                        SQLiteDatabase db2 = dbHelper2.getWritableDatabase();
+                        SQLiteDatabase db2 = dbHelper2.getReadableDatabase();
 
                         // Query Database
                         String[] whereValue2 = {movieTitle};
@@ -194,12 +194,14 @@ public class DetailFragment extends Fragment {
                                     selectionArgs);
                         }
                         c2.close();
-                        String favorite = movie_data[5];
-                        Toast.makeText(getContext(), toggle + " " + movieTitle + " " + favorite, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), toggle + " " + movieTitle + " "
+                                + movie_data[5], Toast.LENGTH_SHORT).show();
                     }
                 }
 
             });
+
+
 
         }
         return view;
