@@ -34,7 +34,7 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
     public static final String BASE_URL = "https://api.themoviedb.org/3/discover/movie";
     public static final String SORT_PARAMETER = "sort_by";
     public static final String KEY_PARAMETER = "api_key";
-    public static final String KEY_CODE = "API_KEY_GOES_HERE";
+    public static final String KEY_CODE = "81696f0358507756b5119609b0fae31e";
 
     private final Context context;
 
@@ -138,7 +138,7 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
                 // parse out each movie in Array
                 JSONObject jObject = jsonArray.getJSONObject(i);
                 putDataIntoDb(
-                        //CursorContract.MovieData._ID,
+                        jObject.getInt("id"),
                         jObject.getString("original_title"),
                         jObject.getString("backdrop_path"),
                         jObject.getString("overview"),
@@ -154,7 +154,7 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
 
     public void putDataIntoDb(
             //String id,
-            String title, String image_url, String summary, Double
+            Integer movie_id, String title, String image_url, String summary, Double
             vote_average, Double popularity, String release_date) {
 
         // Access database
@@ -167,6 +167,7 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
 
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
+        values.put(CursorContract.MovieData.COLUMN_NAME_MOVIEID, movie_id);
         values.put(CursorContract.MovieData.COLUMN_NAME_TITLE, title);
         values.put(CursorContract.MovieData.COLUMN_NAME_IMAGEURL, image_url);
         values.put(CursorContract.MovieData.COLUMN_NAME_SUMMARY, summary);
@@ -175,7 +176,7 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
         values.put(CursorContract.MovieData.COLUMN_NAME_RELEASEDATE, release_date);
         values.put(CursorContract.MovieData.COLUMN_NAME_FAVORITE, "1");
 
-        Log.v(LOG_TAG, "Content Values " + values.toString());
+        //Log.v(LOG_TAG, "Content Values " + values.toString());
 
         // How you want the results sorted in the resulting Cursor
         String sortOrder =

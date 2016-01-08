@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +24,7 @@ import com.squareup.picasso.Picasso;
  * A placeholder fragment containing a simple view.
  */
 public class DetailFragment extends Fragment {
-
+private final String LOG_TAG = DetailFragment.class.getSimpleName();
     public DetailFragment() {
     }
 
@@ -46,18 +47,21 @@ public class DetailFragment extends Fragment {
         if (intent != null) {
 
             final String[] movie_data = intent.getStringArrayExtra("Cursor Movie Attributes");
-            // movie_data[0] = title
-            // movie_data[1] = image
-            // movie_data[2] = summary
-            // movie_data[3] = rating
-            // movie_data[4] = release_date
+            // movie_data[0] = movie_id
+            // movie_data[1] = title
+            // movie_data[2] = image
+            // movie_data[3] = summary
+            // movie_data[4] = rating
+            // movie_data[5] = release_date
             // movie_data[5] = favorite
+
+            Log.v(LOG_TAG, "Passing MOVIE ID: " + movie_data[0]);
 
             //Create MovieData Poster Within 'fragment_detail.xml'
             ImageView detail_movie_image = (ImageView) view.findViewById(R.id.detail_movie_image);
             // Construct the URL to query images in Picasso
             final String PICASSO_BASE_URL = "http://image.tmdb.org/t/p/";
-            final String imageUrl = movie_data[1];
+            final String imageUrl = movie_data[2];
             Uri builtUri = Uri.parse(PICASSO_BASE_URL).buildUpon()
                     // appending size and image source
                     .appendPath("w780")
@@ -76,26 +80,26 @@ public class DetailFragment extends Fragment {
 
             //Create MovieData Title within 'fragment_detail.xml'
             TextView title = (TextView) view.findViewById(R.id.detail_title);
-            title.setText(movie_data[0]);
-            movieTitle = movie_data[0];
+            title.setText(movie_data[1]);
+            movieTitle = movie_data[1];
 
             //Create MovieData User Rating Within 'fragment_detail.xml'
             TextView rating = (TextView) view.findViewById(R.id.detail_rating);
-            rating.setText(movie_data[3] + " out of 10");
+            rating.setText(movie_data[4] + " out of 10");
 
             //Create MovieData User Release Date Within 'fragment_detail.xml'
             TextView releaseDate = (TextView) view.findViewById(R.id.detail_releasedate);
-            releaseDate.setText("released: " + movie_data[4]);
+            releaseDate.setText("released: " + movie_data[5]);
 
             //Create MovieData Synopsis Within 'fragment_detail.xml'
             TextView synopsis = (TextView) view.findViewById(R.id.detail_synopsis);
-            synopsis.setText(movie_data[2]);
+            synopsis.setText(movie_data[3]);
 
             // Display correct on/off status for favorite button
-            if (movie_data[5].equals("2")) {
+            if (movie_data[6].equals("2")) {
                 toggle = "on";
                 favoriteButton.setImageResource(R.drawable.star_pressed_18dp);
-            } else if (movie_data[5].equals("1")) {
+            } else if (movie_data[6].equals("1")) {
                 toggle = "off";
                 favoriteButton.setImageResource(R.drawable.star_default_18dp);
             }
@@ -151,7 +155,7 @@ public class DetailFragment extends Fragment {
                         }
                         c1.close();
                         Toast.makeText(getContext(), toggle + " " + movieTitle + " " +
-                                movie_data[5], Toast.LENGTH_SHORT).show();
+                                movie_data[6], Toast.LENGTH_SHORT).show();
                     }
                     // Turn button off
                     else if (toggle.equals("on")) {
@@ -196,7 +200,7 @@ public class DetailFragment extends Fragment {
                         }
                         c2.close();
                         Toast.makeText(getContext(), toggle + " " + movieTitle + " "
-                                + movie_data[5], Toast.LENGTH_SHORT).show();
+                                + movie_data[6], Toast.LENGTH_SHORT).show();
                     }
                 }
 

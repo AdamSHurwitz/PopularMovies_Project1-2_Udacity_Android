@@ -67,6 +67,8 @@ public class MainFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+                String movie_id = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
+                        .COLUMN_NAME_MOVIEID));
                 String title = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
                         .COLUMN_NAME_TITLE));
                 String image_url = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
@@ -84,7 +86,7 @@ public class MainFragment extends Fragment {
 
                 Toast.makeText(getContext(), favorite, Toast.LENGTH_SHORT).show();
 
-                String[] doodleDataItems = {title, image_url, summary, rating, release_date,
+                String[] doodleDataItems = {movie_id, title, image_url, summary, rating, release_date,
                         favorite};
 
                 Intent intent = new Intent(getActivity(),

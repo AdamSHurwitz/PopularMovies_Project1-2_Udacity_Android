@@ -15,6 +15,7 @@ public class CursorContract {
      */
     public static abstract class MovieData implements BaseColumns {
         public static final String TABLE_NAME = "movie_data";
+        public static final String COLUMN_NAME_MOVIEID = "movie_id";
         public static final String COLUMN_NAME_TITLE = "title";
         public static final String COLUMN_NAME_IMAGEURL = "image_url";
         public static final String COLUMN_NAME_SUMMARY = "summary";

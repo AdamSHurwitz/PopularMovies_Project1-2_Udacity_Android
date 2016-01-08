@@ -24,6 +24,7 @@ public class CursorDbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_MOVIETABLE = "CREATE TABLE " + MovieData.TABLE_NAME + "(" +
                 // AutoIncrement
                 MovieData._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                MovieData.COLUMN_NAME_MOVIEID + " INTEGER NOT NULL, " +
                 MovieData.COLUMN_NAME_TITLE + " TEXT NOT NULL, " +
                 MovieData.COLUMN_NAME_IMAGEURL + " TEXT NOT NULL, " +
                 MovieData.COLUMN_NAME_SUMMARY + " TEXT NOT NULL, " +
