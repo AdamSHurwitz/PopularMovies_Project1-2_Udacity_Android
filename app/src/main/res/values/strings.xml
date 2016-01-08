@@ -14,4 +14,7 @@
     <string name="pref_description_sortBy" translatable="false">sort by popularity or ratings
     </string>
     <string name="sort_key">sort_key</string>
+
+    <!-- YouTube -->
+    <string name="error_player">There was an error initializing the YouTubePlayer (%1$s)</string>
 </resources>
