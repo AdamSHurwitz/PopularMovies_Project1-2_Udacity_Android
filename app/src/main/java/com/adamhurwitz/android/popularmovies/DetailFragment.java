@@ -15,7 +15,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.adamhurwitz.android.popularmovies.R;
 import com.adamhurwitz.android.popularmovies.data.CursorContract;
 import com.adamhurwitz.android.popularmovies.data.CursorDbHelper;
 import com.squareup.picasso.Picasso;
@@ -27,6 +26,7 @@ public class DetailFragment extends Fragment {
 
     public DetailFragment() {
     }
+
     String toggle = "off";
     String movieTitle = "";
 
@@ -38,6 +38,7 @@ public class DetailFragment extends Fragment {
 
         // get id for favorite_btn
         final ImageButton favoriteButton = (ImageButton) view.findViewById(R.id.favorite_btn);
+        final ImageButton playButton = (ImageButton) view.findViewById(R.id.play_btn);
 
         //receive the intent
         //Activity has intent, must get intent from Activity
@@ -201,9 +202,22 @@ public class DetailFragment extends Fragment {
 
             });
 
+            playButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View view) {
+
+                    String url = "https://www.youtube.com/watch?v=sGbxmsDFVnE";
 
 
+                    // Web Browser Intent
+                    Uri webpage = Uri.parse(url);
+                    Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
+                        startActivity(intent);
+
+                        Toast.makeText(getContext(), "Play Button Launched Here", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            return view;
         }
-        return view;
     }
-}
