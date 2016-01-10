@@ -3,21 +3,28 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/grid_color_selector"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="4dp">
+
     <!--can adjust image view size below in order to determine how big the grid items appear,
     originally set at 100dp by 100dp resulting in 4 rows accross-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="#2196F3">
     <ImageView
         android:id="@+id/grid_item_imageview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop" />
 
-    <TextView
-        android:id="@+id/grid_item_textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_weight="0"
-        android:maxLines="1" />
-
+        <TextView
+            android:id="@+id/grid_item_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:maxLines="1"
+            android:layout_gravity="center"/>
+    </LinearLayout>
 </LinearLayout>
