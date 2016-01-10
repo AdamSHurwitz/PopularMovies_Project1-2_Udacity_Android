@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.adamhurwitz.android.popularmovies.data.CursorContract;
 import com.adamhurwitz.android.popularmovies.data.CursorDbHelper;
@@ -20,6 +21,7 @@ public class AsyncCursorAdapter extends android.widget.CursorAdapter {
 
     // declare Context variable
     Context context;
+    String title;
 
     /**
      * Constructor for the GridViewAdapter object.
@@ -33,6 +35,7 @@ public class AsyncCursorAdapter extends android.widget.CursorAdapter {
 
         super(context, cursor, flags);
         this.context = context;
+        this.title = title;
     }
 
     // getView to create view, telling Adapter what's included in the static_item_layout
@@ -61,6 +64,7 @@ public class AsyncCursorAdapter extends android.widget.CursorAdapter {
         // as ImageView
         holder.gridItem = (ImageView) view.findViewById(R.id.grid_item_imageview);
         view.setTag(holder);
+        holder.titleItem = (TextView) view.findViewById(R.id.grid_item_textview);
 
         return view;
     }
@@ -73,6 +77,8 @@ public class AsyncCursorAdapter extends android.widget.CursorAdapter {
 
         String imageURL = cursor.getString(
                 cursor.getColumnIndexOrThrow(CursorContract.MovieData.COLUMN_NAME_IMAGEURL));
+        String title = cursor.getString(
+                cursor.getColumnIndexOrThrow(CursorContract.MovieData.COLUMN_NAME_TITLE));
 
         final String MOVIEDB_BASE_URL = "http://image.tmdb.org/t/p/";
 
@@ -94,10 +100,12 @@ public class AsyncCursorAdapter extends android.widget.CursorAdapter {
                 .placeholder(R.drawable.user_placeholder)
                 .error(R.drawable.user_placeholder_error)
                 .into(holder.gridItem);
+        holder.titleItem.setText(title);
     }
 
     class ViewHolder {
         // declare your views here
         ImageView gridItem;
+        TextView titleItem;
     }
 }

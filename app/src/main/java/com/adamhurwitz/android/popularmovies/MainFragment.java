@@ -51,8 +51,6 @@ public class MainFragment extends Fragment {
         GridView gridView = (GridView) view.findViewById(R.id.grid_view_layout);
         gridView.setAdapter(asyncCursorAdapter);
 
-        getMovieData();
-
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -90,6 +88,12 @@ public class MainFragment extends Fragment {
         });
 
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        getMovieData();
     }
 
     @Override
@@ -270,6 +274,7 @@ public class MainFragment extends Fragment {
             asyncCursorAdapter.notifyDataSetChanged();*/
         }
     }
+
     private class FetchYouTubeUrlTask extends com.adamhurwitz.android.popularmovies.FetchYouTubeUrlTask {
         public FetchYouTubeUrlTask(Context context) {
             super(context);
