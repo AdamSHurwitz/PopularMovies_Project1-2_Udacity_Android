@@ -62,9 +62,6 @@
                             android:background="@android:color/transparent"/>
                     </RelativeLayout>
 
-                    <!-- TODO: Add Favorites button and logic in DetailFragment to handle when pressed and
-                    not pressed -->
-
                     <TextView
                         android:id="@+id/detail_title"
                         android:layout_width="wrap_content"

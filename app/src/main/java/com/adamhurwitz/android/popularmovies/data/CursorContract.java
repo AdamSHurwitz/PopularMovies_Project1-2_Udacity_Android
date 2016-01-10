@@ -23,6 +23,7 @@ public class CursorContract {
         public static final String COLUMN_NAME_POPULARITY = "popularity";
         public static final String COLUMN_NAME_RELEASEDATE = "release_date";
         public static final String COLUMN_NAME_FAVORITE = "favorite";
+        public static final String COLUMN_NAME_YOUTUBEURL = "youtube_url";
     }
 
 }

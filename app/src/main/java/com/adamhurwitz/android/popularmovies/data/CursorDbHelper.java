@@ -24,14 +24,15 @@ public class CursorDbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_MOVIETABLE = "CREATE TABLE " + MovieData.TABLE_NAME + "(" +
                 // AutoIncrement
                 MovieData._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                MovieData.COLUMN_NAME_MOVIEID + " INTEGER NOT NULL, " +
+                MovieData.COLUMN_NAME_MOVIEID + " INTEGER, " +
                 MovieData.COLUMN_NAME_TITLE + " TEXT NOT NULL, " +
                 MovieData.COLUMN_NAME_IMAGEURL + " TEXT NOT NULL, " +
                 MovieData.COLUMN_NAME_SUMMARY + " TEXT NOT NULL, " +
                 MovieData.COLUMN_NAME_VOTEAVERAGE + " REAL NOT NULL, " +
                 MovieData.COLUMN_NAME_POPULARITY + " REAL NOT NULL, " +
                 MovieData.COLUMN_NAME_RELEASEDATE + " STRING NOT NULL, " +
-                MovieData.COLUMN_NAME_FAVORITE + " INTEGER " +
+                MovieData.COLUMN_NAME_FAVORITE + " INTEGER, " +
+                MovieData.COLUMN_NAME_YOUTUBEURL + " STRING " +
                 " );";
 
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIETABLE);

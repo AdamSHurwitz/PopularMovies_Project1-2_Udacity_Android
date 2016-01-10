@@ -24,7 +24,8 @@ import com.squareup.picasso.Picasso;
  * A placeholder fragment containing a simple view.
  */
 public class DetailFragment extends Fragment {
-private final String LOG_TAG = DetailFragment.class.getSimpleName();
+    private final String LOG_TAG = DetailFragment.class.getSimpleName();
+
     public DetailFragment() {
     }
 
@@ -54,6 +55,7 @@ private final String LOG_TAG = DetailFragment.class.getSimpleName();
             // movie_data[4] = rating
             // movie_data[5] = release_date
             // movie_data[5] = favorite
+            // movie_data[6] = youtube_url
 
             Log.v(LOG_TAG, "Passing MOVIE ID: " + movie_data[0]);
 
@@ -209,19 +211,42 @@ private final String LOG_TAG = DetailFragment.class.getSimpleName();
             playButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View view) {
 
-                    String url = "https://www.youtube.com/watch?v=sGbxmsDFVnE";
+                    // Get YouTube URL
+                    CursorDbHelper dbHelper = new CursorDbHelper(getContext());
+                    SQLiteDatabase db = dbHelper.getReadableDatabase();
 
+                    Cursor c = db.query(
+                            CursorContract.MovieData.TABLE_NAME,
+                            null,
+                            CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
+                            new String[]{movieTitle},
+                            null,
+                            null,
+                            CursorContract.MovieData._ID + " DESC"
+                    );
 
-                    // Web Browser Intent
-                    Uri webpage = Uri.parse(url);
-                    Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
+                    c.moveToFirst();
+                    final String youtube_url = c.getString(c.getColumnIndex(CursorContract
+                            .MovieData.COLUMN_NAME_YOUTUBEURL));
+
+                    Log.v(LOG_TAG, movieTitle + " Queried_YOUTUBE_URL_LAUNCHED " + youtube_url);
+
+                    if (youtube_url == null) {
+                        Log.v(LOG_TAG, "YouTube URL is empty");
+                    } else {
+                        // Web Browser Intent
+                        Uri webpage = Uri.parse(youtube_url);
+                        Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
                         startActivity(intent);
-
-                        Toast.makeText(getContext(), "Play Button Launched Here", Toast.LENGTH_SHORT).show();
                     }
-                });
-            }
-
-            return view;
+                }
+            });
         }
+        return view;
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+}

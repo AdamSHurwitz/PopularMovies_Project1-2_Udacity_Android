@@ -43,25 +43,15 @@ public class MainFragment extends Fragment {
 
         setHasOptionsMenu(true);
 
-        asyncCursorAdapter = new com.adamhurwitz.android.popularmovies.AsyncCursorAdapter(getActivity(), null, 0);
+        asyncCursorAdapter = new com.adamhurwitz.android.popularmovies.AsyncCursorAdapter(
+                getActivity(), null, 0);
         Log.v("CursorAdapter_Called", "HERE");
 
         // Get a reference to the grid view layout and attach the adapter to it.
         GridView gridView = (GridView) view.findViewById(R.id.grid_view_layout);
         gridView.setAdapter(asyncCursorAdapter);
 
-        // Create Toast
-
-        // gridView.setOnItemClickListener(new OnItem... [auto-completes])
-        /*gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            // parent = parent view, view = grid_item view, position = grid_item position
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // removed and replaced w/ Explicit Intent
-                Toast.makeText(getActivity(), doodleDataList.get(position).getTitle(),
-                        Toast.LENGTH_SHORT).show();
-            }
-        });*/
+        getMovieData();
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -79,15 +69,16 @@ public class MainFragment extends Fragment {
                         .COLUMN_NAME_VOTEAVERAGE));
                 String popularity = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
                         .COLUMN_NAME_POPULARITY));
-                String release_date = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
+                String release_date = cursor.getString(cursor.getColumnIndex(CursorContract
+                        .MovieData
                         .COLUMN_NAME_RELEASEDATE));
                 String favorite = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
                         .COLUMN_NAME_FAVORITE));
+                // Execute FetchYouTubeURLTask to get YouTube URL for movie
+                getYouTubeKey(movie_id, title);
 
-                Toast.makeText(getContext(), favorite, Toast.LENGTH_SHORT).show();
-
-                String[] doodleDataItems = {movie_id, title, image_url, summary, rating, release_date,
-                        favorite};
+                String[] doodleDataItems = {movie_id, title, image_url, summary, rating,
+                        release_date, favorite};
 
                 Intent intent = new Intent(getActivity(),
                         com.adamhurwitz.android.popularmovies.DetailActivity.class);
@@ -102,12 +93,6 @@ public class MainFragment extends Fragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        getDoodleData();
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.settings:
@@ -118,42 +103,47 @@ public class MainFragment extends Fragment {
     }
 
 
-    private void getDoodleData() {
+    private void getMovieData() {
         ConnectivityManager connectivityManager = (ConnectivityManager)
                 this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
 
-        // Get saved settings value
-        String executeValue = "";
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        String pref_result = prefs.getString("sort_key", "popularity");
-
-
         if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
-            com.adamhurwitz.android.popularmovies.FetchMovieTask task = new FragmentFetchMovieTask(getContext());
-            /*doodleTask.execute(pref_result);
-            Toast.makeText(getContext(), pref_result, Toast.LENGTH_SHORT).show();*/
-            task.execute("popularity.desc");
+            com.adamhurwitz.android.popularmovies.FetchMovieTask MovieTask =
+                    new FragmentFetchMovieTask(getContext());
+            MovieTask.execute("popularity.desc");
         }
     }
 
-    private class FragmentFetchMovieTask extends com.adamhurwitz.android.popularmovies.FetchMovieTask {
+    private void getYouTubeKey(String movie_id, String title) {
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+                this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+
+        if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
+            com.adamhurwitz.android.popularmovies.FetchYouTubeUrlTask YouTubeKeyTask =
+                    new FetchYouTubeUrlTask(getContext());
+            YouTubeKeyTask.execute(movie_id, title);
+        }
+    }
+
+    private class FragmentFetchMovieTask extends com.adamhurwitz.android.popularmovies
+            .FetchMovieTask {
         public FragmentFetchMovieTask(Context context) {
             super(context);
         }
 
         @Override
 
-        /** Override the onPostExecute method to notify the grid view adapter that new data was received
-         * so that the items in the grid view can appropriately reflect the changes.
+        /** Override the onPostExecute method to notify the grid view adapter that new data was
+         * received so that the items in the grid view can appropriately reflect the changes.
          * @param movieDataObjects A list of objects with information about the Movies.
          */
 
         public void onPostExecute(Void param) {
-            SharedPreferences sql_pref = PreferenceManager.getDefaultSharedPreferences(getContext());
+            SharedPreferences sql_pref = PreferenceManager.getDefaultSharedPreferences(
+                    getContext());
             String sort_value = sql_pref.getString("sort_key", "popularity.desc");
-
-            //TODO: Add If/Else to sort by favorites when favResponse = 1
 
             String whereColumns = "";
             //String[] whereValues = {""};
@@ -170,7 +160,8 @@ public class MainFragment extends Fragment {
                             null,                            // The values for the WHERE clause
                             null,                                     // don't group the rows
                             null,                                     // don't filter by row groups
-                            CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC" // The sort order
+                            CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC"
+                            // The sort order
                     );
                     asyncCursorAdapter.changeCursor(cursor1);
                     asyncCursorAdapter.notifyDataSetChanged();
@@ -187,11 +178,13 @@ public class MainFragment extends Fragment {
                             null,                            // The values for the WHERE clause
                             null,                                     // don't group the rows
                             null,                                     // don't filter by row groups
-                            CursorContract.MovieData.COLUMN_NAME_VOTEAVERAGE + " DESC" // The sort order
+                            CursorContract.MovieData.COLUMN_NAME_VOTEAVERAGE + " DESC"
+                            // The sort order
                     );
                     asyncCursorAdapter.changeCursor(cursor2);
                     asyncCursorAdapter.notifyDataSetChanged();
-                    Toast.makeText(getContext(), "Sorting by Ratings...", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Sorting by Ratings...", Toast.LENGTH_SHORT)
+                            .show();
                     break;
                 case "favorites":
                     String[] whereValues = {"2"};
@@ -200,8 +193,10 @@ public class MainFragment extends Fragment {
                     Cursor cursor3 = db3.query(
                             CursorContract.MovieData.TABLE_NAME,  // The table to query
                             null,                               // The columns to return
-                            CursorContract.MovieData.COLUMN_NAME_FAVORITE + "= ?",  // The columns for the WHERE clause
-                            whereValues,                            // The values for the WHERE clause
+                            CursorContract.MovieData.COLUMN_NAME_FAVORITE + "= ?",
+                            // The columns for the WHERE clause
+                            whereValues,
+                            // The values for the WHERE clause
                             null,                                     // don't group the rows
                             null,                                     // don't filter by row groups
                             sortOrder                                 // The sort order
@@ -221,7 +216,8 @@ public class MainFragment extends Fragment {
                             null,                            // The values for the WHERE clause
                             null,                                     // don't group the rows
                             null,                                     // don't filter by row groups
-                            CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC" // The sort order
+                            CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC"
+                            // The sort order
                     );
                     asyncCursorAdapter.changeCursor(cursor4);
                     asyncCursorAdapter.notifyDataSetChanged();
@@ -242,7 +238,8 @@ public class MainFragment extends Fragment {
                     whereColumns = null;
                     whereValues[0] = null;
                     sortOrder = CursorContract.MovieData.COLUMN_NAME_VOTEAVERAGE + " DESC";
-                    Toast.makeText(getContext(), "Sorting by Ratings...", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Sorting by Ratings...", Toast.LENGTH_SHORT)
+                    .show();
                     break;
                 case "favorites":
                     whereColumns = CursorContract.MovieData.COLUMN_NAME_FAVORITE + "= ?";
@@ -271,6 +268,11 @@ public class MainFragment extends Fragment {
             );
             asyncCursorAdapter.changeCursor(cursor);
             asyncCursorAdapter.notifyDataSetChanged();*/
+        }
+    }
+    private class FetchYouTubeUrlTask extends com.adamhurwitz.android.popularmovies.FetchYouTubeUrlTask {
+        public FetchYouTubeUrlTask(Context context) {
+            super(context);
         }
     }
 }
