@@ -74,6 +74,7 @@ public class MainFragment extends Fragment {
                         .COLUMN_NAME_FAVORITE));
                 // Execute FetchYouTubeURLTask to get YouTube URL for movie
                 getYouTubeKey(movie_id, title);
+                getReview(movie_id, title);
 
                 String[] doodleDataItems = {movie_id, title, image_url, summary, rating,
                         release_date, favorite};
@@ -128,6 +129,18 @@ public class MainFragment extends Fragment {
             com.adamhurwitz.android.popularmovies.FetchYouTubeUrlTask YouTubeKeyTask =
                     new FetchYouTubeUrlTask(getContext());
             YouTubeKeyTask.execute(movie_id, title);
+        }
+    }
+
+    private void getReview(String movie_id, String title) {
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+                this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+
+        if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
+            com.adamhurwitz.android.popularmovies.FetchReviewTask reviewTask =
+                    new FetchReviewTask(getContext());
+            reviewTask.execute(movie_id, title);
         }
     }
 
@@ -275,8 +288,15 @@ public class MainFragment extends Fragment {
         }
     }
 
-    private class FetchYouTubeUrlTask extends com.adamhurwitz.android.popularmovies.FetchYouTubeUrlTask {
+    private class FetchYouTubeUrlTask extends com.adamhurwitz.android.popularmovies
+            .FetchYouTubeUrlTask {
         public FetchYouTubeUrlTask(Context context) {
+            super(context);
+        }
+    }
+
+    private class FetchReviewTask extends com.adamhurwitz.android.popularmovies.FetchReviewTask {
+        public FetchReviewTask(Context context) {
             super(context);
         }
     }

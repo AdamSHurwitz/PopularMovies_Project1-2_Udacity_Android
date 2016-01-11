@@ -32,7 +32,8 @@ public class CursorDbHelper extends SQLiteOpenHelper {
                 MovieData.COLUMN_NAME_POPULARITY + " REAL NOT NULL, " +
                 MovieData.COLUMN_NAME_RELEASEDATE + " STRING NOT NULL, " +
                 MovieData.COLUMN_NAME_FAVORITE + " INTEGER, " +
-                MovieData.COLUMN_NAME_YOUTUBEURL + " STRING " +
+                MovieData.COLUMN_NAME_YOUTUBEURL + " STRING, " +
+                MovieData.COLUMN_NAME_REVIEW + " STRING " +
                 " );";
 
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIETABLE);
