@@ -241,6 +241,39 @@ public class DetailFragment extends Fragment {
                     }
                 }
             });
+
+            //TODO: Query Review Columns and Place Into Interface
+            // Get YouTube URL
+            CursorDbHelper dbHelper = new CursorDbHelper(getContext());
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+            Cursor c = db.query(
+                    CursorContract.MovieData.TABLE_NAME,
+                    null,
+                    CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
+                    new String[]{movieTitle},
+                    null,
+                    null,
+                    CursorContract.MovieData._ID + " DESC"
+            );
+
+            c.moveToFirst();
+            TextView review1_interface = (TextView) view.findViewById(R.id.review1_view);
+            TextView review2_interface = (TextView) view.findViewById(R.id.review2_view);
+            TextView review3_interface = (TextView) view.findViewById(R.id.review3_view);
+            final String review1_txt = c.getString(c.getColumnIndex(CursorContract
+                    .MovieData.COLUMN_NAME_REVIEW_1));
+            final String review2_txt = c.getString(c.getColumnIndex(CursorContract
+                    .MovieData.COLUMN_NAME_REVIEW_2));
+            final String review3_txt = c.getString(c.getColumnIndex(CursorContract
+                    .MovieData.COLUMN_NAME_REVIEW_3));
+            if (review1_txt != null) {review1_interface.setText(review1_txt);
+            }
+            if (review2_txt != null) {review2_interface.setText(review2_txt);
+            }
+            if (review3_txt != null) {review3_interface.setText(review3_txt);
+            }
+
         }
         return view;
     }

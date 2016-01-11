@@ -9,6 +9,7 @@ package com.adamhurwitz.android.popularmovies;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -111,22 +112,25 @@ public abstract class FetchReviewTask extends AsyncTask<String, Void, Void> {
             }
         }
 
-        // return ArrayList of MovieData Objects
-        //parseJSONResponse(jsonResponse, params[1]);
+        if (!jsonResponse.isEmpty()) {
+            // return ArrayList of MovieData Objects
+            parseJSONResponse(jsonResponse, params[1]);
+        }
+
 
         // Any other case that gets here is an error that was not caught, so return null.
         return null;
     }
 
 
-/**
- * Parses the JSON response for information about the Google doodles.
- *
- * @param jsonResponse A JSON string which needs to be parsed for data about the
- * Google doodles.
- */
+    /**
+     * Parses the JSON response for information about the Google doodles.
+     *
+     * @param jsonResponse A JSON string which needs to be parsed for data about the
+     *                     Google doodles.
+     */
 
-    private void parseJSONResponse(String jsonResponse, String params1)
+    private Void parseJSONResponse(String jsonResponse, String params1)
     //throws JSONException
     {
         try {
@@ -136,18 +140,30 @@ public abstract class FetchReviewTask extends AsyncTask<String, Void, Void> {
             JSONArray jsonArray = jsonObject.getJSONArray("results");
             // create ForLoop to loop through each index in "results" ArrayList
             // and parse for JSONObject by ArrayList index
+            String[] reviews = new String[jsonArray.length()];
             for (int i = 0; i < jsonArray.length(); i++) {
-                // parse out each movie in Array
                 JSONObject jObject = jsonArray.getJSONObject(i);
-                putDataIntoDb(jObject.getString("content"), params1);
+                // parse out each movie in Array
+                //TODO: Create String of Arrays and Add Into String[]
+                reviews[i] = jObject.getString("content");
             }
+            if (jsonArray.length() != 0) {
+                putDataIntoDb(reviews, params1);
+            } else {
+                return null;
+            }
+
+            Log.v(LOG_TAG, "Movie_Review_Length" + params1 + ": " + reviews.length);
+            //Log.v(LOG_TAG, "Movie_Review_1"+params1+ ": "+ reviews[0]);
+            //Log.v(LOG_TAG, "Movie_Review_2"+params1+ ": "+ reviews[2]);
         } catch (JSONException e) {
             Log.e(LOG_TAG, "PARSING ERROR " + e.getMessage(), e);
             e.printStackTrace();
         }
+        return null;
     }
 
-    public void putDataIntoDb(String content, String title) {
+    public Void putDataIntoDb(String[] reviews, String title) {
 
         // Access database
         CursorDbHelper mDbHelper = new CursorDbHelper(context);
@@ -157,19 +173,29 @@ public abstract class FetchReviewTask extends AsyncTask<String, Void, Void> {
 
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
-        values.put(CursorContract.MovieData.COLUMN_NAME_REVIEW, content);
 
-        Log.v(LOG_TAG, title + " ® " + values.toString());
+        if (reviews.length == 0) {
+            return null;
+        } else if (reviews.length == 1) {
+            values.put(CursorContract.MovieData.COLUMN_NAME_REVIEW_1, reviews[0]);
+        } else if (reviews.length == 2) {
+            values.put(CursorContract.MovieData.COLUMN_NAME_REVIEW_1, reviews[0]);
+            values.put(CursorContract.MovieData.COLUMN_NAME_REVIEW_2, reviews[1]);
+        } else if (reviews.length == 3) {
+            values.put(CursorContract.MovieData.COLUMN_NAME_REVIEW_1, reviews[0]);
+            values.put(CursorContract.MovieData.COLUMN_NAME_REVIEW_2, reviews[1]);
+            values.put(CursorContract.MovieData.COLUMN_NAME_REVIEW_3, reviews[2]);
+        }else if (reviews.length > 3) {
+            values.put(CursorContract.MovieData.COLUMN_NAME_REVIEW_1, reviews[0]);
+            values.put(CursorContract.MovieData.COLUMN_NAME_REVIEW_2, reviews[1]);
+            values.put(CursorContract.MovieData.COLUMN_NAME_REVIEW_3, reviews[2]);
+        }
 
-        //String whereValueId[] = {CursorContract.MovieData._ID};
+        Log.v(LOG_TAG, title + " reviews" + " " + values.toString());
 
-
-        // If you are querying entire table, can leave everything as Null
-        // Querying when Item ID Exists
-
-/*        Cursor c = db.query(
+        Cursor c = db.query(
                 CursorContract.MovieData.TABLE_NAME,  // The table to query
-                new String[]{CursorContract.MovieData.COLUMN_NAME_REVIEW}, // The columns to return
+                null, // The columns to return
                 CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
                 // The columns for the WHERE clause
                 new String[]{title}, // The values for the WHERE clause
@@ -183,7 +209,7 @@ public abstract class FetchReviewTask extends AsyncTask<String, Void, Void> {
                 CursorContract.MovieData.TABLE_NAME,
                 values,
                 CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
-                new String[]{title}); */
-
+                new String[]{title});
+        return null;
     }
 }
