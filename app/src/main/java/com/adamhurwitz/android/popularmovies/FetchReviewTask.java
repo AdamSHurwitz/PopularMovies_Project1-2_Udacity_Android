@@ -206,5 +206,27 @@ public abstract class FetchReviewTask extends AsyncTask<String, Void, Void> {
                 values,
                 CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
                 new String[]{title});
+
+        //TODO: Print reviews to make sure they're in the SQLite table
+
+        Cursor checkCursor = db.query(
+                CursorContract.MovieData.TABLE_NAME,  // The table to query
+                null, // The columns to return
+                CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
+                // The columns for the WHERE clause
+                new String[]{title}, // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                CursorContract.MovieData._ID + " DESC" // The sort order
+        );
+        checkCursor.moveToFirst();
+        String review1 = checkCursor.getString(
+                checkCursor.getColumnIndexOrThrow(CursorContract.MovieData.COLUMN_NAME_REVIEW_1));
+        String review2 = checkCursor.getString(
+                checkCursor.getColumnIndexOrThrow(CursorContract.MovieData.COLUMN_NAME_REVIEW_2));
+        String review3 = c.getString(
+                checkCursor.getColumnIndexOrThrow(CursorContract.MovieData.COLUMN_NAME_REVIEW_3));
+        Log.v(LOG_TAG, "Reviews_in_FetchReviewTask: " + review1 + " " + review2 + " " + review3);
     }
+
 }

@@ -1,12 +1,9 @@
 package com.adamhurwitz.android.popularmovies;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -28,11 +25,13 @@ import com.squareup.picasso.Picasso;
  */
 public class DetailFragment extends Fragment {
     private final String LOG_TAG = DetailFragment.class.getSimpleName();
+    private AsyncCursorAdapter asyncCursorAdapter;
 
     public DetailFragment() {
     }
 
     String toggle = "off";
+    String movieId = "";
     String movieTitle = "";
 
     @Override
@@ -40,6 +39,9 @@ public class DetailFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_detail, container, false);
+        asyncCursorAdapter = new com.adamhurwitz.android.popularmovies.AsyncCursorAdapter(
+                getActivity(), null, 0);
+
 
         // get id for favorite_btn
         final ImageButton favoriteButton = (ImageButton) view.findViewById(R.id.favorite_btn);
@@ -58,18 +60,10 @@ public class DetailFragment extends Fragment {
             // movie_data[4] = rating
             // movie_data[5] = release_date
             // movie_data[5] = favorite
-            // movie_data[6] = youtube_url
-
-            // Launch AsyncTask to Retrieve Reviews
-            getReview(movie_data[0], movie_data[1]);
-
-            // Launch AsyncTask to Retrive YouTube URL
-            getYouTubeKey(movie_data[0],movie_data[1]);
-
-            Log.v(LOG_TAG, "Passing MOVIE ID: " + movie_data[0]);
-
+            movieId = movie_data[0];
             //Create MovieData Poster Within 'fragment_detail.xml'
             ImageView detail_movie_image = (ImageView) view.findViewById(R.id.detail_movie_image);
+
             // Construct the URL to query images in Picasso
             final String PICASSO_BASE_URL = "http://image.tmdb.org/t/p/";
             final String imageUrl = movie_data[2];
@@ -94,7 +88,14 @@ public class DetailFragment extends Fragment {
             title.setText(movie_data[1]);
             movieTitle = movie_data[1];
 
-            //TODO: Fix display to show Reviews on first load of Detail View
+            //TODO: Add Movie Reviews
+
+            // get id for reviews
+            TextView review1_interface = (TextView) view.findViewById(R.id.review1_view);
+            TextView review2_interface = (TextView) view.findViewById(R.id.review2_view);
+            TextView review3_interface = (TextView) view.findViewById(R.id.review3_view);
+
+            // Get Reviews
             CursorDbHelper dbHelper = new CursorDbHelper(getContext());
             SQLiteDatabase db = dbHelper.getReadableDatabase();
 
@@ -108,37 +109,48 @@ public class DetailFragment extends Fragment {
                     CursorContract.MovieData._ID + " DESC"
             );
 
-            TextView review1_interface = (TextView) view.findViewById(R.id.review1_view);
-            TextView review2_interface = (TextView) view.findViewById(R.id.review2_view);
-            TextView review3_interface = (TextView) view.findViewById(R.id.review3_view);
-
             c.moveToFirst();
-            final String review1_txt = c.getString(c.getColumnIndex(CursorContract
+
+            final String review_1 = c.getString(c.getColumnIndex(CursorContract
                     .MovieData.COLUMN_NAME_REVIEW_1));
-            final String review2_txt = c.getString(c.getColumnIndex(CursorContract
+            Log.v(LOG_TAG, "Review_Txt_1: " + review_1);
+
+            final String review_2 = c.getString(c.getColumnIndex(CursorContract
                     .MovieData.COLUMN_NAME_REVIEW_2));
-            final String review3_txt = c.getString(c.getColumnIndex(CursorContract
+            Log.v(LOG_TAG, "Review_Txt_2: " + review_2);
+
+            final String review_3 = c.getString(c.getColumnIndex(CursorContract
                     .MovieData.COLUMN_NAME_REVIEW_3));
-            if (review1_txt != null) {review1_interface.setText(review1_txt);
+            Log.v(LOG_TAG, "Review_Txt_3: " + review_3);
+
+
+            if (review_1 != null) {
+                review1_interface.setText(review_1);
             }
-            if (review2_txt != null) {review2_interface.setText(review2_txt);
+            if (review_2 != null) {
+                review2_interface.setText(review_2);
             }
-            if (review3_txt != null) {review3_interface.setText(review3_txt);
+            if (review_3 != null) {
+                review3_interface.setText(review_3);
             }
 
             //Create MovieData User Rating Within 'fragment_detail.xml'
+
             TextView rating = (TextView) view.findViewById(R.id.detail_rating);
             rating.setText(movie_data[4] + " out of 10");
 
             //Create MovieData User Release Date Within 'fragment_detail.xml'
+
             TextView releaseDate = (TextView) view.findViewById(R.id.detail_releasedate);
             releaseDate.setText("released: " + movie_data[5]);
 
             //Create MovieData Synopsis Within 'fragment_detail.xml'
+
             TextView synopsis = (TextView) view.findViewById(R.id.detail_synopsis);
             synopsis.setText(movie_data[3]);
 
             // Display correct on/off status for favorite button
+
             if (movie_data[6].equals("2")) {
                 toggle = "on";
                 favoriteButton.setImageResource(R.drawable.star_pressed_18dp);
@@ -148,6 +160,7 @@ public class DetailFragment extends Fragment {
             }
 
             // Click listener for favorite button
+
             favoriteButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     // Perform action on click
@@ -287,45 +300,9 @@ public class DetailFragment extends Fragment {
         return view;
     }
 
+
     @Override
     public void onStart() {
         super.onStart();
-    }
-
-    private void getReview(String movie_id, String title) {
-        ConnectivityManager connectivityManager = (ConnectivityManager)
-                this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
-
-        if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
-            com.adamhurwitz.android.popularmovies.FetchReviewTask reviewTask =
-                    new FetchReviewTask(getContext());
-            reviewTask.execute(movie_id, title);
-        }
-    }
-
-    private void getYouTubeKey(String movie_id, String title) {
-        ConnectivityManager connectivityManager = (ConnectivityManager)
-                this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
-
-        if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
-            com.adamhurwitz.android.popularmovies.FetchYouTubeUrlTask YouTubeKeyTask =
-                    new FetchYouTubeUrlTask(getContext());
-            YouTubeKeyTask.execute(movie_id, title);
-        }
-    }
-
-    private class FetchYouTubeUrlTask extends com.adamhurwitz.android.popularmovies
-            .FetchYouTubeUrlTask {
-        public FetchYouTubeUrlTask(Context context) {
-            super(context);
-        }
-    }
-
-    private class FetchReviewTask extends com.adamhurwitz.android.popularmovies.FetchReviewTask {
-        public FetchReviewTask(Context context) {
-            super(context);
-        }
     }
 }

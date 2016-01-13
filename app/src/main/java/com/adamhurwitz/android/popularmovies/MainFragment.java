@@ -28,7 +28,7 @@ import com.adamhurwitz.android.popularmovies.data.CursorDbHelper;
  */
 public class MainFragment extends Fragment {
     private final String LOG_TAG = MainFragment.class.getSimpleName();
-    private com.adamhurwitz.android.popularmovies.AsyncCursorAdapter asyncCursorAdapter;
+    private AsyncCursorAdapter asyncCursorAdapter;
 
     /**
      * Empty constructor for the AsyncParcelableFragment1() class.
@@ -75,13 +75,16 @@ public class MainFragment extends Fragment {
 
                 String[] doodleDataItems = {movie_id, title, image_url, summary, rating,
                         release_date, favorite};
-
                 Intent intent = new Intent(getActivity(),
                         com.adamhurwitz.android.popularmovies.DetailActivity.class);
-
                 intent.putExtra("Cursor Movie Attributes", doodleDataItems);
-
                 startActivity(intent);
+
+                // Launch AsyncTask to Retrieve Reviews
+                getReview(movie_id, title);
+
+                // Launch AsyncTask to Retrieve YouTube URL
+                getYouTubeKey(movie_id, title);
             }
         });
 
@@ -255,6 +258,42 @@ public class MainFragment extends Fragment {
             );
             asyncCursorAdapter.changeCursor(cursor);
             asyncCursorAdapter.notifyDataSetChanged();*/
+        }
+    }
+    private void getReview(String movie_id, String title) {
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+                this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+
+        if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
+            com.adamhurwitz.android.popularmovies.FetchReviewTask reviewTask =
+                    new FetchReviewTask(getContext());
+            reviewTask.execute(movie_id, title);
+        }
+    }
+
+    private void getYouTubeKey(String movie_id, String title) {
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+                this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+
+        if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
+            com.adamhurwitz.android.popularmovies.FetchYouTubeUrlTask YouTubeKeyTask =
+                    new FetchYouTubeUrlTask(getContext());
+            YouTubeKeyTask.execute(movie_id, title);
+        }
+    }
+
+    private class FetchYouTubeUrlTask extends com.adamhurwitz.android.popularmovies
+            .FetchYouTubeUrlTask {
+        public FetchYouTubeUrlTask(Context context) {
+            super(context);
+        }
+    }
+
+    private class FetchReviewTask extends com.adamhurwitz.android.popularmovies.FetchReviewTask {
+        public FetchReviewTask(Context context) {
+            super(context);
         }
     }
 }
