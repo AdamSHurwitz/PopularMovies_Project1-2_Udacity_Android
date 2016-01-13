@@ -178,10 +178,6 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
 
         //Log.v(LOG_TAG, "Content Values " + values.toString());
 
-        // How you want the results sorted in the resulting Cursor
-        String sortOrder =
-                CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
-        String[] whereValueTitle = {title};
         //String whereValueId[] = {CursorContract.MovieData._ID};
 
         // Insert the new row, returning the primary key value of the new row
@@ -193,10 +189,10 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
                 CursorContract.MovieData.TABLE_NAME,  // The table to query
                 null,                                // The columns to return
                 CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?", // The columns for the WHERE clause
-                whereValueTitle, // The values for the WHERE clause
+                new String[] {title}, // The values for the WHERE clause
                 null,                                     // don't group the rows
                 null,                                     // don't filter by row groups
-                sortOrder                                 // The sort order
+                CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC"  // The sort order
         );
 
         // If the Title Does Not Exist, Insert All Values
@@ -205,7 +201,7 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
                     CursorContract.MovieData.TABLE_NAME,
                     null,
                     values);
-            Log.v("Table_IS_EMPTY_INSERT: ", values.toString());
+            Log.v("VALUES_INSERTED: ", values.toString());
         }
 
         // No updates for now, don't want to wipe out Favorites selection

@@ -112,10 +112,12 @@ public abstract class FetchReviewTask extends AsyncTask<String, Void, Void> {
             }
         }
 
-        if (!jsonResponse.isEmpty()) {
+        parseJSONResponse(jsonResponse, params[1]);
+
+        /*if (!jsonResponse.isEmpty()) {
             // return ArrayList of MovieData Objects
             parseJSONResponse(jsonResponse, params[1]);
-        }
+        }*/
 
 
         // Any other case that gets here is an error that was not caught, so return null.
@@ -144,15 +146,9 @@ public abstract class FetchReviewTask extends AsyncTask<String, Void, Void> {
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jObject = jsonArray.getJSONObject(i);
                 // parse out each movie in Array
-                //TODO: Create String of Arrays and Add Into String[]
                 reviews[i] = jObject.getString("content");
             }
-            if (jsonArray.length() != 0) {
-                putDataIntoDb(reviews, params1);
-            } else {
-                return null;
-            }
-
+            putDataIntoDb(reviews, params1);
             Log.v(LOG_TAG, "Movie_Review_Length" + params1 + ": " + reviews.length);
             //Log.v(LOG_TAG, "Movie_Review_1"+params1+ ": "+ reviews[0]);
             //Log.v(LOG_TAG, "Movie_Review_2"+params1+ ": "+ reviews[2]);
@@ -163,7 +159,7 @@ public abstract class FetchReviewTask extends AsyncTask<String, Void, Void> {
         return null;
     }
 
-    public Void putDataIntoDb(String[] reviews, String title) {
+    public void putDataIntoDb(String[] reviews, String title) {
 
         // Access database
         CursorDbHelper mDbHelper = new CursorDbHelper(context);
@@ -174,9 +170,7 @@ public abstract class FetchReviewTask extends AsyncTask<String, Void, Void> {
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
 
-        if (reviews.length == 0) {
-            return null;
-        } else if (reviews.length == 1) {
+        if (reviews.length == 1) {
             values.put(CursorContract.MovieData.COLUMN_NAME_REVIEW_1, reviews[0]);
         } else if (reviews.length == 2) {
             values.put(CursorContract.MovieData.COLUMN_NAME_REVIEW_1, reviews[0]);
@@ -185,13 +179,13 @@ public abstract class FetchReviewTask extends AsyncTask<String, Void, Void> {
             values.put(CursorContract.MovieData.COLUMN_NAME_REVIEW_1, reviews[0]);
             values.put(CursorContract.MovieData.COLUMN_NAME_REVIEW_2, reviews[1]);
             values.put(CursorContract.MovieData.COLUMN_NAME_REVIEW_3, reviews[2]);
-        }else if (reviews.length > 3) {
+        } else if (reviews.length > 3) {
             values.put(CursorContract.MovieData.COLUMN_NAME_REVIEW_1, reviews[0]);
             values.put(CursorContract.MovieData.COLUMN_NAME_REVIEW_2, reviews[1]);
             values.put(CursorContract.MovieData.COLUMN_NAME_REVIEW_3, reviews[2]);
         }
-
-        Log.v(LOG_TAG, title + " reviews" + " " + values.toString());
+        Log.v(LOG_TAG, title + " reviews_Array_Length: " + reviews.length);
+        //Log.v(LOG_TAG, title + " reviews" + " " + values.toString());
 
         Cursor c = db.query(
                 CursorContract.MovieData.TABLE_NAME,  // The table to query
@@ -202,14 +196,15 @@ public abstract class FetchReviewTask extends AsyncTask<String, Void, Void> {
                 null,                                     // don't group the rows
                 null,                                     // don't filter by row groups
                 CursorContract.MovieData._ID + " DESC" // The sort order
+
         );
 
         c.moveToFirst();
+
         long thisRowID = db.update(
                 CursorContract.MovieData.TABLE_NAME,
                 values,
                 CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
                 new String[]{title});
-        return null;
     }
 }

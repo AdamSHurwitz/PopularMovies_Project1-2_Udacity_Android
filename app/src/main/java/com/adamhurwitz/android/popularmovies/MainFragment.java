@@ -72,9 +72,6 @@ public class MainFragment extends Fragment {
                         .COLUMN_NAME_RELEASEDATE));
                 String favorite = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
                         .COLUMN_NAME_FAVORITE));
-                // Execute FetchYouTubeURLTask to get YouTube URL for movie
-                getYouTubeKey(movie_id, title);
-                getReview(movie_id, title);
 
                 String[] doodleDataItems = {movie_id, title, image_url, summary, rating,
                         release_date, favorite};
@@ -94,6 +91,7 @@ public class MainFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        // Call AsyncTask to get Movie Data
         getMovieData();
     }
 
@@ -120,30 +118,6 @@ public class MainFragment extends Fragment {
         }
     }
 
-    private void getYouTubeKey(String movie_id, String title) {
-        ConnectivityManager connectivityManager = (ConnectivityManager)
-                this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
-
-        if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
-            com.adamhurwitz.android.popularmovies.FetchYouTubeUrlTask YouTubeKeyTask =
-                    new FetchYouTubeUrlTask(getContext());
-            YouTubeKeyTask.execute(movie_id, title);
-        }
-    }
-
-    private void getReview(String movie_id, String title) {
-        ConnectivityManager connectivityManager = (ConnectivityManager)
-                this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
-
-        if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
-            com.adamhurwitz.android.popularmovies.FetchReviewTask reviewTask =
-                    new FetchReviewTask(getContext());
-            reviewTask.execute(movie_id, title);
-        }
-    }
-
     private class FragmentFetchMovieTask extends com.adamhurwitz.android.popularmovies
             .FetchMovieTask {
         public FragmentFetchMovieTask(Context context) {
@@ -161,10 +135,6 @@ public class MainFragment extends Fragment {
             SharedPreferences sql_pref = PreferenceManager.getDefaultSharedPreferences(
                     getContext());
             String sort_value = sql_pref.getString("sort_key", "popularity.desc");
-
-            String whereColumns = "";
-            //String[] whereValues = {""};
-            String sortOrder = "";
 
             switch (sort_value) {
                 case "popularity.desc":
@@ -216,7 +186,7 @@ public class MainFragment extends Fragment {
                             // The values for the WHERE clause
                             null,                                     // don't group the rows
                             null,                                     // don't filter by row groups
-                            sortOrder                                 // The sort order
+                            ""                                 // The sort order
                     );
                     asyncCursorAdapter.changeCursor(cursor3);
                     asyncCursorAdapter.notifyDataSetChanged();
@@ -285,19 +255,6 @@ public class MainFragment extends Fragment {
             );
             asyncCursorAdapter.changeCursor(cursor);
             asyncCursorAdapter.notifyDataSetChanged();*/
-        }
-    }
-
-    private class FetchYouTubeUrlTask extends com.adamhurwitz.android.popularmovies
-            .FetchYouTubeUrlTask {
-        public FetchYouTubeUrlTask(Context context) {
-            super(context);
-        }
-    }
-
-    private class FetchReviewTask extends com.adamhurwitz.android.popularmovies.FetchReviewTask {
-        public FetchReviewTask(Context context) {
-            super(context);
         }
     }
 }
