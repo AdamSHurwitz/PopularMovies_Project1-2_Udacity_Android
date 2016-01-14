@@ -1,12 +1,5 @@
 package com.adamhurwitz.android.popularmovies;
 
-// param1 passes into doInBackground()
-// param3 declares return type for doInBackground()
-
-
-// public class FetchMovieTask extends AsyncTask<String, Void, String>
-
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;

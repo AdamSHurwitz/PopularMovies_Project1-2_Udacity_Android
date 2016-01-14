@@ -176,10 +176,6 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
         values.put(CursorContract.MovieData.COLUMN_NAME_RELEASEDATE, release_date);
         values.put(CursorContract.MovieData.COLUMN_NAME_FAVORITE, "1");
 
-        //Log.v(LOG_TAG, "Content Values " + values.toString());
-
-        //String whereValueId[] = {CursorContract.MovieData._ID};
-
         // Insert the new row, returning the primary key value of the new row
         long thisRowID;
 
@@ -203,15 +199,5 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
                     values);
             Log.v("VALUES_INSERTED: ", values.toString());
         }
-
-        // No updates for now, don't want to wipe out Favorites selection
-        // If the Item ID Does Exist, Update All Values
-      /*  else {
-            thisRowID = db.update(
-                    CursorContract.MovieData.TABLE_NAME,
-                    values,
-                    CursorContract.MovieData._ID + "= ?",
-                    whereValueTitle);
-        }*/
     }
 }
