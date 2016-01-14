@@ -106,7 +106,7 @@ public class DetailFragment extends Fragment {
             TextView synopsis = (TextView) view.findViewById(R.id.detail_synopsis);
             synopsis.setText(movie_data[3]);
 
-            // Display correct on/off status for favorite button
+            // Display correct status for favorite button
 
             if (movie_data[6].equals("2")) {
                 favoriteButton.setImageResource(R.drawable.star_pressed_18dp);
