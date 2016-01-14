@@ -41,8 +41,10 @@ public class MainFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.grid_view_layout, container, false);
 
+        // Create menu
         setHasOptionsMenu(true);
 
+        // Initialize Adapter
         asyncCursorAdapter = new com.adamhurwitz.android.popularmovies.AsyncCursorAdapter(
                 getActivity(), null, 0);
         Log.v("CursorAdapter_Called", "HERE");
@@ -51,6 +53,7 @@ public class MainFragment extends Fragment {
         GridView gridView = (GridView) view.findViewById(R.id.grid_view_layout);
         gridView.setAdapter(asyncCursorAdapter);
 
+        // Click listener when grid item is selected
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -73,6 +76,7 @@ public class MainFragment extends Fragment {
                 String favorite = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
                         .COLUMN_NAME_FAVORITE));
 
+                // store items to pass into intent
                 String[] doodleDataItems = {movie_id, title, image_url, summary, rating,
                         release_date, favorite};
                 Intent intent = new Intent(getActivity(),
@@ -80,10 +84,7 @@ public class MainFragment extends Fragment {
                 intent.putExtra("Cursor Movie Attributes", doodleDataItems);
                 startActivity(intent);
 
-                // Launch AsyncTask to Retrieve Reviews
-//                getReview(movie_id, title);
-
-                // Launch AsyncTask to Retrieve YouTube URL
+                // launch method that executes AsyncTask to build YouTube URL and update database
                 getYouTubeKey(movie_id, title);
             }
         });
@@ -98,6 +99,8 @@ public class MainFragment extends Fragment {
         getMovieData();
     }
 
+
+    // Create menu items and actions
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -108,7 +111,7 @@ public class MainFragment extends Fragment {
         }
     }
 
-
+    // Method for executing movie data AsyncTask
     private void getMovieData() {
         ConnectivityManager connectivityManager = (ConnectivityManager)
                 this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -121,6 +124,7 @@ public class MainFragment extends Fragment {
         }
     }
 
+    // AsyncTask for movie data
     private class FragmentFetchMovieTask extends com.adamhurwitz.android.popularmovies
             .FetchMovieTask {
         public FragmentFetchMovieTask(Context context) {
@@ -133,12 +137,10 @@ public class MainFragment extends Fragment {
          * received so that the items in the grid view can appropriately reflect the changes.
          * @param movieDataObjects A list of objects with information about the Movies.
          */
-
         public void onPostExecute(Void param) {
             SharedPreferences sql_pref = PreferenceManager.getDefaultSharedPreferences(
                     getContext());
             String sort_value = sql_pref.getString("sort_key", "popularity.desc");
-
             switch (sort_value) {
                 case "popularity.desc":
                     CursorDbHelper cursorDbHelper1 = new CursorDbHelper(getContext());
@@ -215,52 +217,10 @@ public class MainFragment extends Fragment {
                             .show();
                     break;
             }
-
-            /*switch (sort_value) {
-                case "popularity.desc":
-                    whereColumns = null;
-                    whereValues[0] = null;
-                    sortOrder = CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
-                    Toast.makeText(getContext(), "Sorting by Popularity...", Toast.LENGTH_SHORT)
-                            .show();
-                    break;
-                case "vote_average.desc":
-                    whereColumns = null;
-                    whereValues[0] = null;
-                    sortOrder = CursorContract.MovieData.COLUMN_NAME_VOTEAVERAGE + " DESC";
-                    Toast.makeText(getContext(), "Sorting by Ratings...", Toast.LENGTH_SHORT)
-                    .show();
-                    break;
-                case "favorites":
-                    whereColumns = CursorContract.MovieData.COLUMN_NAME_FAVORITE + "= ?";
-                    whereValues[0] = null;
-                    sortOrder = CursorContract.MovieData._ID + " DESC";
-                    break;
-                default:
-                    whereColumns = null;
-                    whereValues[0] = null;
-                    sortOrder = CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
-                    Toast.makeText(getContext(), "Sorting by Popularity...", Toast.LENGTH_SHORT)
-                            .show();
-                    break;
-            }*/
-
-          /*  CursorDbHelper cursorDbHelper = new CursorDbHelper(getContext());
-            SQLiteDatabase db = cursorDbHelper.getWritableDatabase();
-            Cursor cursor = db.query(
-                    CursorContract.MovieData.TABLE_NAME,  // The table to query
-                    null,                               // The columns to return
-                    whereColumns,  // The columns for the WHERE clause
-                    whereValues,                            // The values for the WHERE clause
-                    null,                                     // don't group the rows
-                    null,                                     // don't filter by row groups
-                    sortOrder                                 // The sort order
-            );
-            asyncCursorAdapter.changeCursor(cursor);
-            asyncCursorAdapter.notifyDataSetChanged();*/
         }
     }
 
+    // Method to execute AsyncTask for YouTube URLs
     private void getYouTubeKey(String movie_id, String title) {
         ConnectivityManager connectivityManager = (ConnectivityManager)
                 this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -273,6 +233,7 @@ public class MainFragment extends Fragment {
         }
     }
 
+    // AsyncTask class for YouTube URLs
     private class FetchYouTubeUrlTask extends com.adamhurwitz.android.popularmovies
             .FetchYouTubeUrlTask {
         public FetchYouTubeUrlTask(Context context) {
