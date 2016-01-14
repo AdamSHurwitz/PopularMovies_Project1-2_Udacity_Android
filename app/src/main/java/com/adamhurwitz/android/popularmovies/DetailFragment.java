@@ -17,7 +17,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.adamhurwitz.android.popularmovies.data.CursorContract;
 import com.adamhurwitz.android.popularmovies.data.CursorDbHelper;
@@ -64,7 +63,7 @@ public class DetailFragment extends Fragment {
             // movie_data[3] = summary
             // movie_data[4] = rating
             // movie_data[5] = release_date
-            // movie_data[5] = favorite
+            // movie_data[6] = favorite
             movieId = movie_data[0];
             //Create MovieData Poster Within 'fragment_detail.xml'
             ImageView detail_movie_image = (ImageView) view.findViewById(R.id.detail_movie_image);
@@ -111,10 +110,10 @@ public class DetailFragment extends Fragment {
             // Display correct on/off status for favorite button
 
             if (movie_data[6].equals("2")) {
-                toggle = "on";
+                //toggle = "on";
                 favoriteButton.setImageResource(R.drawable.star_pressed_18dp);
-            } else if (movie_data[6].equals("1")) {
-                toggle = "off";
+            } else {
+                //toggle = "off";
                 favoriteButton.setImageResource(R.drawable.star_default_18dp);
             }
 
@@ -124,102 +123,30 @@ public class DetailFragment extends Fragment {
                 public void onClick(View v) {
                     CursorDbHelper cursorDbHelper = new CursorDbHelper(getContext());
                     SQLiteDatabase db = cursorDbHelper.getReadableDatabase();
+                    Cursor cursor = db.query(CursorContract.MovieData.TABLE_NAME, null,
+                            CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
+                            new String[]{movie_data[1]},
+                            null, null, CursorContract.MovieData._ID + " DESC");
+
+                    ContentValues values = new ContentValues();
 
                     // Perform action on click
-
-                    // Turn button on
-                    if (toggle.equals("off")) {
-                        toggle = "on";
+                    if (movie_data[6].equals("1")) {
                         favoriteButton.setImageResource(R.drawable.star_pressed_18dp);
-
-                        // Update Database to Set Favorites True For Given Title
-                        CursorDbHelper dbHelper1 = new CursorDbHelper(getContext());
-                        SQLiteDatabase db1 = dbHelper1.getReadableDatabase();
-
-                        // Query Database
-                        String[] whereValue1 = {movieTitle};
-                        String sortOrder1 =
-                                CursorContract.MovieData._ID + " DESC";
-
-                        Cursor c1 = db1.query(
-                                CursorContract.MovieData.TABLE_NAME,
-                                null,
-                                CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
-                                whereValue1,                            
-                                null,
-                                null,
-                                sortOrder1
-                        );
-
-                        // Update current movie favorites to be set as on
-                        if (c1.moveToFirst()) {
-                            String favoriteColumn = c1.getString(
-                                    c1.getColumnIndexOrThrow(CursorContract.MovieData
-                                            .COLUMN_NAME_FAVORITE));
-                            // New value column
-                            ContentValues values = new ContentValues();
-                            values.put(CursorContract.MovieData.COLUMN_NAME_FAVORITE, 2);
-
-                            // Which row to update, based on the ID
-                            String whereColumn = CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?";
-                            String[] whereValue = {movieTitle};
-
-                            // Update
-                            int count = db1.update(
-                                    CursorContract.MovieData.TABLE_NAME,
-                                    values,
-                                    whereColumn,
-                                    whereValue);
-                        }
-                        c1.close();
-                        Toast.makeText(getContext(), toggle + " " + movieTitle + " " +
-                                movie_data[6], Toast.LENGTH_SHORT).show();
-                    }
-                    // Turn button off
-                    else if (toggle.equals("on")) {
-                        toggle = "off";
+                        cursor.moveToFirst();
+                        values.put(CursorContract.MovieData.COLUMN_NAME_FAVORITE, 2);
+                        movie_data[6] = "2";
+                    } else {
                         favoriteButton.setImageResource(R.drawable.star_default_18dp);
-                        // Update current movie favorites to be set as off
-                        // Update Database to Set Favorites True For Given Title
-                        CursorDbHelper dbHelper2 = new CursorDbHelper(getContext());
-                        SQLiteDatabase db2 = dbHelper2.getReadableDatabase();
-
-                        // Query Database
-                        String[] whereValue2 = {movieTitle};
-                        String sortOrder2 =
-                                CursorContract.MovieData._ID + " DESC";
-
-                        Cursor c2 = db2.query(
-                                CursorContract.MovieData.TABLE_NAME,  // The table to query
-                                null,                               // The columns to return
-                                CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?", // The columns for the WHERE clause
-                                whereValue2,                            // The values for the WHERE clause
-                                null,                                     // don't group the rows
-                                null,                                     // don't filter by row groups
-                                sortOrder2                                 // The sort order
-                        );
-                        if (c2.moveToFirst()) {
-                            String favoriteColumn = c2.getString(
-                                    c2.getColumnIndexOrThrow(CursorContract.MovieData.COLUMN_NAME_FAVORITE));
-                            // New value column
-                            ContentValues values = new ContentValues();
-                            values.put(CursorContract.MovieData.COLUMN_NAME_FAVORITE, 1);
-
-                            // Which row to update, based on the ID
-                            String selection = CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?";
-                            String[] selectionArgs = {movieTitle};
-
-                            // Update
-                            int count = db2.update(
-                                    CursorContract.MovieData.TABLE_NAME,
-                                    values,
-                                    selection,
-                                    selectionArgs);
-                        }
-                        c2.close();
-                        Toast.makeText(getContext(), toggle + " " + movieTitle + " "
-                                + movie_data[6], Toast.LENGTH_SHORT).show();
+                        cursor.moveToFirst();
+                        values.put(CursorContract.MovieData.COLUMN_NAME_FAVORITE, 1);
+                        movie_data[6] = "1";
                     }
+
+                    long rowId = db.update(CursorContract.MovieData.TABLE_NAME, values,
+                            CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
+                            new String[]{movie_data[1]});
+                    cursor.close();
                 }
 
             });

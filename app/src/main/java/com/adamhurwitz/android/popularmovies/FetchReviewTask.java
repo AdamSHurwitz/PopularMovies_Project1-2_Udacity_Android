@@ -40,7 +40,6 @@ public class FetchReviewTask extends AsyncTask<String, Void, String[]> {
     public static final String KEY_CODE = "81696f0358507756b5119609b0fae31e";
 
     private final Context context;
-    private AsyncCursorAdapter asyncCursorAdapter;
     private View detailFragmentView;
 
 
