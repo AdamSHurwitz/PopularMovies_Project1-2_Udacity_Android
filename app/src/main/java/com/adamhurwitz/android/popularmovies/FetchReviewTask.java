@@ -13,6 +13,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -246,56 +247,32 @@ public class FetchReviewTask extends AsyncTask<String, Void, String[]> {
      * @param reviews A list of objects with information about the reviews.
      */
     public void onPostExecute(String[] reviews) {
-        //TODO: Add Movie Reviews
-        Log.v("OMEGA ADAM", "OMEGA: " + reviews);
         // get id for reviews
-        TextView review1_interface = (TextView) detailFragmentView.findViewById(R.id.review1_view);
-        Log.v("detailreviewinPost", review1_interface.toString());
-        TextView review2_interface = (TextView) detailFragmentView.findViewById(R.id.review2_view);
-        TextView review3_interface = (TextView) detailFragmentView.findViewById(R.id.review3_view);
+        TextView review1Interface = (TextView) detailFragmentView.findViewById(R.id.review1_view);
+        CardView review1Card = (CardView) detailFragmentView.findViewById(R.id.review1_card);
+        TextView review2Interface = (TextView) detailFragmentView.findViewById(R.id.review2_view);
+        CardView review2Card = (CardView) detailFragmentView.findViewById(R.id.review2_card);
+        TextView review3Interface = (TextView) detailFragmentView.findViewById(R.id.review3_view);
+        CardView review3Card = (CardView) detailFragmentView.findViewById(R.id.review3_card);
 
-        // Get Reviews
-//        CursorDbHelper dbHelper = new CursorDbHelper(context);
-//        SQLiteDatabase db = dbHelper.getReadableDatabase();
-
-//        Cursor c = db.query(
-//                CursorContract.MovieData.TABLE_NAME,
-//                null,
-//                CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
-//                new String[]{movieTitle},
-//                null,
-//                null,
-//                CursorContract.MovieData._ID + " DESC"
-//        );
-//
-//        c.moveToFirst();
-//
-//        final String review_1 = c.getString(c.getColumnIndex(CursorContract
-//                .MovieData.COLUMN_NAME_REVIEW_1));
-//        Log.v(LOG_TAG, "Review_Txt_1: " + review_1);
-//
-//        final String review_2 = c.getString(c.getColumnIndex(CursorContract
-//                .MovieData.COLUMN_NAME_REVIEW_2));
-//        Log.v(LOG_TAG, "Review_Txt_2: " + review_2);
-//
-//        final String review_3 = c.getString(c.getColumnIndex(CursorContract
-//                .MovieData.COLUMN_NAME_REVIEW_3));
-//        Log.v(LOG_TAG, "Review_Txt_3: " + review_3);
 
         if (reviews.length == 0) {
             //do nothing
         }
-        if (reviews.length == 1 && reviews[0] != null) {
+        if (reviews.length == 1 && reviews[0] != null && !reviews[0].equals("")) {
             Log.v("review1", reviews[0]);
-            review1_interface.setText(reviews[0]);
+            review1Interface.setText(reviews[0]);
+            review1Card.setVisibility(View.VISIBLE);
         }
-        if (reviews.length == 2 && reviews[1] != null) {
+        if (reviews.length == 2 && reviews[1] != null && !reviews[1].equals("")) {
             Log.v("review1", reviews[1]);
-            review2_interface.setText(reviews[1]);
+            review2Interface.setText(reviews[1]);
+            review1Card.setVisibility(View.VISIBLE);
         }
-        if (reviews.length == 3 && reviews[2] != null) {
+        if (reviews.length == 3 && reviews[2] != null && !reviews[2].equals("")) {
             Log.v("review1", reviews[2]);
-            review3_interface.setText(reviews[2]);
+            review3Interface.setText(reviews[2]);
+            review1Card.setVisibility(View.VISIBLE);
         }
     }
 }

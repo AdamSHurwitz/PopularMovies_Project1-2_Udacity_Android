@@ -194,13 +194,13 @@ public class DetailFragment extends Fragment {
                                 CursorContract.MovieData._ID + " DESC";
 
                         Cursor c1 = db1.query(
-                                CursorContract.MovieData.TABLE_NAME,  // The table to query
-                                null,                               // The columns to return
-                                CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?", // The columns for the WHERE clause
-                                whereValue1,                            // The values for the WHERE clause
-                                null,                                     // don't group the rows
-                                null,                                     // don't filter by row groups
-                                sortOrder1                                 // The sort order
+                                CursorContract.MovieData.TABLE_NAME,
+                                null,
+                                CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
+                                whereValue1,                            
+                                null,
+                                null,
+                                sortOrder1
                         );
 
                         // Update current movie favorites to be set as on

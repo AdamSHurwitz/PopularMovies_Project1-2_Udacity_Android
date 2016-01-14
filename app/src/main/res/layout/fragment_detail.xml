@@ -120,7 +120,8 @@
                 app:cardBackgroundColor="#2196F3"
                 app:cardCornerRadius="0dp"
                 app:cardElevation="8dp"
-                android:id="@+id/review1_card">
+                android:id="@+id/review1_card"
+                android:visibility="gone">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -148,7 +149,8 @@
                 app:cardBackgroundColor="#2196F3"
                 app:cardCornerRadius="0dp"
                 app:cardElevation="8dp"
-                android:id="@+id/review2_card">
+                android:id="@+id/review2_card"
+                android:visibility="gone">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -176,7 +178,8 @@
                 app:cardBackgroundColor="#2196F3"
                 app:cardCornerRadius="0dp"
                 app:cardElevation="8dp"
-                android:id="@+id/review3_card">
+                android:id="@+id/review3_card"
+                android:visibility="gone">
 
                 <LinearLayout
                     android:layout_width="match_parent"
