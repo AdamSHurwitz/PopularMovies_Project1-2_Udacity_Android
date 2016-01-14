@@ -32,7 +32,6 @@ public class DetailFragment extends Fragment {
     public DetailFragment() {
     }
 
-    String toggle = "off";
     String movieId = "";
     String movieTitle = "";
     View detailView;
@@ -110,10 +109,8 @@ public class DetailFragment extends Fragment {
             // Display correct on/off status for favorite button
 
             if (movie_data[6].equals("2")) {
-                //toggle = "on";
                 favoriteButton.setImageResource(R.drawable.star_pressed_18dp);
             } else {
-                //toggle = "off";
                 favoriteButton.setImageResource(R.drawable.star_default_18dp);
             }
 
