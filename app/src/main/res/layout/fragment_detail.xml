@@ -128,14 +128,19 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:padding="16dp">
-
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:textSize="24sp"
+                        android:text="@string/review"
+                        android:gravity="center"/>
                     <TextView
                         android:id="@+id/review1_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:text="@string/detail_reviewtitle"
-                        android:textSize="24sp" />
+                        android:textSize="14sp"/>
                 </LinearLayout>
             </android.support.v7.widget.CardView>
 
@@ -157,14 +162,19 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:padding="16dp">
-
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:textSize="24sp"
+                        android:text="@string/review"
+                        android:gravity="center"/>
                     <TextView
                         android:id="@+id/review2_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:text="@string/detail_reviewtitle"
-                        android:textSize="24sp" />
+                        android:textSize="14sp" />
                 </LinearLayout>
             </android.support.v7.widget.CardView>
 
@@ -186,14 +196,19 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:padding="16dp">
-
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:textSize="24sp"
+                        android:text="@string/review"
+                        android:gravity="center"/>
                     <TextView
                         android:id="@+id/review3_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:text="@string/detail_reviewtitle"
-                        android:textSize="24sp" />
+                        android:textSize="14sp" />
                 </LinearLayout>
             </android.support.v7.widget.CardView>
 

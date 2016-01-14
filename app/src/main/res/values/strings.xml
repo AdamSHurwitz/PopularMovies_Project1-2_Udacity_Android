@@ -17,4 +17,6 @@
 
     <!-- YouTube -->
     <string name="error_player">There was an error initializing the YouTubePlayer (%1$s)</string>
+
+    <string name="review">Review</string>
 </resources>
