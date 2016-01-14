@@ -259,20 +259,23 @@ public class FetchReviewTask extends AsyncTask<String, Void, String[]> {
         if (reviews.length == 0) {
             //do nothing
         }
-        if (reviews.length == 1 && reviews[0] != null && !reviews[0].equals("")) {
+        if (reviews.length == 1 && reviews[0] != null && !reviews[0].equals("")
+                && !reviews[0].equals(" ")) {
             Log.v("review1", reviews[0]);
             review1Interface.setText(reviews[0]);
             review1Card.setVisibility(View.VISIBLE);
         }
-        if (reviews.length == 2 && reviews[1] != null && !reviews[1].equals("")) {
+        if (reviews.length == 2 && reviews[1] != null && !reviews[1].equals("")
+                && !reviews[1].equals(" ")) {
             Log.v("review1", reviews[1]);
             review2Interface.setText(reviews[1]);
-            review1Card.setVisibility(View.VISIBLE);
+            review2Card.setVisibility(View.VISIBLE);
         }
-        if (reviews.length == 3 && reviews[2] != null && !reviews[2].equals("")) {
+        if (reviews.length == 3 && reviews[2] != null && !reviews[2].equals("")
+                && !reviews[2].equals(" ")) {
             Log.v("review1", reviews[2]);
             review3Interface.setText(reviews[2]);
-            review1Card.setVisibility(View.VISIBLE);
+            review3Card.setVisibility(View.VISIBLE);
         }
     }
 }

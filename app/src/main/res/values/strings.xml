@@ -6,7 +6,6 @@
     <string name="refresh">Refresh</string>
     <string name="title_activity_detail">DetailActivity</string>
     <string name="detail_summarytitle">Summary</string>
-    <string name="detail_reviewtitle">Reviews</string>
 
     <!-- Settings -->
     <string name="pref_header_general">General</string>

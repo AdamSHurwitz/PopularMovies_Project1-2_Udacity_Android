@@ -93,61 +93,6 @@ public class DetailFragment extends Fragment {
             title.setText(movie_data[1]);
             movieTitle = movie_data[1];
 
-            //TODO: Add Movie Reviews
-
-            // get id for reviews
-            TextView review1_interface = (TextView) view.findViewById(R.id.review1_view);
-            Log.v("textviewinDetailfragme", review1_interface.toString());
-
-            // Get Reviews
-            CursorDbHelper dbHelper = new CursorDbHelper(getContext());
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
-
-            Cursor c = db.query(
-                    CursorContract.MovieData.TABLE_NAME,
-                    null,
-                    CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
-                    new String[]{movieTitle},
-                    null,
-                    null,
-                    CursorContract.MovieData._ID + " DESC"
-            );
-
-            c.moveToFirst();
-
-            final String review_1 = c.getString(c.getColumnIndex(CursorContract
-                    .MovieData.COLUMN_NAME_REVIEW_1));
-            Log.v(LOG_TAG, "Review_Txt_1: " + review_1);
-
-            final String review_2 = c.getString(c.getColumnIndex(CursorContract
-                    .MovieData.COLUMN_NAME_REVIEW_2));
-            Log.v(LOG_TAG, "Review_Txt_2: " + review_2);
-
-            final String review_3 = c.getString(c.getColumnIndex(CursorContract
-                    .MovieData.COLUMN_NAME_REVIEW_3));
-            Log.v(LOG_TAG, "Review_Txt_3: " + review_3);
-
-
-//            if (review_1 != null) {
-//                review1_interface.setText(review_1);
-//                review_1_var = review_1;
-//            } else {
-//                review1_card.setVisibility(View.INVISIBLE);
-//            }
-//            if (review_2 != null) {
-//                review2_interface.setText(review_2);
-//                review_2_var = review_2;
-//            } else {
-//                review2_card.setVisibility(View.INVISIBLE);
-//            }
-//            if (review_3 != null) {
-//                review3_interface.setText(review_3);
-//                review_3_var = review_3;
-//            } else {
-//                review3_card.setVisibility(View.INVISIBLE);
-//            }
-
-
             //Create MovieData User Rating Within 'fragment_detail.xml'
 
             TextView rating = (TextView) view.findViewById(R.id.detail_rating);
@@ -177,6 +122,9 @@ public class DetailFragment extends Fragment {
 
             favoriteButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
+                    CursorDbHelper cursorDbHelper = new CursorDbHelper(getContext());
+                    SQLiteDatabase db = cursorDbHelper.getReadableDatabase();
+
                     // Perform action on click
 
                     // Turn button on
