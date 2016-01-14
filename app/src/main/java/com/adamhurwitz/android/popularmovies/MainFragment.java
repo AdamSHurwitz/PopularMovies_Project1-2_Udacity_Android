@@ -141,82 +141,53 @@ public class MainFragment extends Fragment {
             SharedPreferences sql_pref = PreferenceManager.getDefaultSharedPreferences(
                     getContext());
             String sort_value = sql_pref.getString("sort_key", "popularity.desc");
+            String sortOrder = "";
+            String whereColumns = "";
+            String[] whereValue;
             switch (sort_value) {
                 case "popularity.desc":
-                    CursorDbHelper cursorDbHelper1 = new CursorDbHelper(getContext());
-                    SQLiteDatabase db1 = cursorDbHelper1.getWritableDatabase();
-                    Cursor cursor1 = db1.query(
-                            CursorContract.MovieData.TABLE_NAME,  // The table to query
-                            null,                               // The columns to return
-                            null,  // The columns for the WHERE clause
-                            null,                            // The values for the WHERE clause
-                            null,                                     // don't group the rows
-                            null,                                     // don't filter by row groups
-                            CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC"
-                            // The sort order
-                    );
-                    asyncCursorAdapter.changeCursor(cursor1);
-                    asyncCursorAdapter.notifyDataSetChanged();
+                    sortOrder = CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
+                    whereColumns = null;
+                    whereValue = null;
                     Toast.makeText(getContext(), "Sorting by Popularity...", Toast.LENGTH_SHORT)
                             .show();
                     break;
                 case "vote_average.desc":
-                    CursorDbHelper cursorDbHelper2 = new CursorDbHelper(getContext());
-                    SQLiteDatabase db2 = cursorDbHelper2.getWritableDatabase();
-                    Cursor cursor2 = db2.query(
-                            CursorContract.MovieData.TABLE_NAME,  // The table to query
-                            null,                               // The columns to return
-                            null,  // The columns for the WHERE clause
-                            null,                            // The values for the WHERE clause
-                            null,                                     // don't group the rows
-                            null,                                     // don't filter by row groups
-                            CursorContract.MovieData.COLUMN_NAME_VOTEAVERAGE + " DESC"
-                            // The sort order
-                    );
-                    asyncCursorAdapter.changeCursor(cursor2);
-                    asyncCursorAdapter.notifyDataSetChanged();
+                    sortOrder = CursorContract.MovieData.COLUMN_NAME_VOTEAVERAGE + " DESC";
+                    whereColumns = null;
+                    whereValue = null;
                     Toast.makeText(getContext(), "Sorting by Ratings...", Toast.LENGTH_SHORT)
                             .show();
                     break;
                 case "favorites":
-                    String[] whereValues = {"2"};
-                    CursorDbHelper cursorDbHelper3 = new CursorDbHelper(getContext());
-                    SQLiteDatabase db3 = cursorDbHelper3.getWritableDatabase();
-                    Cursor cursor3 = db3.query(
-                            CursorContract.MovieData.TABLE_NAME,  // The table to query
-                            null,                               // The columns to return
-                            CursorContract.MovieData.COLUMN_NAME_FAVORITE + "= ?",
-                            // The columns for the WHERE clause
-                            whereValues,
-                            // The values for the WHERE clause
-                            null,                                     // don't group the rows
-                            null,                                     // don't filter by row groups
-                            ""                                 // The sort order
-                    );
-                    asyncCursorAdapter.changeCursor(cursor3);
-                    asyncCursorAdapter.notifyDataSetChanged();
+                    sortOrder = null;
+                    whereColumns = CursorContract.MovieData.COLUMN_NAME_FAVORITE + "= ?";
+                    whereValue = new String[] {"2"};
                     Toast.makeText(getContext(), "Sorting by Favorites...", Toast.LENGTH_SHORT)
                             .show();
                     break;
                 default:
-                    CursorDbHelper cursorDbHelper4 = new CursorDbHelper(getContext());
-                    SQLiteDatabase db4 = cursorDbHelper4.getWritableDatabase();
-                    Cursor cursor4 = db4.query(
-                            CursorContract.MovieData.TABLE_NAME,  // The table to query
-                            null,                               // The columns to return
-                            null,  // The columns for the WHERE clause
-                            null,                            // The values for the WHERE clause
-                            null,                                     // don't group the rows
-                            null,                                     // don't filter by row groups
-                            CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC"
-                            // The sort order
-                    );
-                    asyncCursorAdapter.changeCursor(cursor4);
-                    asyncCursorAdapter.notifyDataSetChanged();
+                    sortOrder = CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
+                    whereColumns = null;
+                    whereValue = null;
                     Toast.makeText(getContext(), "Sorting by Popularity...", Toast.LENGTH_SHORT)
                             .show();
                     break;
             }
+            CursorDbHelper cursorDbHelper = new CursorDbHelper(getContext());
+            SQLiteDatabase db = cursorDbHelper.getWritableDatabase();
+            Log.v(LOG_TAG, sortOrder + whereColumns + whereValue);
+            Cursor cursor = db.query(
+                    CursorContract.MovieData.TABLE_NAME,  // The table to query
+                    null,                               // The columns to return
+                    whereColumns,  // The columns for the WHERE clause
+                    whereValue,                // The values for the WHERE clause
+                    null,                                     // don't group the rows
+                    null,                                     // don't filter by row groups
+                    sortOrder // The sort order
+            );
+            asyncCursorAdapter.changeCursor(cursor);
+            asyncCursorAdapter.notifyDataSetChanged();
         }
     }
 
