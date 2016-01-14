@@ -14,6 +14,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
 import com.adamhurwitz.android.popularmovies.data.CursorContract;
 import com.adamhurwitz.android.popularmovies.data.CursorDbHelper;
@@ -29,7 +31,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public abstract class FetchReviewTask extends AsyncTask<String, Void, Void> {
+public class FetchReviewTask extends AsyncTask<String, Void, String[]> {
 
     private final String LOG_TAG = FetchReviewTask.class.getSimpleName();
     public static final String BASE_URL = "http://api.themoviedb.org/3/movie/";
@@ -37,6 +39,8 @@ public abstract class FetchReviewTask extends AsyncTask<String, Void, Void> {
     public static final String KEY_CODE = "81696f0358507756b5119609b0fae31e";
 
     private final Context context;
+    private AsyncCursorAdapter asyncCursorAdapter;
+    private View detailFragmentView;
 
 
     /**
@@ -45,13 +49,13 @@ public abstract class FetchReviewTask extends AsyncTask<String, Void, Void> {
      * @param context Provides context.
      */
 
-    public FetchReviewTask(Context context) {
+    public FetchReviewTask(Context context, View view) {
         this.context = context;
+        detailFragmentView = view;
     }
 
-
     @Override
-    protected Void doInBackground(String... params) {
+    protected String[] doInBackground(String... params) {
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
         HttpURLConnection urlConnection = null;
@@ -112,7 +116,12 @@ public abstract class FetchReviewTask extends AsyncTask<String, Void, Void> {
             }
         }
 
-        parseJSONResponse(jsonResponse, params[1]);
+        try {
+            return parseJSONResponse(jsonResponse, params[1]);
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
+            e.printStackTrace();
+        }
 
         /*if (!jsonResponse.isEmpty()) {
             // return ArrayList of MovieData Objects
@@ -132,9 +141,7 @@ public abstract class FetchReviewTask extends AsyncTask<String, Void, Void> {
      *                     Google doodles.
      */
 
-    private Void parseJSONResponse(String jsonResponse, String params1)
-    //throws JSONException
-    {
+    private String[] parseJSONResponse(String jsonResponse, String params1) throws JSONException {
         try {
             // convert String output into JSONObject
             JSONObject jsonObject = new JSONObject(jsonResponse);
@@ -148,10 +155,13 @@ public abstract class FetchReviewTask extends AsyncTask<String, Void, Void> {
                 // parse out each movie in Array
                 reviews[i] = jObject.getString("content");
             }
-            putDataIntoDb(reviews, params1);
+            if (reviews.length != 0) {
+                putDataIntoDb(reviews, params1);
+            }
             Log.v(LOG_TAG, "Movie_Review_Length" + params1 + ": " + reviews.length);
             //Log.v(LOG_TAG, "Movie_Review_1"+params1+ ": "+ reviews[0]);
             //Log.v(LOG_TAG, "Movie_Review_2"+params1+ ": "+ reviews[2]);
+            return reviews;
         } catch (JSONException e) {
             Log.e(LOG_TAG, "PARSING ERROR " + e.getMessage(), e);
             e.printStackTrace();
@@ -229,4 +239,63 @@ public abstract class FetchReviewTask extends AsyncTask<String, Void, Void> {
         Log.v(LOG_TAG, "Reviews_in_FetchReviewTask: " + review1 + " " + review2 + " " + review3);
     }
 
+    @Override
+    /**
+     * Override the onPostExecute method to notify the grid view adapter that new data was
+     * received so that the items in the grid view can appropriately reflect the changes.
+     * @param reviews A list of objects with information about the reviews.
+     */
+    public void onPostExecute(String[] reviews) {
+        //TODO: Add Movie Reviews
+        Log.v("OMEGA ADAM", "OMEGA: " + reviews);
+        // get id for reviews
+        TextView review1_interface = (TextView) detailFragmentView.findViewById(R.id.review1_view);
+        Log.v("detailreviewinPost", review1_interface.toString());
+        TextView review2_interface = (TextView) detailFragmentView.findViewById(R.id.review2_view);
+        TextView review3_interface = (TextView) detailFragmentView.findViewById(R.id.review3_view);
+
+        // Get Reviews
+//        CursorDbHelper dbHelper = new CursorDbHelper(context);
+//        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+//        Cursor c = db.query(
+//                CursorContract.MovieData.TABLE_NAME,
+//                null,
+//                CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
+//                new String[]{movieTitle},
+//                null,
+//                null,
+//                CursorContract.MovieData._ID + " DESC"
+//        );
+//
+//        c.moveToFirst();
+//
+//        final String review_1 = c.getString(c.getColumnIndex(CursorContract
+//                .MovieData.COLUMN_NAME_REVIEW_1));
+//        Log.v(LOG_TAG, "Review_Txt_1: " + review_1);
+//
+//        final String review_2 = c.getString(c.getColumnIndex(CursorContract
+//                .MovieData.COLUMN_NAME_REVIEW_2));
+//        Log.v(LOG_TAG, "Review_Txt_2: " + review_2);
+//
+//        final String review_3 = c.getString(c.getColumnIndex(CursorContract
+//                .MovieData.COLUMN_NAME_REVIEW_3));
+//        Log.v(LOG_TAG, "Review_Txt_3: " + review_3);
+
+        if (reviews.length == 0) {
+            //do nothing
+        }
+        if (reviews.length == 1 && reviews[0] != null) {
+            Log.v("review1", reviews[0]);
+            review1_interface.setText(reviews[0]);
+        }
+        if (reviews.length == 2 && reviews[1] != null) {
+            Log.v("review1", reviews[1]);
+            review2_interface.setText(reviews[1]);
+        }
+        if (reviews.length == 3 && reviews[2] != null) {
+            Log.v("review1", reviews[2]);
+            review3_interface.setText(reviews[2]);
+        }
+    }
 }

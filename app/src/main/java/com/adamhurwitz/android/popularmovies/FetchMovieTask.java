@@ -41,7 +41,7 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
     /**
      * Constructor for the FetchDoodleDataTask object.
      *
-     * @param context            Provides context.
+     * @param context Provides context.
      */
     public FetchMovieTask(Context context) {
         this.context = context;
@@ -122,7 +122,7 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
      * Parses the JSON response for information about the Google doodles.
      *
      * @param jsonResponse A JSON string which needs to be parsed for data about the
-     *                           Google doodles.
+     *                     Google doodles.
      */
     private void parseJSONResponse(String jsonResponse)
     //throws JSONException
@@ -155,7 +155,7 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
     public void putDataIntoDb(
             //String id,
             Integer movie_id, String title, String image_url, String summary, Double
-            vote_average, Double popularity, String release_date) {
+                    vote_average, Double popularity, String release_date) {
 
         // Access database
         CursorDbHelper mDbHelper = new CursorDbHelper(context);
@@ -189,7 +189,7 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
                 CursorContract.MovieData.TABLE_NAME,  // The table to query
                 null,                                // The columns to return
                 CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?", // The columns for the WHERE clause
-                new String[] {title}, // The values for the WHERE clause
+                new String[]{title}, // The values for the WHERE clause
                 null,                                     // don't group the rows
                 null,                                     // don't filter by row groups
                 CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC"  // The sort order

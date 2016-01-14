@@ -1,9 +1,12 @@
 package com.adamhurwitz.android.popularmovies;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -33,12 +36,14 @@ public class DetailFragment extends Fragment {
     String toggle = "off";
     String movieId = "";
     String movieTitle = "";
+    View detailView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_detail, container, false);
+        detailView = view;
         asyncCursorAdapter = new com.adamhurwitz.android.popularmovies.AsyncCursorAdapter(
                 getActivity(), null, 0);
 
@@ -92,8 +97,7 @@ public class DetailFragment extends Fragment {
 
             // get id for reviews
             TextView review1_interface = (TextView) view.findViewById(R.id.review1_view);
-            TextView review2_interface = (TextView) view.findViewById(R.id.review2_view);
-            TextView review3_interface = (TextView) view.findViewById(R.id.review3_view);
+            Log.v("textviewinDetailfragme", review1_interface.toString());
 
             // Get Reviews
             CursorDbHelper dbHelper = new CursorDbHelper(getContext());
@@ -124,15 +128,25 @@ public class DetailFragment extends Fragment {
             Log.v(LOG_TAG, "Review_Txt_3: " + review_3);
 
 
-            if (review_1 != null) {
-                review1_interface.setText(review_1);
-            }
-            if (review_2 != null) {
-                review2_interface.setText(review_2);
-            }
-            if (review_3 != null) {
-                review3_interface.setText(review_3);
-            }
+//            if (review_1 != null) {
+//                review1_interface.setText(review_1);
+//                review_1_var = review_1;
+//            } else {
+//                review1_card.setVisibility(View.INVISIBLE);
+//            }
+//            if (review_2 != null) {
+//                review2_interface.setText(review_2);
+//                review_2_var = review_2;
+//            } else {
+//                review2_card.setVisibility(View.INVISIBLE);
+//            }
+//            if (review_3 != null) {
+//                review3_interface.setText(review_3);
+//                review_3_var = review_3;
+//            } else {
+//                review3_card.setVisibility(View.INVISIBLE);
+//            }
+
 
             //Create MovieData User Rating Within 'fragment_detail.xml'
 
@@ -300,9 +314,29 @@ public class DetailFragment extends Fragment {
         return view;
     }
 
-
     @Override
     public void onStart() {
         super.onStart();
+        // Call AsyncTask to get Movie Data
+        getReview(movieId, movieTitle);
+    }
+
+
+    private void getReview(String movie_id, String title) {
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+                this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+        Log.v("ADAM OMEGA", "OMEGA: " + movieId + movieTitle);
+        if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
+            FetchReviewTask reviewTask = new FetchReviewTask(getContext(), detailView);
+            reviewTask.execute(movie_id, title);
+        }
+    }
+
+    private class FetchReviewTask extends com.adamhurwitz.android.popularmovies.FetchReviewTask {
+        public FetchReviewTask(Context context, View view) {
+            super(context, view);
+        }
     }
 }
+
