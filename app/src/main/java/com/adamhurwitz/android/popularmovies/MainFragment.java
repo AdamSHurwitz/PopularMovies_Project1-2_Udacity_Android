@@ -2,11 +2,16 @@ package com.adamhurwitz.android.popularmovies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -14,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import com.adamhurwitz.android.popularmovies.data.CursorContract;
 
@@ -21,9 +27,14 @@ import com.adamhurwitz.android.popularmovies.data.CursorContract;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainFragment extends Fragment {
+public class MainFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private final String LOG_TAG = MainFragment.class.getSimpleName();
     private AsyncCursorAdapter mAsyncCursorAdapter;
+    private static final int LOADER_FRAGMENT = 0;
+
+    String whereColumns = "";
+    String[] whereValue = {"0"};
+    String sortOrder = "";
 
     /**
      * Empty constructor for the AsyncParcelableFragment1() class.
@@ -139,6 +150,70 @@ public class MainFragment extends Fragment {
         public FetchYouTubeUrlTask(Context context) {
             super(context);
         }
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        SharedPreferences sql_pref = PreferenceManager.getDefaultSharedPreferences(getContext());
+        String sort_value = sql_pref.getString("sort_key", "popularity.desc");
+        switch (sort_value) {
+            case "popularity.desc":
+                sortOrder = CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
+                whereColumns = null;
+                whereValue = null;
+                Toast.makeText(getContext(), "Sorting by Popularity...", Toast.LENGTH_SHORT)
+                        .show();
+                break;
+            case "vote_average.desc":
+                sortOrder = CursorContract.MovieData.COLUMN_NAME_VOTEAVERAGE + " DESC";
+                whereColumns = null;
+                whereValue = null;
+                Toast.makeText(getContext(), "Sorting by Ratings...", Toast.LENGTH_SHORT)
+                        .show();
+                break;
+            case "favorites":
+                sortOrder = null;
+                whereColumns = CursorContract.MovieData.COLUMN_NAME_FAVORITE + "= ?";
+                whereValue[0] = "2";
+                Toast.makeText(getContext(), "Sorting by Favorites...", Toast.LENGTH_SHORT)
+                        .show();
+                break;
+            default:
+                sortOrder = CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
+                whereColumns = null;
+                whereValue = null;
+                Toast.makeText(getContext(), "Sorting by Popularity...", Toast.LENGTH_SHORT)
+                        .show();
+                break;
+        }
+        return new CursorLoader(getActivity(),
+                // The table to query
+                CursorContract.MovieData.CONTENT_URI,
+                // The columns to return
+                null,
+                // The columns for the WHERE clause
+                whereColumns,
+                // The values for the WHERE clause
+                whereValue,
+                // The sort order
+                sortOrder
+        );
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mAsyncCursorAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mAsyncCursorAdapter.swapCursor(null);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(LOADER_FRAGMENT, null, this);
+        super.onActivityCreated(savedInstanceState);
     }
 }
 

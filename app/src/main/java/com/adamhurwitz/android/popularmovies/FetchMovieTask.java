@@ -2,13 +2,10 @@ package com.adamhurwitz.android.popularmovies;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.adamhurwitz.android.popularmovies.data.CursorContract;
 
@@ -227,63 +224,5 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
             uri = context.getContentResolver().insert(
                     CursorContract.MovieData.CONTENT_URI, values);
         }
-    }
-
-    @Override
-
-    /** Override the onPostExecute method to notify the grid view adapter that new data was
-     * received so that the items in the grid view can appropriately reflect the changes.
-     * @param movieDataObjects A list of objects with information about the Movies.
-     */
-    public void onPostExecute(Void param) {
-        SharedPreferences sql_pref = PreferenceManager.getDefaultSharedPreferences(context);
-        String sort_value = sql_pref.getString("sort_key", "popularity.desc");
-        String sortOrder = "";
-        String whereColumns = "";
-        String[] whereValue = {"0"};
-        switch (sort_value) {
-            case "popularity.desc":
-                sortOrder = CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
-                whereColumns = null;
-                whereValue = null;
-                Toast.makeText(context, "Sorting by Popularity...", Toast.LENGTH_SHORT)
-                        .show();
-                break;
-            case "vote_average.desc":
-                sortOrder = CursorContract.MovieData.COLUMN_NAME_VOTEAVERAGE + " DESC";
-                whereColumns = null;
-                whereValue = null;
-                Toast.makeText(context, "Sorting by Ratings...", Toast.LENGTH_SHORT)
-                        .show();
-                break;
-            case "favorites":
-                sortOrder = null;
-                whereColumns = CursorContract.MovieData.COLUMN_NAME_FAVORITE + "= ?";
-                whereValue[0] = "2";
-                Toast.makeText(context, "Sorting by Favorites...", Toast.LENGTH_SHORT)
-                        .show();
-                break;
-            default:
-                sortOrder = CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
-                whereColumns = null;
-                whereValue = null;
-                Toast.makeText(context, "Sorting by Popularity...", Toast.LENGTH_SHORT)
-                        .show();
-                break;
-        }
-        Cursor cursor = context.getContentResolver().query(
-                // The table to query
-                CursorContract.MovieData.CONTENT_URI,
-                // The columns to return
-                null,
-                // The columns for the WHERE clause
-                whereColumns,
-                // The values for the WHERE clause
-                whereValue,
-                // The sort order
-                sortOrder
-        );
-        mCursorAdapter.changeCursor(cursor);
-        mCursorAdapter.notifyDataSetChanged();
     }
 }
