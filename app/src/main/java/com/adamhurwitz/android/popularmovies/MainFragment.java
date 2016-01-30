@@ -2,13 +2,10 @@ package com.adamhurwitz.android.popularmovies;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,10 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.Toast;
 
 import com.adamhurwitz.android.popularmovies.data.CursorContract;
-import com.adamhurwitz.android.popularmovies.data.CursorDbHelper;
 
 
 /**
@@ -28,7 +23,7 @@ import com.adamhurwitz.android.popularmovies.data.CursorDbHelper;
  */
 public class MainFragment extends Fragment {
     private final String LOG_TAG = MainFragment.class.getSimpleName();
-    private AsyncCursorAdapter asyncCursorAdapter;
+    private AsyncCursorAdapter mAsyncCursorAdapter;
 
     /**
      * Empty constructor for the AsyncParcelableFragment1() class.
@@ -45,13 +40,13 @@ public class MainFragment extends Fragment {
         setHasOptionsMenu(true);
 
         // Initialize Adapter
-        asyncCursorAdapter = new com.adamhurwitz.android.popularmovies.AsyncCursorAdapter(
+        mAsyncCursorAdapter = new com.adamhurwitz.android.popularmovies.AsyncCursorAdapter(
                 getActivity(), null, 0);
         Log.v("CursorAdapter_Called", "HERE");
 
         // Get a reference to the grid view layout and attach the adapter to it.
         GridView gridView = (GridView) view.findViewById(R.id.grid_view_layout);
-        gridView.setAdapter(asyncCursorAdapter);
+        gridView.setAdapter(mAsyncCursorAdapter);
 
         // Click listener when grid item is selected
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -119,75 +114,9 @@ public class MainFragment extends Fragment {
 
         if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
             com.adamhurwitz.android.popularmovies.FetchMovieTask MovieTask =
-                    new FragmentFetchMovieTask(getContext());
+                    new FetchMovieTask(getContext(), mAsyncCursorAdapter) {
+                    };
             MovieTask.execute("popularity.desc");
-        }
-    }
-
-    // AsyncTask for movie data
-    private class FragmentFetchMovieTask extends com.adamhurwitz.android.popularmovies
-            .FetchMovieTask {
-        public FragmentFetchMovieTask(Context context) {
-            super(context);
-        }
-
-        @Override
-
-        /** Override the onPostExecute method to notify the grid view adapter that new data was
-         * received so that the items in the grid view can appropriately reflect the changes.
-         * @param movieDataObjects A list of objects with information about the Movies.
-         */
-        public void onPostExecute(Void param) {
-            SharedPreferences sql_pref = PreferenceManager.getDefaultSharedPreferences(
-                    getContext());
-            String sort_value = sql_pref.getString("sort_key", "popularity.desc");
-            String sortOrder = "";
-            String whereColumns = "";
-            String[] whereValue;
-            switch (sort_value) {
-                case "popularity.desc":
-                    sortOrder = CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
-                    whereColumns = null;
-                    whereValue = null;
-                    Toast.makeText(getContext(), "Sorting by Popularity...", Toast.LENGTH_SHORT)
-                            .show();
-                    break;
-                case "vote_average.desc":
-                    sortOrder = CursorContract.MovieData.COLUMN_NAME_VOTEAVERAGE + " DESC";
-                    whereColumns = null;
-                    whereValue = null;
-                    Toast.makeText(getContext(), "Sorting by Ratings...", Toast.LENGTH_SHORT)
-                            .show();
-                    break;
-                case "favorites":
-                    sortOrder = null;
-                    whereColumns = CursorContract.MovieData.COLUMN_NAME_FAVORITE + "= ?";
-                    whereValue = new String[] {"2"};
-                    Toast.makeText(getContext(), "Sorting by Favorites...", Toast.LENGTH_SHORT)
-                            .show();
-                    break;
-                default:
-                    sortOrder = CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
-                    whereColumns = null;
-                    whereValue = null;
-                    Toast.makeText(getContext(), "Sorting by Popularity...", Toast.LENGTH_SHORT)
-                            .show();
-                    break;
-            }
-            CursorDbHelper cursorDbHelper = new CursorDbHelper(getContext());
-            SQLiteDatabase db = cursorDbHelper.getWritableDatabase();
-            Log.v(LOG_TAG, sortOrder + whereColumns + whereValue);
-            Cursor cursor = db.query(
-                    CursorContract.MovieData.TABLE_NAME,  // The table to query
-                    null,                               // The columns to return
-                    whereColumns,  // The columns for the WHERE clause
-                    whereValue,                // The values for the WHERE clause
-                    null,                                     // don't group the rows
-                    null,                                     // don't filter by row groups
-                    sortOrder // The sort order
-            );
-            asyncCursorAdapter.changeCursor(cursor);
-            asyncCursorAdapter.notifyDataSetChanged();
         }
     }
 

@@ -2,14 +2,15 @@ package com.adamhurwitz.android.popularmovies;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.adamhurwitz.android.popularmovies.data.CursorContract;
-import com.adamhurwitz.android.popularmovies.data.CursorDbHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,6 +22,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Vector;
 
 // param1 passes into doInBackground()
 // param3 declares return type for doInBackground()
@@ -37,14 +39,17 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
     public static final String KEY_CODE = "81696f0358507756b5119609b0fae31e";
 
     private final Context context;
+    private AsyncCursorAdapter mCursorAdapter;
+    Vector<ContentValues> cVVector;
 
     /**
      * Constructor for the FetchDoodleDataTask object.
      *
      * @param context Provides context.
      */
-    public FetchMovieTask(Context context) {
+    public FetchMovieTask(Context context, AsyncCursorAdapter cursorAdapter) {
         this.context = context;
+        mCursorAdapter = cursorAdapter;
     }
 
 
@@ -111,9 +116,16 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
             }
         }
 
-        // return ArrayList of MovieData Objects
-        parseJSONResponse(jsonResponse);
-
+        // If valid data was returned, return the parsed data.
+        try {
+            Log.i(LOG_TAG, "The Google doodle data that was returned is: " +
+                    jsonResponse);
+            parseJSONResponse(jsonResponse);
+            return null;
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
+            e.printStackTrace();
+        }
         // Any other case that gets here is an error that was not caught, so return null.
         return null;
     }
@@ -125,13 +137,15 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
      *                     Google doodles.
      */
     private void parseJSONResponse(String jsonResponse)
-    //throws JSONException
-    {
+            throws JSONException {
         try {
             // convert String output into JSONObject
             JSONObject jsonObject = new JSONObject(jsonResponse);
             // parse JSONObject into JSONArray
             JSONArray jsonArray = jsonObject.getJSONArray("results");
+            // Initialize ArrayList of Content Values size of data Array length
+            cVVector = new Vector<>(jsonArray.length());
+            Log.v(LOG_TAG, "cVVector_Length: " + jsonArray.length());
             // create ForLoop to loop through each index in "results" ArrayList
             // and parse for JSONObject by ArrayList index
             for (int i = 0; i < jsonArray.length(); i++) {
@@ -158,12 +172,12 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
                     vote_average, Double popularity, String release_date) {
 
         // Access database
-        CursorDbHelper mDbHelper = new CursorDbHelper(context);
+        //CursorDbHelper mDbHelper = new CursorDbHelper(context);
 
         // Put Info into Database
 
         // Gets the data repository in write mode
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        //SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
@@ -176,28 +190,100 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
         values.put(CursorContract.MovieData.COLUMN_NAME_RELEASEDATE, release_date);
         values.put(CursorContract.MovieData.COLUMN_NAME_FAVORITE, "1");
 
+        /*cVVector.add(values);
+        Cursor cursor = context.getContentResolver().query(
+                // The content URI of the words table
+                CursorContract.MovieData.CONTENT_URI,
+                // projection: the columns to return for each row
+                null,
+                // selectionClause: selection criteria
+                CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
+                // selectionArgs: selection criteria
+                new String[]{title},
+                // sortOrder: the sort order for the returned rows
+                CursorContract.MovieData._ID);
+        if (cursor.getCount() == 0) {
+            if (cVVector.size() > 0) {
+                ContentValues[] cvArray = new ContentValues[cVVector.size()];
+                cVVector.toArray(cvArray);
+                context.getContentResolver().bulkInsert(CursorContract.MovieData.CONTENT_URI,
+                        cvArray);
+                Log.v(LOG_TAG, "Length_of_Array: " + cvArray.length);
+            }
+            Log.v(LOG_TAG, "Length_of_Vector: " + cVVector.size());
+
+        }*/
+
         // Insert the new row, returning the primary key value of the new row
         long thisRowID;
 
-        // If you are querying entire table, can leave everything as Null
-        // Querying when Item ID Exists
-        Cursor cursor = db.query(
-                CursorContract.MovieData.TABLE_NAME,  // The table to query
-                null,                                // The columns to return
-                CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?", // The columns for the WHERE clause
-                new String[]{title}, // The values for the WHERE clause
-                null,                                     // don't group the rows
-                null,                                     // don't filter by row groups
-                CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC"  // The sort order
-        );
-
-        // If the Title Does Not Exist, Insert All Values
+        Cursor cursor = context.getContentResolver().query(CursorContract.MovieData.CONTENT_URI,
+                null,
+                CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
+                new String[]{title},
+                CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC");
         if (cursor.getCount() == 0) {
-            thisRowID = db.insert(
-                    CursorContract.MovieData.TABLE_NAME,
-                    null,
-                    values);
-            Log.v("VALUES_INSERTED: ", values.toString());
+            Uri uri;
+            uri = context.getContentResolver().insert(
+                    CursorContract.MovieData.CONTENT_URI, values);
         }
+    }
+
+    @Override
+
+    /** Override the onPostExecute method to notify the grid view adapter that new data was
+     * received so that the items in the grid view can appropriately reflect the changes.
+     * @param movieDataObjects A list of objects with information about the Movies.
+     */
+    public void onPostExecute(Void param) {
+        SharedPreferences sql_pref = PreferenceManager.getDefaultSharedPreferences(context);
+        String sort_value = sql_pref.getString("sort_key", "popularity.desc");
+        String sortOrder = "";
+        String whereColumns = "";
+        String[] whereValue = {"0"};
+        switch (sort_value) {
+            case "popularity.desc":
+                sortOrder = CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
+                whereColumns = null;
+                whereValue = null;
+                Toast.makeText(context, "Sorting by Popularity...", Toast.LENGTH_SHORT)
+                        .show();
+                break;
+            case "vote_average.desc":
+                sortOrder = CursorContract.MovieData.COLUMN_NAME_VOTEAVERAGE + " DESC";
+                whereColumns = null;
+                whereValue = null;
+                Toast.makeText(context, "Sorting by Ratings...", Toast.LENGTH_SHORT)
+                        .show();
+                break;
+            case "favorites":
+                sortOrder = null;
+                whereColumns = CursorContract.MovieData.COLUMN_NAME_FAVORITE + "= ?";
+                whereValue[0] = "2";
+                Toast.makeText(context, "Sorting by Favorites...", Toast.LENGTH_SHORT)
+                        .show();
+                break;
+            default:
+                sortOrder = CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
+                whereColumns = null;
+                whereValue = null;
+                Toast.makeText(context, "Sorting by Popularity...", Toast.LENGTH_SHORT)
+                        .show();
+                break;
+        }
+        Cursor cursor = context.getContentResolver().query(
+                // The table to query
+                CursorContract.MovieData.CONTENT_URI,
+                // The columns to return
+                null,
+                // The columns for the WHERE clause
+                whereColumns,
+                // The values for the WHERE clause
+                whereValue,
+                // The sort order
+                sortOrder
+        );
+        mCursorAdapter.changeCursor(cursor);
+        mCursorAdapter.notifyDataSetChanged();
     }
 }

@@ -3,7 +3,6 @@ package com.adamhurwitz.android.popularmovies;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,7 +12,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.adamhurwitz.android.popularmovies.data.CursorContract;
-import com.adamhurwitz.android.popularmovies.data.CursorDbHelper;
 import com.squareup.picasso.Picasso;
 
 
@@ -70,10 +68,6 @@ public class AsyncCursorAdapter extends android.widget.CursorAdapter {
     }
 
     public void bindView(View view, Context context, Cursor cursor) {
-        // Access database
-        CursorDbHelper mDbHelper = new CursorDbHelper(context);
-        // Gets the data repository in read mode
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
         String imageURL = cursor.getString(
                 cursor.getColumnIndexOrThrow(CursorContract.MovieData.COLUMN_NAME_IMAGEURL));
