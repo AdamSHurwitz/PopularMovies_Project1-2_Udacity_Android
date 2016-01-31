@@ -36,6 +36,9 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     String[] whereValue = {"0"};
     String sortOrder = "";
 
+    //String initialPref = "popularity.desc";
+    String initialPref;
+
     /**
      * Empty constructor for the AsyncParcelableFragment1() class.
      */
@@ -43,9 +46,101 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        // Check initial status of SharedPreference value against current
+        SharedPreferences sql_pref = PreferenceManager.getDefaultSharedPreferences(getContext());
+        String sort_value = sql_pref.getString("sort_key", "popularity.desc");
+        Log.v(LOG_TAG, "CALLED_ON_ONRESUME | " + sort_value);
+        if (initialPref == null) {
+            initialPref = sort_value;
+            Log.v(LOG_TAG, "EMPTY TRUE");
+            Log.v(LOG_TAG, "INITIALPREF INITIALIZED TO " + initialPref);
+        }
+        if (!sort_value.equals(initialPref)) {
+            Log.v(LOG_TAG, "CALLED_ON_INITIALPREF | " + initialPref + " CALLED_ON_ONRESUME | " + sort_value);
+            initialPref = sort_value;
+            Log.v(LOG_TAG, "CALLED_ON_REQUERY!");
+
+            String whereColumns2 = "";
+            String[] whereValue2;
+            String sortOrder2 = "";
+
+            switch (sort_value) {
+                case "popularity.desc":
+                    sortOrder2 = CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
+                    whereColumns2 = null;
+                    whereValue2 = null;
+                    Toast.makeText(getContext(), "Sorting by Popularity...", Toast.LENGTH_SHORT)
+                            .show();
+                    break;
+                case "vote_average.desc":
+                    sortOrder2 = CursorContract.MovieData.COLUMN_NAME_VOTEAVERAGE + " DESC";
+                    whereColumns2 = null;
+                    whereValue2 = null;
+                    Toast.makeText(getContext(), "Sorting by Ratings...", Toast.LENGTH_SHORT)
+                            .show();
+                    break;
+                case "favorites":
+                    sortOrder2 = null;
+                    whereColumns2 = CursorContract.MovieData.COLUMN_NAME_FAVORITE + "= ?";
+                    whereValue2 = new String[] {"2"};
+                    Toast.makeText(getContext(), "Sorting by Favorites...", Toast.LENGTH_SHORT)
+                            .show();
+                    break;
+                default:
+                    sortOrder2 = CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC";
+                    whereColumns2 = null;
+                    whereValue2 = null;
+                    Toast.makeText(getContext(), "Sorting by Popularity...", Toast.LENGTH_SHORT)
+                            .show();
+                    break;
+            }
+
+            Cursor onResumeCursor = getContext().getContentResolver().query(
+                    // The table to query
+                    CursorContract.MovieData.CONTENT_URI,
+                    // The columns to return
+                    null,
+                    // The columns for the WHERE clause
+                    whereColumns2,
+                    // The values for the WHERE clause
+                    whereValue2,
+                    // The sort order
+                    sortOrder2);
+            mAsyncCursorAdapter.changeCursor(onResumeCursor);
+            /*if (onResumeCursor.getCount() > 0) {
+                mAsyncCursorAdapter.changeCursor(onResumeCursor);
+            } else {
+                Toast.makeText(getContext(), "Favorites list is empty", Toast.LENGTH_SHORT)
+                        .show();
+            }*/
+
+
+            //onLoaderReset();
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Call AsyncTask to get Movie Data
+/*        SharedPreferences sql_pref = PreferenceManager.getDefaultSharedPreferences(getContext());
+        String sort_value = sql_pref.getString("sort_key", "popularity.desc");
+        Log.v(LOG_TAG, "CALLED_ON_START | " + sort_value);*/
+        getMovieData();
+    }
+
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.grid_view_layout, container, false);
+
+      /*  SharedPreferences sql_pref = PreferenceManager.getDefaultSharedPreferences(getContext());
+        String sort_value = sql_pref.getString("sort_key", "popularity.desc");
+        Log.v(LOG_TAG,"CALLED_ON_ONCREATEVIEW | "+sort_value);
+        initialPref = sort_value;*/
 
         // Create menu
         setHasOptionsMenu(true);
@@ -96,13 +191,6 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
         });
 
         return view;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        // Call AsyncTask to get Movie Data
-        getMovieData();
     }
 
 
@@ -207,6 +295,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+        //mAsyncCursorAdapter.changeCursor(null);
         mAsyncCursorAdapter.swapCursor(null);
     }
 
