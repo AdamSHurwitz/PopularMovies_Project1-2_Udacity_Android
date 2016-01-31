@@ -36,7 +36,6 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     String[] whereValue = {"0"};
     String sortOrder = "";
 
-    //String initialPref = "popularity.desc";
     String initialPref;
 
     /**
@@ -84,7 +83,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
                 case "favorites":
                     sortOrder2 = null;
                     whereColumns2 = CursorContract.MovieData.COLUMN_NAME_FAVORITE + "= ?";
-                    whereValue2 = new String[] {"2"};
+                    whereValue2 = new String[]{"2"};
                     Toast.makeText(getContext(), "Sorting by Favorites...", Toast.LENGTH_SHORT)
                             .show();
                     break;
@@ -109,15 +108,6 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
                     // The sort order
                     sortOrder2);
             mAsyncCursorAdapter.changeCursor(onResumeCursor);
-            /*if (onResumeCursor.getCount() > 0) {
-                mAsyncCursorAdapter.changeCursor(onResumeCursor);
-            } else {
-                Toast.makeText(getContext(), "Favorites list is empty", Toast.LENGTH_SHORT)
-                        .show();
-            }*/
-
-
-            //onLoaderReset();
         }
     }
 
@@ -125,7 +115,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     public void onStart() {
         super.onStart();
         // Call AsyncTask to get Movie Data
-/*        SharedPreferences sql_pref = PreferenceManager.getDefaultSharedPreferences(getContext());
+        /*SharedPreferences sql_pref = PreferenceManager.getDefaultSharedPreferences(getContext());
         String sort_value = sql_pref.getString("sort_key", "popularity.desc");
         Log.v(LOG_TAG, "CALLED_ON_START | " + sort_value);*/
         getMovieData();
@@ -295,7 +285,6 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        //mAsyncCursorAdapter.changeCursor(null);
         mAsyncCursorAdapter.swapCursor(null);
     }
 
