@@ -2,8 +2,6 @@ package com.adamhurwitz.android.popularmovies;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.widget.CardView;
@@ -12,7 +10,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.adamhurwitz.android.popularmovies.data.CursorContract;
-import com.adamhurwitz.android.popularmovies.data.CursorDbHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,6 +31,8 @@ public class FetchReviewTask extends AsyncTask<String, Void, String[]> {
 
     private final Context context;
     private View detailFragmentView;
+
+    int mRowsUpdated = 0;
 
 
     /**
@@ -157,12 +156,6 @@ public class FetchReviewTask extends AsyncTask<String, Void, String[]> {
 
     public void putDataIntoDb(String[] reviews, String title) {
 
-        // Access database
-        CursorDbHelper mDbHelper = new CursorDbHelper(context);
-        // Put Info into Database
-        // Gets the data repository in write mode
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
-
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
 
@@ -181,24 +174,9 @@ public class FetchReviewTask extends AsyncTask<String, Void, String[]> {
             values.put(CursorContract.MovieData.COLUMN_NAME_REVIEW_3, reviews[2]);
         }
         Log.v(LOG_TAG, title + " reviews_Array_Length: " + reviews.length);
-        //Log.v(LOG_TAG, title + " reviews" + " " + values.toString());
 
-        Cursor c = db.query(
-                CursorContract.MovieData.TABLE_NAME,  // The table to query
-                null, // The columns to return
-                CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
-                // The columns for the WHERE clause
-                new String[]{title}, // The values for the WHERE clause
-                null,                                     // don't group the rows
-                null,                                     // don't filter by row groups
-                CursorContract.MovieData._ID + " DESC" // The sort order
-
-        );
-
-        c.moveToFirst();
-
-        long thisRowID = db.update(
-                CursorContract.MovieData.TABLE_NAME,
+        mRowsUpdated = context.getContentResolver().update(
+                CursorContract.MovieData.CONTENT_URI,
                 values,
                 CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
                 new String[]{title});
