@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -44,6 +45,18 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     public MainFragment() {
     }
 
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
+     */
+    public interface Callback {
+        /**
+         * DetailFragmentCallback for when an item has been selected.
+         */
+        public void onItemSelected(Uri uri, String string);
+    }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -78,7 +91,21 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 
         // Click listener when grid item is selected
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
             @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                // CursorAdapter returns a cursor at the correct position for getItem(), or null
+                // if it cannot seek to that position.
+                Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
+                if (cursor != null) {
+                    String title = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
+                            .COLUMN_NAME_TITLE));
+                    ((Callback) getActivity()).onItemSelected(
+                            CursorContract.MovieData.buildMovieIdUri(), title);
+                }
+            }
+
+            /*@Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Cursor cursor = (Cursor) parent.getItemAtPosition(position);
                 String movie_id = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
@@ -109,7 +136,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 
                 // launch method that executes AsyncTask to build YouTube URL and update database
                 getYouTubeKey(movie_id, title);
-            }
+            }*/
         });
 
         return view;
@@ -229,6 +256,12 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     }
 
     @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(LOADER_FRAGMENT, null, this);
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         SharedPreferences sql_pref = PreferenceManager.getDefaultSharedPreferences(getContext());
         String sort_value = sql_pref.getString("sort_key", "popularity.desc");
@@ -284,12 +317,6 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mAsyncCursorAdapter.swapCursor(null);
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        getLoaderManager().initLoader(LOADER_FRAGMENT, null, this);
-        super.onActivityCreated(savedInstanceState);
     }
 }
 

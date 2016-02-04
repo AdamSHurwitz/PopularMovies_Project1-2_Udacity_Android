@@ -108,8 +108,7 @@ public class MovieProvider extends ContentProvider{
                 long _id = db.insert(CursorContract.MovieData.TABLE_NAME,
                         null, values);
                 if (_id > 0)
-                    returnUri = CursorContract.MovieData.buildProductUri(
-                            _id);
+                    returnUri = CursorContract.MovieData.buildMovieIdUri();
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;

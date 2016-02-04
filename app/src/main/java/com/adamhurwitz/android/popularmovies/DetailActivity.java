@@ -12,9 +12,21 @@ public class DetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+
         if (savedInstanceState == null){
+            // Create the detail fragment and add it to the activity using a fragment transaction
+
+            Bundle arguments = new Bundle();
+            arguments.putParcelable(DetailFragment.DETAIL_URI, getIntent().getData());
+            arguments.putString("movieTitle", getIntent().getStringExtra("string"));
+
+            // Set the Uri as the Arguments in the  new DetailFragment
+
+            DetailFragment fragment = new DetailFragment();
+            fragment.setArguments(arguments);
+
             getSupportFragmentManager().beginTransaction().
-                    add(R.id.detail_container, new DetailFragment())
+                    add(R.id.detail_container, fragment)
                     .commit();
         }
     }

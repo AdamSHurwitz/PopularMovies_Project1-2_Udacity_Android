@@ -1,7 +1,6 @@
 package com.adamhurwitz.android.popularmovies.data;
 
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -58,8 +57,8 @@ public class CursorContract {
         public static final String COLUMN_NAME_REVIEW_2 = "review_2";
         public static final String COLUMN_NAME_REVIEW_3 = "review_3";
 
-        public static Uri buildProductUri(long id) {
-            return ContentUris.withAppendedId(CONTENT_URI, id);
+        public static Uri buildMovieIdUri() {
+            return CONTENT_URI;
         }
     }
 
