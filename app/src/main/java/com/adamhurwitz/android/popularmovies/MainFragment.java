@@ -77,11 +77,6 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 
         View view = inflater.inflate(R.layout.grid_view_layout, container, false);
 
-      /*  SharedPreferences sql_pref = PreferenceManager.getDefaultSharedPreferences(getContext());
-        String sort_value = sql_pref.getString("sort_key", "popularity.desc");
-        Log.v(LOG_TAG,"CALLED_ON_ONCREATEVIEW | "+sort_value);
-        initialPref = sort_value;*/
-
         // Create menu
         setHasOptionsMenu(true);
 
@@ -100,8 +95,6 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
                 if (cursor != null) {
                     String mTitle = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
                             .COLUMN_NAME_TITLE));
-                    /*startActivity(new Intent(getContext(), MainActivity.class)
-                            .putExtra("title", title));*/
                     ((Callback) getActivity()).onItemSelected(
                             CursorContract.MovieData.buildMovieIdUri(), mTitle);
                     Log.v(LOG_TAG,"mTitle: "+mTitle);

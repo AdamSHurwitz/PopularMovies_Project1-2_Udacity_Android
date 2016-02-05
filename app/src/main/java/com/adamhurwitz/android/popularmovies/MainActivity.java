@@ -60,13 +60,6 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Call
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        MainFragment mf = (MainFragment) getSupportFragmentManager().findFragmentById(
-                R.id.container);
-    }
-
-    @Override
     public void onItemSelected(Uri contentUri, String title) {
         if (mTwoPane) {
             // In two-pane mode, show the detail view in this activity by
@@ -75,10 +68,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Call
             Log.v(LOG_TAG, "title: " + title);
             Bundle args = new Bundle();
             args.putParcelable(DetailFragment.DETAIL_URI, contentUri);
-            args.putString("title", title);
-            //startActivity(new Intent(this, DetailActivity.class).putExtra("title", title));
-            //args.putString("title", title);
-            //String title = getIntent().getStringExtra("title");
+            args.putString("mTitle", title);
 
             DetailFragment fragment = new DetailFragment();
             fragment.setArguments(args);
