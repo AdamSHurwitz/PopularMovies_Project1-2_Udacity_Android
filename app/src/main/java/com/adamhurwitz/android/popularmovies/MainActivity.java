@@ -75,7 +75,8 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Call
             Log.v(LOG_TAG, "title: " + title);
             Bundle args = new Bundle();
             args.putParcelable(DetailFragment.DETAIL_URI, contentUri);
-            startActivity(new Intent(this, DetailActivity.class).putExtra("title", title));
+            args.putString("title", title);
+            //startActivity(new Intent(this, DetailActivity.class).putExtra("title", title));
             //args.putString("title", title);
             //String title = getIntent().getStringExtra("title");
 
