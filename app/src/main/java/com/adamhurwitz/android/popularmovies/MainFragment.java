@@ -54,7 +54,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
         /**
          * DetailFragmentCallback for when an item has been selected.
          */
-        public void onItemSelected(Uri uri, String string);
+        public void onItemSelected(Uri uri, String title);
     }
 
     @Override
@@ -70,6 +70,11 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // Initialize Adapter
+        mAsyncCursorAdapter = new com.adamhurwitz.android.popularmovies.AsyncCursorAdapter(
+                getActivity(), null, 0);
+        Log.v("CursorAdapter_Called", "HERE");
+
         View view = inflater.inflate(R.layout.grid_view_layout, container, false);
 
       /*  SharedPreferences sql_pref = PreferenceManager.getDefaultSharedPreferences(getContext());
@@ -79,11 +84,6 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 
         // Create menu
         setHasOptionsMenu(true);
-
-        // Initialize Adapter
-        mAsyncCursorAdapter = new com.adamhurwitz.android.popularmovies.AsyncCursorAdapter(
-                getActivity(), null, 0);
-        Log.v("CursorAdapter_Called", "HERE");
 
         // Get a reference to the grid view layout and attach the adapter to it.
         GridView gridView = (GridView) view.findViewById(R.id.grid_view_layout);
@@ -98,10 +98,13 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
                 // if it cannot seek to that position.
                 Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
                 if (cursor != null) {
-                    String title = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
+                    String mTitle = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
                             .COLUMN_NAME_TITLE));
+                    /*startActivity(new Intent(getContext(), MainActivity.class)
+                            .putExtra("title", title));*/
                     ((Callback) getActivity()).onItemSelected(
-                            CursorContract.MovieData.buildMovieIdUri(), title);
+                            CursorContract.MovieData.buildMovieIdUri(), mTitle);
+                    Log.v(LOG_TAG,"mTitle: "+mTitle);
                 }
             }
 

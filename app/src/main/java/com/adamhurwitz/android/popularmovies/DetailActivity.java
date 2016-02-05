@@ -3,22 +3,27 @@ package com.adamhurwitz.android.popularmovies;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 public class DetailActivity extends AppCompatActivity {
+
+    private final String LOG_TAG = DetailActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        if (savedInstanceState == null){
+
+        if (savedInstanceState == null) {
             // Create the detail fragment and add it to the activity using a fragment transaction
 
             Bundle arguments = new Bundle();
             arguments.putParcelable(DetailFragment.DETAIL_URI, getIntent().getData());
-            arguments.putString("movieTitle", getIntent().getStringExtra("string"));
+            arguments.putString("mTitle", getIntent().getStringExtra("title"));
+            Log.v(LOG_TAG, "title: " + getIntent().getStringExtra("title"));
 
             // Set the Uri as the Arguments in the  new DetailFragment
 

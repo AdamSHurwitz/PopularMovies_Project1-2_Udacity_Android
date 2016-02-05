@@ -1,9 +1,6 @@
 package com.adamhurwitz.android.popularmovies;
 
-import android.content.Context;
 import android.database.Cursor;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -33,9 +30,22 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     View detailView;
     static final String DETAIL_URI = "URI";
     private Uri mUri;
-    private View view;
     private static final int DETAIL_LOADER = 0;
 
+    //Initialize views
+    ImageButton favoriteButton;
+    ImageButton playButton;
+    ImageView movieImage;
+    TextView movieTitleView;
+    TextView ratingView;
+    TextView releaseDateView;
+    TextView summaryView;
+    TextView review1View;
+    CardView review1Card;
+    TextView review2View;
+    CardView review2Card;
+    TextView review3View;
+    CardView review3Card;
     public DetailFragment() {
     }
 
@@ -47,7 +57,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         Bundle arguments = getArguments();
         if (arguments != null) {
             mUri = arguments.getParcelable(DetailFragment.DETAIL_URI);
-            mTitle = arguments.getString("movieTitle");
+            mTitle = arguments.getString("mTitle");
+            Log.v(LOG_TAG,"onCreateView mTitle: "+mTitle);
         }
 
         View view = inflater.inflate(R.layout.fragment_detail, container, false);
@@ -56,9 +67,20 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 getActivity(), null, 0);
 
 
-        // get id for favorite_btn
-        final ImageButton favoriteButton = (ImageButton) view.findViewById(R.id.favorite_btn);
-        final ImageButton playButton = (ImageButton) view.findViewById(R.id.play_btn);
+        // Get Views
+        favoriteButton = (ImageButton) view.findViewById(R.id.favorite_btn);
+        playButton = (ImageButton) view.findViewById(R.id.play_btn);
+        movieImage = (ImageView) view.findViewById(R.id.detail_movie_image);
+        movieTitleView = (TextView) view.findViewById(R.id.detail_title);
+        ratingView = (TextView) view.findViewById(R.id.detail_rating);
+        releaseDateView = (TextView) view.findViewById(R.id.detail_releasedate);
+        summaryView = (TextView) view.findViewById(R.id.detail_synopsis);
+        review1View = (TextView) view.findViewById(R.id.review1_view);
+        review1Card = (CardView) view.findViewById(R.id.review1_card);
+        review2View = (TextView) view.findViewById(R.id.review2_view);
+        review2Card = (CardView) view.findViewById(R.id.review2_card);
+        review3View = (TextView) view.findViewById(R.id.review3_view);
+        review3Card = (CardView) view.findViewById(R.id.review3_card);
 
         //receive the intent
         //Activity has intent, must get intent from Activity
@@ -207,7 +229,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         //getReview(movieId, movieTitle);
     }
 
-    private void getReview(String movie_id, String title) {
+   /* private void getReview(String movie_id, String title) {
         ConnectivityManager connectivityManager = (ConnectivityManager)
                 this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
@@ -221,7 +243,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         public FetchReviewTask(Context context, View view) {
             super(context, view);
         }
-    }
+    }*/
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -232,7 +254,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (null != mUri && null != mTitle) {
-            Log.v(LOG_TAG, "mUri: " + mUri+" mTitle: "+mTitle);
+            Log.v(LOG_TAG, "onCreateLoader mUri: " + mUri+" mTitle: "+mTitle);
             // Now create and return a CursorLoader that will take care of
             // creating a Cursor for the data being displayed.
             return new CursorLoader(
@@ -244,7 +266,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                     null
             );
         }
-        else{Log.v(LOG_TAG,"mTitle Null");}
         return null;
     }
 
@@ -252,10 +273,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (data != null) {
-            data.moveToFirst();
+        if (data != null && data.moveToFirst()) {
             String imageUrl = data.getString(data.getColumnIndex(CursorContract.MovieData
                     .COLUMN_NAME_IMAGEURL));
+            Log.v(LOG_TAG,"onLoadFinished: "+imageUrl);
             String movieTitle = data.getString(data.getColumnIndex(CursorContract.MovieData
                     .COLUMN_NAME_TITLE));
             String rating = data.getString(data.getColumnIndex(CursorContract.MovieData
@@ -273,7 +294,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             String review3 = data.getString(data.getColumnIndex(CursorContract.MovieData
                     .COLUMN_NAME_REVIEW_3));
 
-            ImageView movieImage = (ImageView) view.findViewById(R.id.detail_movie_image);
             // Construct the URL to query images in Picasso
             final String PICASSO_BASE_URL = "http://image.tmdb.org/t/p/";
             Uri builtUri = Uri.parse(PICASSO_BASE_URL).buildUpon()
@@ -291,32 +311,15 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                     .placeholder(R.drawable.user_placeholder)
                     .error(R.drawable.user_placeholder_error)
                     .into(movieImage);
-
-            TextView movieTitleView = (TextView) view.findViewById(R.id.detail_title);
             movieTitleView.setText(movieTitle);
-
-            TextView ratingView = (TextView) view.findViewById(R.id.detail_rating);
             ratingView.setText(rating);
-
-            TextView releaseDateView = (TextView) view.findViewById(R.id.detail_releasedate);
-            releaseDateView.setText(releaseDate);
-
-            TextView summaryView = (TextView) view.findViewById(R.id.detail_synopsis);
-            summaryView.setText(summary);
-
-            TextView review1View = (TextView) view.findViewById(R.id.review1_view);
-            review1View.setText(review1);
-            CardView review1Card = (CardView) view.findViewById(R.id.review1_card);
             review1Card.setVisibility(View.VISIBLE);
-
-            TextView review2View = (TextView) view.findViewById(R.id.review2_view);
+            releaseDateView.setText(releaseDate);
+            summaryView.setText(summary);
+            review1View.setText(review1);
             review2View.setText(review2);
-            CardView review2Card = (CardView) view.findViewById(R.id.review2_card);
             review2Card.setVisibility(View.VISIBLE);
-
-            TextView review3View = (TextView) view.findViewById(R.id.review3_view);
             review3View.setText(review3);
-            CardView review3Card = (CardView) view.findViewById(R.id.review3_card);
             review3Card.setVisibility(View.VISIBLE);
         }
     }
