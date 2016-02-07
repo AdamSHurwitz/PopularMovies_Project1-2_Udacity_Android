@@ -56,6 +56,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     TextView review3View;
     CardView review3Card;
     Cursor youTubeCursor;
+    String review1;
+    String review2;
+    String review3;
 
     public DetailFragment() {
     }
@@ -241,22 +244,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         //getReview(movieId, movieTitle);
     }
 
-   /* private void getReview(String movie_id, String title) {
-        ConnectivityManager connectivityManager = (ConnectivityManager)
-                this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
-        if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
-            FetchReviewTask reviewTask = new FetchReviewTask(getContext(), detailView);
-            reviewTask.execute(movie_id, title);
-        }
-    }
-
-    private class FetchReviewTask extends com.adamhurwitz.android.popularmovies.FetchReviewTask {
-        public FetchReviewTask(Context context, View view) {
-            super(context, view);
-        }
-    }*/
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(DETAIL_LOADER, null, this);
@@ -290,7 +277,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         if (data != null && data.moveToFirst()) {
             String imageUrl = data.getString(data.getColumnIndex(CursorContract.MovieData
                     .COLUMN_NAME_IMAGEURL));
-            //Log.v(LOG_TAG, "onLoadFinished: " + imageUrl);
             String movieTitle = data.getString(data.getColumnIndex(CursorContract.MovieData
                     .COLUMN_NAME_TITLE));
             mMovieTitle = movieTitle;
@@ -304,12 +290,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                     .COLUMN_NAME_MOVIEID));
             String favorite = data.getString(data.getColumnIndex(CursorContract.MovieData
                     .COLUMN_NAME_FAVORITE));
-            String review1 = data.getString(data.getColumnIndex(CursorContract.MovieData
-                    .COLUMN_NAME_REVIEW_1));
-            String review2 = data.getString(data.getColumnIndex(CursorContract.MovieData
-                    .COLUMN_NAME_REVIEW_2));
-            String review3 = data.getString(data.getColumnIndex(CursorContract.MovieData
-                    .COLUMN_NAME_REVIEW_3));
 
             // Construct the URL to query images in Picasso
             final String PICASSO_BASE_URL = "http://image.tmdb.org/t/p/";
@@ -333,15 +313,13 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             review1Card.setVisibility(View.VISIBLE);
             releaseDateView.setText(releaseDate);
             summaryView.setText(summary);
-            review1View.setText(review1);
-            review2View.setText(review2);
-            review2Card.setVisibility(View.VISIBLE);
-            review3View.setText(review3);
-            review3Card.setVisibility(View.VISIBLE);
 
-            // launch method that executes AsyncTask to build YouTube URL and update database
-            if (mYouTubeUrl == null) {
+            // Launch method that executes AsyncTask to build YouTube URL and Reviews and update DB
+            if (mYouTubeUrl == null && review1 == null && review2 == null && review3 == null) {
+                // Launch AsyncTask to get YouTube URL
                 getYouTubeKey(movie_id, mTitle);
+                // Launch AsyncTask to get Reviews
+                getReview(movie_id, movieTitle);
 
                 youTubeCursor = getContext().getContentResolver().query(
                         CursorContract.MovieData.CONTENT_URI,
@@ -356,12 +334,12 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
             mYouTubeUrl = youTubeCursor.getString(data.getColumnIndex(CursorContract.MovieData
                     .COLUMN_NAME_YOUTUBEURL));
-            Log.v(LOG_TAG, "onLoadFinished() mYouTubeUrl: " + mYouTubeUrl);
+            // Log.v(LOG_TAG, "onLoadFinished() mYouTubeUrl: " + mYouTubeUrl);
 
             playButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View view) {
                     if (mYouTubeUrl == null) {
-                        Log.v(LOG_TAG, "onClick YouTube URL is "+mYouTubeUrl);
+                        Log.v(LOG_TAG, "onClick YouTube URL is " + mYouTubeUrl);
                     } else {
                         // Web Browser Intent
                         Uri webpage = Uri.parse(mYouTubeUrl);
@@ -370,6 +348,22 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                     }
                 }
             });
+
+            // Get Reviews from Cursor
+            review1 = data.getString(data.getColumnIndex(CursorContract.MovieData
+                    .COLUMN_NAME_REVIEW_1));
+            review2 = data.getString(data.getColumnIndex(CursorContract.MovieData
+                    .COLUMN_NAME_REVIEW_2));
+            review3 = data.getString(data.getColumnIndex(CursorContract.MovieData
+                    .COLUMN_NAME_REVIEW_3));
+            Log.v(LOG_TAG, "onLoadFinished review1: " + review1 + " review2: " + review2 +
+                    " review3: " + review3);
+            review1View.setText(review1);
+            review1Card.setVisibility(View.VISIBLE);
+            review2View.setText(review2);
+            review2Card.setVisibility(View.VISIBLE);
+            review3View.setText(review3);
+            review3Card.setVisibility(View.VISIBLE);
         }
     }
 
@@ -392,11 +386,27 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         }
     }
 
+    private void getReview(String movie_id, String title) {
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+                this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+        if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
+            FetchReviewTask reviewTask = new FetchReviewTask(getContext(), detailView);
+            reviewTask.execute(movie_id, title);
+        }
+    }
+
     // AsyncTask class for YouTube URLs
     private class FetchYouTubeUrlTask extends com.adamhurwitz.android.popularmovies
             .FetchYouTubeUrlTask {
         public FetchYouTubeUrlTask(Context context) {
             super(context);
+        }
+    }
+
+    private class FetchReviewTask extends com.adamhurwitz.android.popularmovies.FetchReviewTask {
+        public FetchReviewTask(Context context, View view) {
+            super(context, view);
         }
     }
 }
