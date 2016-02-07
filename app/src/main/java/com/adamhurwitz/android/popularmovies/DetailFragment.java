@@ -358,12 +358,21 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                     .COLUMN_NAME_REVIEW_3));
             Log.v(LOG_TAG, "onLoadFinished review1: " + review1 + " review2: " + review2 +
                     " review3: " + review3);
-            review1View.setText(review1);
-            review1Card.setVisibility(View.VISIBLE);
-            review2View.setText(review2);
-            review2Card.setVisibility(View.VISIBLE);
-            review3View.setText(review3);
-            review3Card.setVisibility(View.VISIBLE);
+            if (review1 != null && review1 != "") {
+                review1View.setText(review1);
+                review1Card.setVisibility(View.VISIBLE);
+            }
+            else{review1Card.setVisibility(View.INVISIBLE);}
+            if (review2 != null && review2 != "") {
+                review2View.setText(review2);
+                review2Card.setVisibility(View.VISIBLE);
+            }
+            else{review2Card.setVisibility(View.INVISIBLE);}
+            if (review3 != null && review3 != "") {
+                review3View.setText(review3);
+                review3Card.setVisibility(View.VISIBLE);
+            }
+            else{review3Card.setVisibility(View.INVISIBLE);}
         }
     }
 
