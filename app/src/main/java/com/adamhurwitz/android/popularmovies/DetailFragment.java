@@ -1,6 +1,7 @@
 package com.adamhurwitz.android.popularmovies;
 
 import android.annotation.TargetApi;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -59,6 +60,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     String review1;
     String review2;
     String review3;
+    String favorite;
 
     public DetailFragment() {
     }
@@ -72,7 +74,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         if (arguments != null) {
             mUri = arguments.getParcelable(DetailFragment.DETAIL_URI);
             mTitle = arguments.getString("mTitle");
-            Log.v(LOG_TAG, "onCreateView mTitle: " + mTitle);
         }
 
         View view = inflater.inflate(R.layout.fragment_detail, container, false);
@@ -253,7 +254,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (null != mUri && null != mTitle) {
-            //Log.v(LOG_TAG, "onCreateLoader mUri: " + mUri + " mTitle: " + mTitle);
             // Now create and return a CursorLoader that will take care of
             // creating a Cursor for the data being displayed.
             return new CursorLoader(
@@ -277,7 +277,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         if (data != null && data.moveToFirst()) {
             String imageUrl = data.getString(data.getColumnIndex(CursorContract.MovieData
                     .COLUMN_NAME_IMAGEURL));
-            String movieTitle = data.getString(data.getColumnIndex(CursorContract.MovieData
+            final String movieTitle = data.getString(data.getColumnIndex(CursorContract.MovieData
                     .COLUMN_NAME_TITLE));
             mMovieTitle = movieTitle;
             String rating = data.getString(data.getColumnIndex(CursorContract.MovieData
@@ -288,93 +288,139 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                     .COLUMN_NAME_SUMMARY));
             String movie_id = data.getString(data.getColumnIndex(CursorContract.MovieData
                     .COLUMN_NAME_MOVIEID));
-            String favorite = data.getString(data.getColumnIndex(CursorContract.MovieData
+            favorite = data.getString(data.getColumnIndex(CursorContract.MovieData
                     .COLUMN_NAME_FAVORITE));
+            Log.v(LOG_TAG, "onLoadFinished favorite: " + favorite);
 
-            // Construct the URL to query images in Picasso
-            final String PICASSO_BASE_URL = "http://image.tmdb.org/t/p/";
-            Uri builtUri = Uri.parse(PICASSO_BASE_URL).buildUpon()
-                    // appending size and image source
-                    .appendPath("w780")
-                    .appendPath(imageUrl.substring(1))
-                    .build();
-            // generate images with Picasso
-            // switch this to getActivity() since must get Context from Activity
-            Picasso.with(getActivity())
-                    .load(builtUri)
-                    .resize(780, 780)
-                    .centerCrop()
-                            // TODO: Add in Animated Placeholder
-                    .placeholder(R.drawable.user_placeholder)
-                    .error(R.drawable.user_placeholder_error)
-                    .into(movieImage);
-            movieTitleView.setText(movieTitle);
-            ratingView.setText(rating);
-            review1Card.setVisibility(View.VISIBLE);
-            releaseDateView.setText(releaseDate);
-            summaryView.setText(summary);
+            // Display correct status for favorite button
 
-            // Launch method that executes AsyncTask to build YouTube URL and Reviews and update DB
-            if (mYouTubeUrl == null && review1 == null && review2 == null && review3 == null) {
-                // Launch AsyncTask to get YouTube URL
-                getYouTubeKey(movie_id, mTitle);
-                // Launch AsyncTask to get Reviews
-                getReview(movie_id, movieTitle);
-
-                youTubeCursor = getContext().getContentResolver().query(
-                        CursorContract.MovieData.CONTENT_URI,
-                        null,
-                        CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
-                        new String[]{movieTitle},
-                        null,
-                        null);
-
-                youTubeCursor.moveToFirst();
+            if (favorite.equals("2")) {
+                favoriteButton.setImageResource(R.drawable.star_pressed_18dp);
+            } else {
+                favoriteButton.setImageResource(R.drawable.star_default_18dp);
             }
 
-            mYouTubeUrl = youTubeCursor.getString(data.getColumnIndex(CursorContract.MovieData
-                    .COLUMN_NAME_YOUTUBEURL));
-            // Log.v(LOG_TAG, "onLoadFinished() mYouTubeUrl: " + mYouTubeUrl);
+            // Click listener for Favorite button
 
-            playButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View view) {
-                    if (mYouTubeUrl == null) {
-                        Log.v(LOG_TAG, "onClick YouTube URL is " + mYouTubeUrl);
+            favoriteButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                  /*  CursorDbHelper cursorDbHelper = new CursorDbHelper(getContext());
+                    SQLiteDatabase db = cursorDbHelper.getReadableDatabase();
+                    Cursor cursor = db.query(CursorContract.MovieData.TABLE_NAME, null,
+                            CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
+                            new String[]{movieTitle},
+                            null, null, CursorContract.MovieData._ID + " DESC");*/
+
+                    ContentValues values = new ContentValues();
+
+                    // Perform action on click
+                    if (favorite.equals("1")) {
+                        favoriteButton.setImageResource(R.drawable.star_pressed_18dp);
+                        //cursor.moveToFirst();
+                        values.put(CursorContract.MovieData.COLUMN_NAME_FAVORITE, 2);
+                        favorite = "2";
                     } else {
-                        // Web Browser Intent
-                        Uri webpage = Uri.parse(mYouTubeUrl);
-                        Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
-                        startActivity(intent);
+                        favoriteButton.setImageResource(R.drawable.star_default_18dp);
+                        //cursor.moveToFirst();
+                        values.put(CursorContract.MovieData.COLUMN_NAME_FAVORITE, 1);
+                        favorite = "1";
                     }
+
+                    long rowsUpdated = getContext().getContentResolver().update(
+                            CursorContract.MovieData.CONTENT_URI,
+                            values,
+                            CursorContract.MovieData.COLUMN_NAME_TITLE+"= ?",
+                            new String[]{movieTitle});
+                    /*long rowId = db.update(CursorContract.MovieData.TABLE_NAME, values,
+                            CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
+                            new String[]{movieTitle});*/
+                    //cursor.close();
                 }
             });
 
-            // Get Reviews from Cursor
-            review1 = data.getString(data.getColumnIndex(CursorContract.MovieData
-                    .COLUMN_NAME_REVIEW_1));
-            review2 = data.getString(data.getColumnIndex(CursorContract.MovieData
-                    .COLUMN_NAME_REVIEW_2));
-            review3 = data.getString(data.getColumnIndex(CursorContract.MovieData
-                    .COLUMN_NAME_REVIEW_3));
-            Log.v(LOG_TAG, "onLoadFinished review1: " + review1 + " review2: " + review2 +
-                    " review3: " + review3);
-            if (review1 != null && review1 != "") {
-                review1View.setText(review1);
-                review1Card.setVisibility(View.VISIBLE);
+        // Construct the URL to query images in Picasso
+        final String PICASSO_BASE_URL = "http://image.tmdb.org/t/p/";
+        Uri builtUri = Uri.parse(PICASSO_BASE_URL).buildUpon()
+                // appending size and image source
+                .appendPath("w780")
+                .appendPath(imageUrl.substring(1))
+                .build();
+        // generate images with Picasso
+        // switch this to getActivity() since must get Context from Activity
+        Picasso.with(getActivity())
+                .load(builtUri)
+                .resize(780, 780)
+                .centerCrop()
+                        // TODO: Add in Animated Placeholder
+                .placeholder(R.drawable.user_placeholder)
+                .error(R.drawable.user_placeholder_error)
+                .into(movieImage);
+        movieTitleView.setText(movieTitle);
+        ratingView.setText(rating);
+        review1Card.setVisibility(View.VISIBLE);
+        releaseDateView.setText(releaseDate);
+        summaryView.setText(summary);
+
+        // Launch method that executes AsyncTask to build YouTube URL and Reviews and update DB
+        if (mYouTubeUrl == null && review1 == null && review2 == null && review3 == null) {
+            // Launch AsyncTask to get YouTube URL
+            getYouTubeKey(movie_id, mTitle);
+            // Launch AsyncTask to get Reviews
+            getReview(movie_id, movieTitle);
+
+            youTubeCursor = getContext().getContentResolver().query(
+                    CursorContract.MovieData.CONTENT_URI,
+                    null,
+                    CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
+                    new String[]{movieTitle},
+                    null,
+                    null);
+
+            youTubeCursor.moveToFirst();
+        }
+
+        mYouTubeUrl = youTubeCursor.getString(data.getColumnIndex(CursorContract.MovieData
+                .COLUMN_NAME_YOUTUBEURL));
+
+        playButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                if (mYouTubeUrl == null) {
+                } else {
+                    // Web Browser Intent
+                    Uri webpage = Uri.parse(mYouTubeUrl);
+                    Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
+                    startActivity(intent);
+                }
             }
-            else{review1Card.setVisibility(View.INVISIBLE);}
-            if (review2 != null && review2 != "") {
-                review2View.setText(review2);
-                review2Card.setVisibility(View.VISIBLE);
-            }
-            else{review2Card.setVisibility(View.INVISIBLE);}
-            if (review3 != null && review3 != "") {
-                review3View.setText(review3);
-                review3Card.setVisibility(View.VISIBLE);
-            }
-            else{review3Card.setVisibility(View.INVISIBLE);}
+        });
+
+        // Get Reviews from Cursor
+        review1 = data.getString(data.getColumnIndex(CursorContract.MovieData
+                .COLUMN_NAME_REVIEW_1));
+        review2 = data.getString(data.getColumnIndex(CursorContract.MovieData
+                .COLUMN_NAME_REVIEW_2));
+        review3 = data.getString(data.getColumnIndex(CursorContract.MovieData
+                .COLUMN_NAME_REVIEW_3));
+        if (review1 != null && review1 != "") {
+            review1View.setText(review1);
+            review1Card.setVisibility(View.VISIBLE);
+        } else {
+            review1Card.setVisibility(View.INVISIBLE);
+        }
+        if (review2 != null && review2 != "") {
+            review2View.setText(review2);
+            review2Card.setVisibility(View.VISIBLE);
+        } else {
+            review2Card.setVisibility(View.INVISIBLE);
+        }
+        if (review3 != null && review3 != "") {
+            review3View.setText(review3);
+            review3Card.setVisibility(View.VISIBLE);
+        } else {
+            review3Card.setVisibility(View.INVISIBLE);
         }
     }
+}
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
@@ -391,7 +437,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             com.adamhurwitz.android.popularmovies.FetchYouTubeUrlTask YouTubeKeyTask =
                     new FetchYouTubeUrlTask(getContext());
             YouTubeKeyTask.execute(movie_id, title);
-            Log.v(LOG_TAG, "getYouTubeKey() movie_id: " + movie_id + " mTitle: " + title);
         }
     }
 
@@ -405,18 +450,18 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         }
     }
 
-    // AsyncTask class for YouTube URLs
-    private class FetchYouTubeUrlTask extends com.adamhurwitz.android.popularmovies
-            .FetchYouTubeUrlTask {
-        public FetchYouTubeUrlTask(Context context) {
-            super(context);
-        }
+// AsyncTask class for YouTube URLs
+private class FetchYouTubeUrlTask extends com.adamhurwitz.android.popularmovies
+        .FetchYouTubeUrlTask {
+    public FetchYouTubeUrlTask(Context context) {
+        super(context);
     }
+}
 
-    private class FetchReviewTask extends com.adamhurwitz.android.popularmovies.FetchReviewTask {
-        public FetchReviewTask(Context context, View view) {
-            super(context, view);
-        }
+private class FetchReviewTask extends com.adamhurwitz.android.popularmovies.FetchReviewTask {
+    public FetchReviewTask(Context context, View view) {
+        super(context, view);
     }
+}
 }
 
