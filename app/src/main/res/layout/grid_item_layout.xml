@@ -2,9 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/grid_color_selector"
+    android:background="@drawable/touch_selector"
     android:orientation="vertical"
     android:padding="4dp">
+    <!-- android:background="@color/grid_color_selector" -->
 
     <!--can adjust image view size below in order to determine how big the grid items appear,
     originally set at 100dp by 100dp resulting in 4 rows accross-->

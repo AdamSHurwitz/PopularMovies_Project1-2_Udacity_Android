@@ -1,0 +1,7 @@
+<resources>
+
+    <style name="GridViewStyle">
+        <item name="android:choiceMode">singleChoice</item>
+    </style>
+
+</resources>

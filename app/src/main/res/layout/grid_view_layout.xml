@@ -1,5 +1,4 @@
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/window_background">
@@ -8,11 +7,12 @@
       can appear in row, originally set at 100dp-->
     <GridView
         android:id="@+id/grid_view_layout"
+        style="@style/GridViewStyle"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clickable="true"
         android:focusable="true"
-        android:numColumns="auto_fit"
-        android:clickable="true"/>
+        android:numColumns="auto_fit" />
     <!--android:layout_margin="8dp"-->
     <!--android:background="@color/grid_view_color"-->
     <!--android:columnWidth="180dp"-->
@@ -24,8 +24,8 @@
 </FrameLayout>
 
 
-<!--Original 4-per-row layout: change 'columnWidth' to 100dp and
- grid_item_layout.xml view to 100dp-->
+    <!--Original 4-per-row layout: change 'columnWidth' to 100dp and
+     grid_item_layout.xml view to 100dp-->
 
 
 

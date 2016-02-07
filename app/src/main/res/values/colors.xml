@@ -5,4 +5,8 @@
     <item name="detail_background_color" type="color">@android:color/black</item>
 
     <item name="window_background" type="color">#727272</item>
+
+    <color name="colorPrimary">#2196F3</color>
+
+    <color name="colorPrimaryDark">#1976D2</color>
 </resources>

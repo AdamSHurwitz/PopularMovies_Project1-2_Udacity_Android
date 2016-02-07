@@ -45,4 +45,10 @@
         <item name="android:orientation">vertical</item>
     </style>
 -->
+
+    <style name="GridViewStyle">
+        <!-- Here it's a stub.  In screens of sufficient width, this style includes modifications
+        for two-pane layout -->
+    </style>
+
 </resources>
