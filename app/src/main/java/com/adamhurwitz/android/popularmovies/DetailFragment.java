@@ -1,7 +1,13 @@
 package com.adamhurwitz.android.popularmovies;
 
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -31,6 +37,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     static final String DETAIL_URI = "URI";
     private Uri mUri;
     private static final int DETAIL_LOADER = 0;
+    Cursor mData;
+    String mMovieTitle;
 
     //Initialize views
     ImageButton favoriteButton;
@@ -39,6 +47,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     TextView movieTitleView;
     TextView ratingView;
     TextView releaseDateView;
+    String mYouTubeUrl;
     TextView summaryView;
     TextView review1View;
     CardView review1Card;
@@ -46,6 +55,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     CardView review2Card;
     TextView review3View;
     CardView review3Card;
+
     public DetailFragment() {
     }
 
@@ -58,7 +68,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         if (arguments != null) {
             mUri = arguments.getParcelable(DetailFragment.DETAIL_URI);
             mTitle = arguments.getString("mTitle");
-            Log.v(LOG_TAG,"onCreateView mTitle: "+mTitle);
+            Log.v(LOG_TAG, "onCreateView mTitle: " + mTitle);
         }
 
         View view = inflater.inflate(R.layout.fragment_detail, container, false);
@@ -81,6 +91,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         review2Card = (CardView) view.findViewById(R.id.review2_card);
         review3View = (TextView) view.findViewById(R.id.review3_view);
         review3Card = (CardView) view.findViewById(R.id.review3_card);
+
 
         //receive the intent
         //Activity has intent, must get intent from Activity
@@ -254,7 +265,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (null != mUri && null != mTitle) {
-            Log.v(LOG_TAG, "onCreateLoader mUri: " + mUri+" mTitle: "+mTitle);
+            //Log.v(LOG_TAG, "onCreateLoader mUri: " + mUri + " mTitle: " + mTitle);
             // Now create and return a CursorLoader that will take care of
             // creating a Cursor for the data being displayed.
             return new CursorLoader(
@@ -271,20 +282,25 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     //TODO: Get values returned from Cursor and place into DetailFragment
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mData = data;
         if (data != null && data.moveToFirst()) {
             String imageUrl = data.getString(data.getColumnIndex(CursorContract.MovieData
                     .COLUMN_NAME_IMAGEURL));
-            Log.v(LOG_TAG,"onLoadFinished: "+imageUrl);
+            //Log.v(LOG_TAG, "onLoadFinished: " + imageUrl);
             String movieTitle = data.getString(data.getColumnIndex(CursorContract.MovieData
                     .COLUMN_NAME_TITLE));
+            mMovieTitle = movieTitle;
             String rating = data.getString(data.getColumnIndex(CursorContract.MovieData
                     .COLUMN_NAME_VOTEAVERAGE));
             String releaseDate = data.getString(data.getColumnIndex(CursorContract.MovieData
                     .COLUMN_NAME_RELEASEDATE));
             String summary = data.getString(data.getColumnIndex(CursorContract.MovieData
                     .COLUMN_NAME_SUMMARY));
+            String movie_id = data.getString(data.getColumnIndex(CursorContract.MovieData
+                    .COLUMN_NAME_MOVIEID));
             String favorite = data.getString(data.getColumnIndex(CursorContract.MovieData
                     .COLUMN_NAME_FAVORITE));
             String review1 = data.getString(data.getColumnIndex(CursorContract.MovieData
@@ -321,12 +337,69 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             review2Card.setVisibility(View.VISIBLE);
             review3View.setText(review3);
             review3Card.setVisibility(View.VISIBLE);
+
+            // launch method that executes AsyncTask to build YouTube URL and update database
+            getYouTubeKey(movie_id, mTitle);
+
+            Cursor youTubeCursor = getContext().getContentResolver().query(
+                    CursorContract.MovieData.CONTENT_URI,
+                    null,
+                    CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
+                    new String[]{movieTitle},
+                    null,
+                    null);
+
+            youTubeCursor.moveToFirst();
+
+            mYouTubeUrl = youTubeCursor.getString(data.getColumnIndex(CursorContract.MovieData
+                    .COLUMN_NAME_YOUTUBEURL));
+            Log.v(LOG_TAG, "onLoadFinished() mYouTubeUrl: " + mYouTubeUrl);
+
+            playButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View view) {
+
+                    //c.moveToFirst();
+
+                    //Log.v(LOG_TAG, "onClick"+mMovieTitle + " Queried_YOUTUBE_URL_LAUNCHED " + mYouTubeUrl);
+
+                    if (mYouTubeUrl == null) {
+                        Log.v(LOG_TAG, "onClick YouTube URL is "+mYouTubeUrl);
+                    } else {
+                        // Web Browser Intent
+                        Uri webpage = Uri.parse(mYouTubeUrl);
+                        Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
+                        startActivity(intent);
+                    }
+                }
+            });
         }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
+    }
+
+    // Method to execute AsyncTask for YouTube URLs
+    private void getYouTubeKey(String movie_id, String title) {
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+                this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+
+        if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
+            com.adamhurwitz.android.popularmovies.FetchYouTubeUrlTask YouTubeKeyTask =
+                    new FetchYouTubeUrlTask(getContext());
+            YouTubeKeyTask.execute(movie_id, title);
+            Log.v(LOG_TAG, "getYouTubeKey() movie_id: " + movie_id + " mTitle: " + title);
+        }
+    }
+
+    // AsyncTask class for YouTube URLs
+    private class FetchYouTubeUrlTask extends com.adamhurwitz.android.popularmovies
+            .FetchYouTubeUrlTask {
+        public FetchYouTubeUrlTask(Context context) {
+            super(context);
+        }
     }
 }
 

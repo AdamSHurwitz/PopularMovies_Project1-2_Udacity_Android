@@ -1,15 +1,15 @@
 package com.adamhurwitz.android.popularmovies;
 
+import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.Log;
 
 import com.adamhurwitz.android.popularmovies.data.CursorContract;
-import com.adamhurwitz.android.popularmovies.data.CursorDbHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -69,7 +69,7 @@ public abstract class FetchYouTubeUrlTask extends AsyncTask<String, Void, Void> 
                     .appendQueryParameter(KEY_PARAMETER, KEY_CODE)
                     .build();
             URL url = new URL(builtUri.toString());
-            Log.v(LOG_TAG, "Built Movie Db Video URL " + builtUri.toString());
+            Log.v(LOG_TAG, "doInBackground() " + builtUri.toString());
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
@@ -149,13 +149,9 @@ public abstract class FetchYouTubeUrlTask extends AsyncTask<String, Void, Void> 
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public void putDataIntoDb(String key, String title) {
 
-        // Access database
-        CursorDbHelper mDbHelper = new CursorDbHelper(context);
-        // Put Info into Database
-        // Gets the data repository in write mode
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
 
@@ -166,24 +162,21 @@ public abstract class FetchYouTubeUrlTask extends AsyncTask<String, Void, Void> 
 
         values.put(CursorContract.MovieData.COLUMN_NAME_YOUTUBEURL, youTubeUrl);
 
-        Log.v(LOG_TAG, title + " YouTubeUrl_Content_Values " + values.toString());
+        Log.v(LOG_TAG, title + " Content_Values " + values.toString());
 
-        // If you are querying entire table, can leave everything as Null
-        // Querying when Item ID Exists
-        Cursor c = db.query(
-                CursorContract.MovieData.TABLE_NAME,
-                //null,
+        Cursor c = context.getContentResolver().query(
+                CursorContract.MovieData.CONTENT_URI,
                 new String[] {CursorContract.MovieData.COLUMN_NAME_YOUTUBEURL},
                 CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
                 new String[]{title}, // The values for the WHERE clause
                 null,                                     // don't group the rows
-                null,                                     // don't filter by row groups
-                CursorContract.MovieData._ID + " DESC" // The sort order
+                null                                     // don't filter by row groups
         );
 
         c.moveToFirst();
-        long thisRowID = db.update(
-                CursorContract.MovieData.TABLE_NAME,
+
+        int mRowsUpdated = context.getContentResolver().update(
+                CursorContract.MovieData.CONTENT_URI,
                 values,
                 CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
                 new String[] {title});

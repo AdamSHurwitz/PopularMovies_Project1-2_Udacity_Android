@@ -95,9 +95,14 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
                 if (cursor != null) {
                     String mTitle = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
                             .COLUMN_NAME_TITLE));
+                    String movie_id = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
+                            .COLUMN_NAME_MOVIEID));
                     ((Callback) getActivity()).onItemSelected(
                             CursorContract.MovieData.buildMovieIdUri(), mTitle);
-                    Log.v(LOG_TAG,"mTitle: "+mTitle);
+
+                    // launch method that executes AsyncTask to build YouTube URL and update database
+                    getYouTubeKey(movie_id, mTitle);
+                    //Log.v(LOG_TAG, "onItemClick() movie_id: " + movie_id + " mTitle: " + mTitle);
                 }
             }
 
@@ -240,6 +245,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
             com.adamhurwitz.android.popularmovies.FetchYouTubeUrlTask YouTubeKeyTask =
                     new FetchYouTubeUrlTask(getContext());
             YouTubeKeyTask.execute(movie_id, title);
+            Log.v(LOG_TAG, "getYouTubeKey() movie_id: " + movie_id + " mTitle: " + title);
         }
     }
 
