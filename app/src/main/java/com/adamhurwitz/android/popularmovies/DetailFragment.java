@@ -55,6 +55,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     CardView review2Card;
     TextView review3View;
     CardView review3Card;
+    Cursor youTubeCursor;
 
     public DetailFragment() {
     }
@@ -339,17 +340,19 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             review3Card.setVisibility(View.VISIBLE);
 
             // launch method that executes AsyncTask to build YouTube URL and update database
-            getYouTubeKey(movie_id, mTitle);
+            if (mYouTubeUrl == null) {
+                getYouTubeKey(movie_id, mTitle);
 
-            Cursor youTubeCursor = getContext().getContentResolver().query(
-                    CursorContract.MovieData.CONTENT_URI,
-                    null,
-                    CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
-                    new String[]{movieTitle},
-                    null,
-                    null);
+                youTubeCursor = getContext().getContentResolver().query(
+                        CursorContract.MovieData.CONTENT_URI,
+                        null,
+                        CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
+                        new String[]{movieTitle},
+                        null,
+                        null);
 
-            youTubeCursor.moveToFirst();
+                youTubeCursor.moveToFirst();
+            }
 
             mYouTubeUrl = youTubeCursor.getString(data.getColumnIndex(CursorContract.MovieData
                     .COLUMN_NAME_YOUTUBEURL));
@@ -357,11 +360,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
             playButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View view) {
-
-                    //c.moveToFirst();
-
-                    //Log.v(LOG_TAG, "onClick"+mMovieTitle + " Queried_YOUTUBE_URL_LAUNCHED " + mYouTubeUrl);
-
                     if (mYouTubeUrl == null) {
                         Log.v(LOG_TAG, "onClick YouTube URL is "+mYouTubeUrl);
                     } else {

@@ -99,45 +99,8 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
                             .COLUMN_NAME_MOVIEID));
                     ((Callback) getActivity()).onItemSelected(
                             CursorContract.MovieData.buildMovieIdUri(), mTitle);
-
-                    // launch method that executes AsyncTask to build YouTube URL and update database
-                    getYouTubeKey(movie_id, mTitle);
-                    //Log.v(LOG_TAG, "onItemClick() movie_id: " + movie_id + " mTitle: " + mTitle);
                 }
             }
-
-            /*@Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Cursor cursor = (Cursor) parent.getItemAtPosition(position);
-                String movie_id = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
-                        .COLUMN_NAME_MOVIEID));
-                String title = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
-                        .COLUMN_NAME_TITLE));
-                String image_url = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
-                        .COLUMN_NAME_IMAGEURL));
-                String summary = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
-                        .COLUMN_NAME_SUMMARY));
-                String rating = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
-                        .COLUMN_NAME_VOTEAVERAGE));
-                String popularity = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
-                        .COLUMN_NAME_POPULARITY));
-                String release_date = cursor.getString(cursor.getColumnIndex(CursorContract
-                        .MovieData
-                        .COLUMN_NAME_RELEASEDATE));
-                String favorite = cursor.getString(cursor.getColumnIndex(CursorContract.MovieData
-                        .COLUMN_NAME_FAVORITE));
-
-                // store items to pass into intent
-                String[] doodleDataItems = {movie_id, title, image_url, summary, rating,
-                        release_date, favorite};
-                Intent intent = new Intent(getActivity(),
-                        com.adamhurwitz.android.popularmovies.DetailActivity.class);
-                intent.putExtra("Cursor Movie Attributes", doodleDataItems);
-                startActivity(intent);
-
-                // launch method that executes AsyncTask to build YouTube URL and update database
-                getYouTubeKey(movie_id, title);
-            }*/
         });
 
         return view;
@@ -232,28 +195,6 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
                     new FetchMovieTask(getContext(), mAsyncCursorAdapter) {
                     };
             MovieTask.execute("popularity.desc");
-        }
-    }
-
-    // Method to execute AsyncTask for YouTube URLs
-    private void getYouTubeKey(String movie_id, String title) {
-        ConnectivityManager connectivityManager = (ConnectivityManager)
-                this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
-
-        if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
-            com.adamhurwitz.android.popularmovies.FetchYouTubeUrlTask YouTubeKeyTask =
-                    new FetchYouTubeUrlTask(getContext());
-            YouTubeKeyTask.execute(movie_id, title);
-            Log.v(LOG_TAG, "getYouTubeKey() movie_id: " + movie_id + " mTitle: " + title);
-        }
-    }
-
-    // AsyncTask class for YouTube URLs
-    private class FetchYouTubeUrlTask extends com.adamhurwitz.android.popularmovies
-            .FetchYouTubeUrlTask {
-        public FetchYouTubeUrlTask(Context context) {
-            super(context);
         }
     }
 
