@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.adamhurwitz.android.popularmovies.data.CursorContract;
@@ -38,6 +39,9 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     String sortOrder = "";
 
     String initialPref;
+    private GridView mGridView;
+    private int mPosition = GridView.INVALID_POSITION;
+    private static final String SELECTED_KEY = "selected_position";
 
     /**
      * Empty constructor for the AsyncParcelableFragment1() class.
@@ -73,7 +77,6 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
         // Initialize Adapter
         mAsyncCursorAdapter = new com.adamhurwitz.android.popularmovies.AsyncCursorAdapter(
                 getActivity(), null, 0);
-        Log.v("CursorAdapter_Called", "HERE");
 
         View view = inflater.inflate(R.layout.grid_view_layout, container, false);
 
@@ -81,11 +84,11 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
         setHasOptionsMenu(true);
 
         // Get a reference to the grid view layout and attach the adapter to it.
-        GridView gridView = (GridView) view.findViewById(R.id.grid_view_layout);
-        gridView.setAdapter(mAsyncCursorAdapter);
+        mGridView = (GridView) view.findViewById(R.id.grid_view_layout);
+        mGridView.setAdapter(mAsyncCursorAdapter);
 
         // Click listener when grid item is selected
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
@@ -100,10 +103,33 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
                     ((Callback) getActivity()).onItemSelected(
                             CursorContract.MovieData.buildMovieIdUri(), mTitle);
                 }
+                mPosition = position;
             }
         });
 
+        // If there's instance state, mine it for useful information.
+        // The end-goal here is that the user never knows that turning their device sideways
+        // does crazy lifecycle related things.  It should feel like some stuff stretched out,
+        // or magically appeared to take advantage of room, but data or place in the app was never
+        // actually *lost*.
+        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
+            // The listview probably hasn't even been populated yet.  Actually perform the
+            // swapout in onLoadFinished.
+            mPosition = savedInstanceState.getInt(SELECTED_KEY);
+        }
+
         return view;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        // When tablets rotate, the currently selected list item needs to be saved.
+        // When no item is selected, mPosition will be set to Listview.INVALID_POSITION,
+        // so check for that before storing.
+        if (mPosition != GridView.INVALID_POSITION) {
+            outState.putInt(SELECTED_KEY, mPosition);
+        }
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -255,6 +281,11 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mAsyncCursorAdapter.swapCursor(data);
+        if (mPosition != ListView.INVALID_POSITION) {
+            // If we don't need to restart the loader, and there's a desired position to restore
+            // to, do so now.
+            mGridView.smoothScrollToPosition(mPosition);
+        }
     }
 
     @Override
