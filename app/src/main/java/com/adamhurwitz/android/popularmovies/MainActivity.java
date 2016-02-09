@@ -37,6 +37,8 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Call
             }
         } else {
             mTwoPane = false;
+            // remove action bar shadow
+            getSupportActionBar().setElevation(0f);
         }
     }
 

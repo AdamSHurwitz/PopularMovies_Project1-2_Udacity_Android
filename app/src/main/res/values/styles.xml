@@ -20,6 +20,8 @@
         <!-- enable overlay mode -->
         <item name="android:windowActionBarOverlay">true</item>
 
+        <item name="displayOptions">useLogo|showHome</item>
+        <item name="logo">@drawable/movies</item>
 
         <!-- activity elements -->
         <!-- window background -->

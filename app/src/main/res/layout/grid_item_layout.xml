@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/touch_selector"
     android:orientation="vertical"
-    android:padding="4dp">
+    android:padding="0dp">
     <!-- android:background="@color/grid_color_selector" -->
 
     <!--can adjust image view size below in order to determine how big the grid items appear,
