@@ -95,6 +95,9 @@ public class AsyncCursorAdapter extends android.widget.CursorAdapter {
                 .error(R.drawable.user_placeholder_error)
                 .into(holder.gridItem);
         holder.titleItem.setText(title);
+
+        // For accessibility, add a content description to the icon field
+        holder.titleItem.setContentDescription(title);
     }
 
     class ViewHolder {
