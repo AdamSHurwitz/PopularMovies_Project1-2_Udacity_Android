@@ -1,5 +1,5 @@
 # PopularMovies_Project1_Udacity_Android
-This is Project 1 of the Google/Udacity Android Nanodegree. The app presents a grid arrangement of movies allowing the user to change sort order by most popular or by highest-rated. The user can also tap on a movieData poster to receive more details.
+This is Project 1-2 of the Google/Udacity Android Nanodegree. The app presents a grid arrangement of movies allowing the user to change the filter of movies by most popular, highest-rated as well favorited items selected by the user. The user can tap on a movie to receive more details or watch the YouTube trailer.
 
 Note to the users:
 
