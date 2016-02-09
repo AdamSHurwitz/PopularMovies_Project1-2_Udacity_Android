@@ -1,10 +1,26 @@
-package com.adamhurwitz.android.popularmovies;
+/*
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
+package com.adamhurwitz.android.popularmovies.service;
+
+import android.app.IntentService;
 import android.content.ContentValues;
-import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import com.adamhurwitz.android.popularmovies.data.CursorContract;
@@ -21,39 +37,23 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Vector;
 
-// param1 passes into doInBackground()
-// param3 declares return type for doInBackground()
-
-
-// public class FetchMovieTask extends AsyncTask<String, Void, String>
-
-public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
-
-    private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
+public class Service extends IntentService {
+    private static final String LOG_TAG = Service.class.getSimpleName();
     public static final String BASE_URL = "https://api.themoviedb.org/3/discover/movie";
     public static final String SORT_PARAMETER = "sort_by";
     public static final String KEY_PARAMETER = "api_key";
     public static final String KEY_CODE = "81696f0358507756b5119609b0fae31e";
 
-    private final Context context;
-    private AsyncCursorAdapter mCursorAdapter;
     Vector<ContentValues> cVVector;
 
-    /**
-     * Constructor for the FetchDoodleDataTask object.
-     *
-     * @param context Provides context.
-     */
-    public FetchMovieTask(Context context, AsyncCursorAdapter cursorAdapter) {
-        this.context = context;
-        mCursorAdapter = cursorAdapter;
+    public Service() {
+        super("Sunshine");
     }
 
-
     @Override
-    protected Void doInBackground(String... params) {
-        // These two need to be declared outside the try/catch
-        // so that they can be closed in the finally block.
+    protected void onHandleIntent(Intent intent) {
+        String movieQuery = intent.getStringExtra("MOVIE_QUERY");
+
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
 
@@ -63,7 +63,7 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
         try {
             // Construct the URL to fetch data from and make the connection.
             Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                    .appendQueryParameter(SORT_PARAMETER, params[0])
+                    .appendQueryParameter(SORT_PARAMETER, movieQuery)
                     .appendQueryParameter(KEY_PARAMETER, KEY_CODE)
                     .build();
             URL url = new URL(builtUri.toString());
@@ -77,7 +77,7 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
             InputStream inputStream = urlConnection.getInputStream();
             StringBuilder buffer = new StringBuilder();
             if (inputStream == null) {
-                return null;
+                return;
             }
 
             // Read the input stream to see if any valid response was give.
@@ -89,7 +89,7 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
             }
             if (buffer.length() == 0) {
                 // If the stream is empty, do not process any further.
-                return null;
+                return;
             }
 
             jsonResponse = buffer.toString();
@@ -98,7 +98,7 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
             // If there was no valid Google doodle data returned, there is no point in attempting to
             // parse it.
             Log.e(LOG_TAG, "Error, IOException.", e);
-            return null;
+            return;
         } finally {
             // Make sure to close the connection and the reader no matter what.
             if (urlConnection != null) {
@@ -118,13 +118,13 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
             Log.i(LOG_TAG, "The Google doodle data that was returned is: " +
                     jsonResponse);
             parseJSONResponse(jsonResponse);
-            return null;
+            return;
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
         }
         // Any other case that gets here is an error that was not caught, so return null.
-        return null;
+        return;
     }
 
     /**
@@ -214,14 +214,15 @@ public abstract class FetchMovieTask extends AsyncTask<String, Void, Void> {
         // Insert the new row, returning the primary key value of the new row
         long thisRowID;
 
-        Cursor cursor = context.getContentResolver().query(CursorContract.MovieData.CONTENT_URI,
+        Cursor cursor = this.getContentResolver().query(CursorContract.MovieData
+                        .CONTENT_URI,
                 null,
                 CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
                 new String[]{title},
                 CursorContract.MovieData.COLUMN_NAME_POPULARITY + " DESC");
         if (cursor.getCount() == 0) {
             Uri uri;
-            uri = context.getContentResolver().insert(
+            uri = this.getContentResolver().insert(
                     CursorContract.MovieData.CONTENT_URI, values);
         }
     }
