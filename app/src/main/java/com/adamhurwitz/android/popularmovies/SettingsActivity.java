@@ -8,10 +8,6 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
-import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.LinearLayout;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings.
@@ -36,7 +32,7 @@ public class SettingsActivity
         // updated when the preference changes.
         bindPreferenceSummaryToValue(findPreference(getString(R.string.sort_key)));
 
-        LinearLayout root = (LinearLayout)findViewById(android.R.id.list).getParent().getParent().getParent();
+        /*LinearLayout root = (LinearLayout)findViewById(android.R.id.list).getParent().getParent().getParent();
         Toolbar bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.settings_toolbar, root, false);
         root.addView(bar, 0); // insert at top
         bar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -44,7 +40,7 @@ public class SettingsActivity
             public void onClick(View v) {
                 finish();
             }
-        });
+        });*/
     }
 
     /**
