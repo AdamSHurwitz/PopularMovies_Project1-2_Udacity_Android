@@ -52,6 +52,7 @@ public class Service extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        // Receive AsyncTask param from MainFragment.java
         String movieQuery = intent.getStringExtra("MOVIE_QUERY");
 
         HttpURLConnection urlConnection = null;
