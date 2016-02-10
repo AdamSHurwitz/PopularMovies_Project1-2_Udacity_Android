@@ -136,7 +136,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
         super.onResume();
 
         // Show message if no item is selected
-        if (mPosition < 0) {
+        if (mPosition < 0 && null != getActivity().findViewById(R.id.no_detail_layout)) {
             LinearLayout noContentDetailLayout = (LinearLayout) getActivity().findViewById(
                     R.id.no_detail_layout);
             noContentDetailLayout.setVisibility(View.VISIBLE);

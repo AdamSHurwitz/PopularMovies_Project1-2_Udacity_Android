@@ -161,7 +161,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
             // Show detail view when Item is clicked
 
-            mainDetailCard.setVisibility(View.VISIBLE);
+            if (null != getActivity().findViewById(R.id.no_detail_layout)) {
+                mainDetailCard.setVisibility(View.VISIBLE);
+            }
 
             // Display correct status for favorite button
 
