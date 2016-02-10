@@ -18,4 +18,6 @@
     <string name="error_player">There was an error initializing the YouTubePlayer (%1$s)</string>
 
     <string name="review">Review</string>
+
+    <string name="no_detail_content">SELECT \n A \n FILM</string>
 </resources>

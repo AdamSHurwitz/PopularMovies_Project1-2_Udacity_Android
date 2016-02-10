@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.adamhurwitz.android.popularmovies.data.CursorContract;
@@ -133,6 +134,13 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onResume() {
         super.onResume();
+
+        if (mPosition < 0) {
+            RelativeLayout noContentDetailLayout = (RelativeLayout) getActivity().findViewById(
+                    R.id.no_detail_layout);
+            noContentDetailLayout.setVisibility(View.VISIBLE);
+        }
+
         // Check initial status of SharedPreference value against current
         SharedPreferences sql_pref = PreferenceManager.getDefaultSharedPreferences(getContext());
         String sort_value = sql_pref.getString("sort_key", "popularity.desc");
@@ -211,7 +219,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     // Method for executing movie data AsyncTask
     private void getMovieData() {
         getActivity().startService(new Intent(getActivity(), Service.class)
-                .putExtra("MOVIE_QUERY","popularity.desc"));
+                .putExtra("MOVIE_QUERY", "popularity.desc"));
     }
 
     @Override

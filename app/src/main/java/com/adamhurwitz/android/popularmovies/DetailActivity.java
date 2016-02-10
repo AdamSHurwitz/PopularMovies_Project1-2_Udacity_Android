@@ -34,6 +34,8 @@ public class DetailActivity extends AppCompatActivity {
                     add(R.id.detail_container, fragment)
                     .commit();
         }
+
+
     }
 
     @Override

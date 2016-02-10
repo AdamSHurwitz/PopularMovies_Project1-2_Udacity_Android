@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Call
                         .replace(R.id.detail_container, new DetailFragment(), DETAILFRAGMENT_TAG)
                         .commit();
             }
+
         } else {
             mTwoPane = false;
             // remove action bar shadow
@@ -79,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Call
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.detail_container, fragment, DETAILFRAGMENT_TAG)
                     .commit();
+
         } else {
             startActivity(new Intent(this, DetailActivity.class)
                     .setData(contentUri)
