@@ -283,6 +283,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 review3Card.setVisibility(View.INVISIBLE);
             }
 
+            // Show detail view if when Item is clicked
             if (movieTitle != null) {
                 mainDetailCard.setVisibility(View.VISIBLE);
             }
