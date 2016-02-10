@@ -20,7 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.adamhurwitz.android.popularmovies.data.CursorContract;
@@ -63,7 +63,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     String favorite;
     CardView mainDetailCard;
     TextView noDetailContent;
-    RelativeLayout noDetailLayout;
+    LinearLayout noDetailLayout;
 
     public DetailFragment() {
     }
@@ -100,8 +100,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         review3View = (TextView) view.findViewById(R.id.review3_view);
         review3Card = (CardView) view.findViewById(R.id.review3_card);
         mainDetailCard = (CardView) view.findViewById(R.id.main_detail_card);
-        noDetailContent = (TextView) view.findViewById(R.id.no_detail_content);
-        noDetailLayout = (RelativeLayout) view.findViewById(R.id.no_detail_layout);
+        noDetailLayout = (LinearLayout) view.findViewById(R.id.no_detail_layout);
         return view;
     }
 
@@ -162,15 +161,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
             // Show detail view when Item is clicked
 
-            /*if (mMovieTitle == null) {
-                noDetailLayout.setVisibility(View.VISIBLE);
-                int visibility = noDetailLayout.getVisibility();
-                Log.v(LOG_TAG,"onLoadFinished - visibility: "+visibility);
-            } else {*/
-               mainDetailCard.setVisibility(View.VISIBLE);
-                //noDetailContent.setVisibility(View.INVISIBLE);
-                //noDetailLayout.setVisibility(View.GONE);
-            //}
+            mainDetailCard.setVisibility(View.VISIBLE);
 
             // Display correct status for favorite button
 

@@ -17,8 +17,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.adamhurwitz.android.popularmovies.data.CursorContract;
@@ -135,8 +135,9 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     public void onResume() {
         super.onResume();
 
+        // Show message if no item is selected
         if (mPosition < 0) {
-            RelativeLayout noContentDetailLayout = (RelativeLayout) getActivity().findViewById(
+            LinearLayout noContentDetailLayout = (LinearLayout) getActivity().findViewById(
                     R.id.no_detail_layout);
             noContentDetailLayout.setVisibility(View.VISIBLE);
         }
