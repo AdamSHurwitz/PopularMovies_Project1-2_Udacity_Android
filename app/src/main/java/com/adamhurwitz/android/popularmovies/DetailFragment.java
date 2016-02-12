@@ -2,11 +2,8 @@ package com.adamhurwitz.android.popularmovies;
 
 import android.annotation.TargetApi;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,6 +12,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.CardView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +22,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.adamhurwitz.android.popularmovies.data.CursorContract;
+import com.adamhurwitz.android.popularmovies.service.ReviewService;
+import com.adamhurwitz.android.popularmovies.service.YouTubeService;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -240,6 +240,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 getYouTubeKey(movie_id, mTitle);
                 // Launch AsyncTask to get Reviews
                 getReview(movie_id, movieTitle);
+                //Log.v(LOG_TAG,"ALPHA movie_id"+" "+movie_id+" movieTitle "+movieTitle);
 
                 youTubeCursor = getContext().getContentResolver().query(
                         CursorContract.MovieData.CONTENT_URI,
@@ -301,39 +302,17 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     // Method to execute AsyncTask for YouTube URLs
     private void getYouTubeKey(String movie_id, String title) {
-        ConnectivityManager connectivityManager = (ConnectivityManager)
-                this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
-
-        if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
-            com.adamhurwitz.android.popularmovies.FetchYouTubeUrlTask YouTubeKeyTask =
-                    new FetchYouTubeUrlTask(getContext());
-            YouTubeKeyTask.execute(movie_id, title);
-        }
+        String[] youTubeArray = {movie_id, title};
+        getActivity().startService(new Intent(getActivity(), YouTubeService.class)
+                .putExtra("YOUTUBE_QUERY", youTubeArray));
+        Log.v(LOG_TAG, "getYouTubeKey: " + youTubeArray[0] + " " + youTubeArray[1]);
     }
 
     private void getReview(String movie_id, String title) {
-        ConnectivityManager connectivityManager = (ConnectivityManager)
-                this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
-        if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
-            FetchReviewTask reviewTask = new FetchReviewTask(getContext(), detailView);
-            reviewTask.execute(movie_id, title);
-        }
-    }
-
-    // AsyncTask class for YouTube URLs
-    private class FetchYouTubeUrlTask extends com.adamhurwitz.android.popularmovies
-            .FetchYouTubeUrlTask {
-        public FetchYouTubeUrlTask(Context context) {
-            super(context);
-        }
-    }
-
-    private class FetchReviewTask extends com.adamhurwitz.android.popularmovies.FetchReviewTask {
-        public FetchReviewTask(Context context, View view) {
-            super(context, view);
-        }
+        String[] reviewArray = {movie_id, title};
+        getActivity().startService(new Intent(getActivity(), ReviewService.class)
+                .putExtra("REVIEW_QUERY", reviewArray));
+        Log.v(LOG_TAG, "getReviews: " + reviewArray[0] + " " + reviewArray[1]);
     }
 }
 

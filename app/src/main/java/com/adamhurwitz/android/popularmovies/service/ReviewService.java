@@ -1,13 +1,27 @@
-package com.adamhurwitz.android.popularmovies;
+/*
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
+package com.adamhurwitz.android.popularmovies.service;
+
+import android.app.IntentService;
 import android.content.ContentValues;
-import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 
 import com.adamhurwitz.android.popularmovies.data.CursorContract;
 
@@ -22,32 +36,24 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class FetchReviewTask extends AsyncTask<String, Void, String[]> {
-
-    private final String LOG_TAG = FetchReviewTask.class.getSimpleName();
+public class ReviewService extends IntentService {
+    private final String LOG_TAG = ReviewService.class.getSimpleName();
     public static final String BASE_URL = "http://api.themoviedb.org/3/movie/";
     public static final String KEY_PARAMETER = "api_key";
     public static final String KEY_CODE = "81696f0358507756b5119609b0fae31e";
 
-    private final Context context;
     private View detailFragmentView;
 
     int mRowsUpdated = 0;
 
-
-    /**
-     * Constructor for the FetchDoodleDataTask object.
-     *
-     * @param context Provides context.
-     */
-
-    public FetchReviewTask(Context context, View view) {
-        this.context = context;
-        detailFragmentView = view;
+    public ReviewService() {
+        super("ReviewService");
     }
 
     @Override
-    protected String[] doInBackground(String... params) {
+    protected void onHandleIntent(Intent intent) {
+        String[] reviewArray = intent.getStringArrayExtra("REVIEW_QUERY");
+
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
         HttpURLConnection urlConnection = null;
@@ -58,11 +64,10 @@ public class FetchReviewTask extends AsyncTask<String, Void, String[]> {
 
         try {
             // Construct the URL to fetch data from and make the connection.
-            Uri builtUri = Uri.parse(BASE_URL + params[0] + "/reviews").buildUpon()
+            Uri builtUri = Uri.parse(BASE_URL + reviewArray[0] + "/reviews").buildUpon()
                     .appendQueryParameter(KEY_PARAMETER, KEY_CODE)
                     .build();
             URL url = new URL(builtUri.toString());
-            Log.v(LOG_TAG, "Built_Review_URL " + builtUri.toString());
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
@@ -72,7 +77,7 @@ public class FetchReviewTask extends AsyncTask<String, Void, String[]> {
             InputStream inputStream = urlConnection.getInputStream();
             StringBuilder buffer = new StringBuilder();
             if (inputStream == null) {
-                return null;
+                return;
             }
 
             // Read the input stream to see if any valid response was give.
@@ -84,7 +89,7 @@ public class FetchReviewTask extends AsyncTask<String, Void, String[]> {
             }
             if (buffer.length() == 0) {
                 // If the stream is empty, do not process any further.
-                return null;
+                return;
             }
 
             jsonResponse = buffer.toString();
@@ -93,7 +98,7 @@ public class FetchReviewTask extends AsyncTask<String, Void, String[]> {
             // If there was no valid Google doodle data returned, there is no point in attempting to
             // parse it.
             Log.e(LOG_TAG, "Error, IOException.", e);
-            return null;
+            return;
         } finally {
             // Make sure to close the connection and the reader no matter what.
             if (urlConnection != null) {
@@ -109,13 +114,13 @@ public class FetchReviewTask extends AsyncTask<String, Void, String[]> {
         }
 
         try {
-            return parseJSONResponse(jsonResponse, params[1]);
+            parseJSONResponse(jsonResponse, reviewArray[1]);
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
         }
         // Any other case that gets here is an error that was not caught, so return null.
-        return null;
+        return;
     }
 
 
@@ -143,9 +148,6 @@ public class FetchReviewTask extends AsyncTask<String, Void, String[]> {
             if (reviews.length != 0) {
                 putDataIntoDb(reviews, params1);
             }
-            Log.v(LOG_TAG, "Movie_Review_Length" + params1 + ": " + reviews.length);
-            //Log.v(LOG_TAG, "Movie_Review_1"+params1+ ": "+ reviews[0]);
-            //Log.v(LOG_TAG, "Movie_Review_2"+params1+ ": "+ reviews[2]);
             return reviews;
         } catch (JSONException e) {
             Log.e(LOG_TAG, "PARSING ERROR " + e.getMessage(), e);
@@ -173,52 +175,12 @@ public class FetchReviewTask extends AsyncTask<String, Void, String[]> {
             values.put(CursorContract.MovieData.COLUMN_NAME_REVIEW_2, reviews[1]);
             values.put(CursorContract.MovieData.COLUMN_NAME_REVIEW_3, reviews[2]);
         }
-        Log.v(LOG_TAG, title + " reviews_Array_Length: " + reviews.length);
 
-        mRowsUpdated = context.getContentResolver().update(
+        mRowsUpdated = this.getContentResolver().update(
                 CursorContract.MovieData.CONTENT_URI,
                 values,
                 CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
                 new String[]{title});
     }
-
-    @Override
-    /**
-     * Override the onPostExecute method to notify the grid view adapter that new data was
-     * received so that the items in the grid view can appropriately reflect the changes.
-     * @param reviews A list of objects with information about the reviews.
-     */
-    public void onPostExecute(String[] reviews) {
-        // get id for reviews
-        TextView review1Interface = (TextView) detailFragmentView.findViewById(R.id.review1_view);
-        CardView review1Card = (CardView) detailFragmentView.findViewById(R.id.review1_card);
-        TextView review2Interface = (TextView) detailFragmentView.findViewById(R.id.review2_view);
-        CardView review2Card = (CardView) detailFragmentView.findViewById(R.id.review2_card);
-        TextView review3Interface = (TextView) detailFragmentView.findViewById(R.id.review3_view);
-        CardView review3Card = (CardView) detailFragmentView.findViewById(R.id.review3_card);
-
-        if (reviews != null) {
-            if (reviews.length == 0) {
-                //do nothing
-            }
-            if (reviews.length == 1 && reviews[0] != null && !reviews[0].equals("")
-                    && !reviews[0].equals(" ")) {
-                Log.v("review1", reviews[0]);
-                review1Interface.setText(reviews[0]);
-                review1Card.setVisibility(View.VISIBLE);
-            }
-            if (reviews.length == 2 && reviews[1] != null && !reviews[1].equals("")
-                    && !reviews[1].equals(" ")) {
-                Log.v("review1", reviews[1]);
-                review2Interface.setText(reviews[1]);
-                review2Card.setVisibility(View.VISIBLE);
-            }
-            if (reviews.length == 3 && reviews[2] != null && !reviews[2].equals("")
-                    && !reviews[2].equals(" ")) {
-                Log.v("review1", reviews[2]);
-                review3Interface.setText(reviews[2]);
-                review3Card.setVisibility(View.VISIBLE);
-            }
-        }
-    }
 }
+

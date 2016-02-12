@@ -37,8 +37,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Vector;
 
-public class Service extends IntentService {
-    private static final String LOG_TAG = Service.class.getSimpleName();
+public class MovieDataService extends IntentService {
+    private static final String LOG_TAG = MovieDataService.class.getSimpleName();
     public static final String BASE_URL = "https://api.themoviedb.org/3/discover/movie";
     public static final String SORT_PARAMETER = "sort_by";
     public static final String KEY_PARAMETER = "api_key";
@@ -46,7 +46,7 @@ public class Service extends IntentService {
 
     Vector<ContentValues> cVVector;
 
-    public Service() {
+    public MovieDataService() {
         super("Sunshine");
     }
 
@@ -68,7 +68,6 @@ public class Service extends IntentService {
                     .appendQueryParameter(KEY_PARAMETER, KEY_CODE)
                     .build();
             URL url = new URL(builtUri.toString());
-            Log.v(LOG_TAG, "Built URL " + builtUri.toString());
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
@@ -143,7 +142,6 @@ public class Service extends IntentService {
             JSONArray jsonArray = jsonObject.getJSONArray("results");
             // Initialize ArrayList of Content Values size of data Array length
             cVVector = new Vector<>(jsonArray.length());
-            Log.v(LOG_TAG, "cVVector_Length: " + jsonArray.length());
             // create ForLoop to loop through each index in "results" ArrayList
             // and parse for JSONObject by ArrayList index
             for (int i = 0; i < jsonArray.length(); i++) {

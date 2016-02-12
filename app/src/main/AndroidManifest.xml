@@ -42,7 +42,9 @@
         <provider
             android:authorities="com.adamhurwitz.android.popularmovies"
             android:name=".data.MovieProvider" />
-        <service android:name=".service.Service"/>
+        <service android:name=".service.MovieDataService"/>
+        <service android:name=".service.YouTubeService"/>
+        <service android:name=".service.ReviewService"/>
     </application>
 
 </manifest>

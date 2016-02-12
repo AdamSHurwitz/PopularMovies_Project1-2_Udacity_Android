@@ -22,7 +22,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.adamhurwitz.android.popularmovies.data.CursorContract;
-import com.adamhurwitz.android.popularmovies.service.Service;
+import com.adamhurwitz.android.popularmovies.service.MovieDataService;
 
 
 /**
@@ -219,7 +219,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 
     // Method for executing movie data AsyncTask
     private void getMovieData() {
-        getActivity().startService(new Intent(getActivity(), Service.class)
+        getActivity().startService(new Intent(getActivity(), MovieDataService.class)
                 .putExtra("MOVIE_QUERY", "popularity.desc"));
     }
 

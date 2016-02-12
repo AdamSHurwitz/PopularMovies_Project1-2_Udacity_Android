@@ -1,11 +1,27 @@
-package com.adamhurwitz.android.popularmovies;
+/*
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.adamhurwitz.android.popularmovies.service;
 
 import android.annotation.TargetApi;
+import android.app.IntentService;
 import android.content.ContentValues;
-import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Log;
 
@@ -21,16 +37,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Vector;
 
-// param1 passes into doInBackground()
-// param3 declares return type for doInBackground()
-
-
-// public class FetchMovieTask extends AsyncTask<String, Void, String>
-
-public abstract class FetchYouTubeUrlTask extends AsyncTask<String, Void, Void> {
-
-    private final String LOG_TAG = FetchYouTubeUrlTask.class.getSimpleName();
+public class YouTubeService extends IntentService {
+    private final String LOG_TAG = YouTubeService.class.getSimpleName();
 
     public static final String BASE_URL = "https://api.themoviedb.org/3/movie/";
     public static final String YOUTUBE_BASE_URL = "https://www.youtube.com/watch?v=";
@@ -40,21 +50,16 @@ public abstract class FetchYouTubeUrlTask extends AsyncTask<String, Void, Void> 
 
     public static final String SORT_PARAMETER = "sort_by";
 
+    Vector<ContentValues> cVVector;
 
-    private final Context context;
-
-    /**
-     * Constructor for the FetchDoodleDataTask object.
-     *
-     * @param context Provides context.
-     */
-    public FetchYouTubeUrlTask(Context context) {
-        this.context = context;
+    public YouTubeService() {
+        super("YouTubeService");
     }
 
-
     @Override
-    protected Void doInBackground(String... params) {
+    protected void onHandleIntent(Intent intent) {
+        String[] youTubeArray = intent.getStringArrayExtra("YOUTUBE_QUERY");
+
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
         HttpURLConnection urlConnection = null;
@@ -65,11 +70,10 @@ public abstract class FetchYouTubeUrlTask extends AsyncTask<String, Void, Void> 
 
         try {
             // Construct the URL to fetch data from and make the connection.
-            Uri builtUri = Uri.parse(BASE_URL + params[0] + VIDEOS).buildUpon()
+            Uri builtUri = Uri.parse(BASE_URL + youTubeArray[0] + VIDEOS).buildUpon()
                     .appendQueryParameter(KEY_PARAMETER, KEY_CODE)
                     .build();
             URL url = new URL(builtUri.toString());
-            Log.v(LOG_TAG, "doInBackground() " + builtUri.toString());
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
@@ -79,7 +83,7 @@ public abstract class FetchYouTubeUrlTask extends AsyncTask<String, Void, Void> 
             InputStream inputStream = urlConnection.getInputStream();
             StringBuilder buffer = new StringBuilder();
             if (inputStream == null) {
-                return null;
+                return;
             }
 
             // Read the input stream to see if any valid response was give.
@@ -91,7 +95,7 @@ public abstract class FetchYouTubeUrlTask extends AsyncTask<String, Void, Void> 
             }
             if (buffer.length() == 0) {
                 // If the stream is empty, do not process any further.
-                return null;
+                return;
             }
 
             jsonResponse = buffer.toString();
@@ -100,7 +104,7 @@ public abstract class FetchYouTubeUrlTask extends AsyncTask<String, Void, Void> 
             // If there was no valid Google doodle data returned, there is no point in attempting to
             // parse it.
             Log.e(LOG_TAG, "Error, IOException.", e);
-            return null;
+            return;
         } finally {
             // Make sure to close the connection and the reader no matter what.
             if (urlConnection != null) {
@@ -116,10 +120,10 @@ public abstract class FetchYouTubeUrlTask extends AsyncTask<String, Void, Void> 
         }
 
         // return ArrayList of MovieData Objects
-        parseJSONResponse(jsonResponse, params[1]);
+        parseJSONResponse(jsonResponse, youTubeArray[1]);
 
         // Any other case that gets here is an error that was not caught, so return null.
-        return null;
+        return;
     }
 
     /**
@@ -162,11 +166,9 @@ public abstract class FetchYouTubeUrlTask extends AsyncTask<String, Void, Void> 
 
         values.put(CursorContract.MovieData.COLUMN_NAME_YOUTUBEURL, youTubeUrl);
 
-        Log.v(LOG_TAG, title + " Content_Values " + values.toString());
-
-        Cursor c = context.getContentResolver().query(
+        Cursor c = this.getContentResolver().query(
                 CursorContract.MovieData.CONTENT_URI,
-                new String[] {CursorContract.MovieData.COLUMN_NAME_YOUTUBEURL},
+                new String[]{CursorContract.MovieData.COLUMN_NAME_YOUTUBEURL},
                 CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
                 new String[]{title}, // The values for the WHERE clause
                 null,                                     // don't group the rows
@@ -175,10 +177,11 @@ public abstract class FetchYouTubeUrlTask extends AsyncTask<String, Void, Void> 
 
         c.moveToFirst();
 
-        int mRowsUpdated = context.getContentResolver().update(
+        int mRowsUpdated = this.getContentResolver().update(
                 CursorContract.MovieData.CONTENT_URI,
                 values,
                 CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
-                new String[] {title});
+                new String[]{title});
     }
 }
+
