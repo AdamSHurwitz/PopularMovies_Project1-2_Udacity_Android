@@ -1,9 +1,12 @@
 package com.adamhurwitz.android.popularmovies;
 
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
+import com.adamhurwitz.android.popularmovies.data.CursorContract;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -27,7 +30,25 @@ public class DetailActivity extends AppCompatActivity {
 
             Bundle arguments = new Bundle();
             arguments.putParcelable(DetailFragment.DETAIL_URI, getIntent().getData());
-            arguments.putString("mTitle", getIntent().getStringExtra("title"));
+            String title = getIntent().getStringExtra("title");
+            arguments.putString("mTitle", title);
+
+            Log.v(LOG_TAG, "title: " + title);
+
+            Cursor c = getContentResolver().query(
+                    CursorContract.MovieData.CONTENT_URI,
+                    new String[]{CursorContract.MovieData.COLUMN_NAME_YOUTUBEURL},
+                    CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
+                    new String[]{title},
+                    null
+            );
+
+            c.moveToFirst();
+
+            String youTubeUrl = c.getString(c.getColumnIndex(CursorContract.MovieData
+                    .COLUMN_NAME_YOUTUBEURL));
+
+            Log.v(LOG_TAG, "youTubeUrl: " + youTubeUrl);
 
             // Set the Uri as the Arguments in the  new DetailFragment
 
