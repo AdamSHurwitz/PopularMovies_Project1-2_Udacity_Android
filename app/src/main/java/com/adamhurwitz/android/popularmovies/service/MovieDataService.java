@@ -186,30 +186,6 @@ public class MovieDataService extends IntentService {
         values.put(CursorContract.MovieData.COLUMN_NAME_RELEASEDATE, release_date);
         values.put(CursorContract.MovieData.COLUMN_NAME_FAVORITE, "1");
 
-        /*cVVector.add(values);
-        Cursor cursor = context.getContentResolver().query(
-                // The content URI of the words table
-                CursorContract.MovieData.CONTENT_URI,
-                // projection: the columns to return for each row
-                null,
-                // selectionClause: selection criteria
-                CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
-                // selectionArgs: selection criteria
-                new String[]{title},
-                // sortOrder: the sort order for the returned rows
-                CursorContract.MovieData._ID);
-        if (cursor.getCount() == 0) {
-            if (cVVector.size() > 0) {
-                ContentValues[] cvArray = new ContentValues[cVVector.size()];
-                cVVector.toArray(cvArray);
-                context.getContentResolver().bulkInsert(CursorContract.MovieData.CONTENT_URI,
-                        cvArray);
-                Log.v(LOG_TAG, "Length_of_Array: " + cvArray.length);
-            }
-            Log.v(LOG_TAG, "Length_of_Vector: " + cVVector.size());
-
-        }*/
-
         // Insert the new row, returning the primary key value of the new row
         long thisRowID;
 
