@@ -329,7 +329,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         if (mYouTubeUrl == null) {
             // Launch Service to get YouTube URL
             getYouTubeKey(mMovieId, mTitle);
-            Log.v(LOG_TAG, "ALPHA: " + mYouTubeUrl + " movieId: " + mMovieId + "movieTitle: " + mMovieTitle);
+            /*Log.v(LOG_TAG, "ALPHA: " + mYouTubeUrl + " movieId: " + mMovieId + "movieTitle: " + mMovieTitle);
             Cursor c = getContext().getContentResolver().query(
                     CursorContract.MovieData.CONTENT_URI,
                     new String[]{CursorContract.MovieData.COLUMN_NAME_YOUTUBEURL},
@@ -341,9 +341,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             c.moveToFirst();
             String youTubeUrl = c.getString(c.getColumnIndex(CursorContract.MovieData
                     .COLUMN_NAME_YOUTUBEURL));
-            Log.v(LOG_TAG, "youTubeUrl: " + youTubeUrl);
+            Log.v(LOG_TAG, "youTubeUrl: " + youTubeUrl);*/
             shareIntent.putExtra(Intent.EXTRA_TEXT,
-                    "Check out the " + mMovieTitle + " trailer: " + youTubeUrl);
+                    "Check out the " + mMovieTitle + " trailer: " + mYouTubeUrl);
         } else {
             shareIntent.putExtra(Intent.EXTRA_TEXT,
                     "Check out the " + mMovieTitle + " trailer: " + mYouTubeUrl);
@@ -374,8 +374,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
         return;
 
-    /*     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+       // @Override
+    /*public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
