@@ -314,5 +314,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 .putExtra("REVIEW_QUERY", reviewArray));
         Log.v(LOG_TAG, "getReviews: " + reviewArray[0] + " " + reviewArray[1]);
     }
+
 }
 
