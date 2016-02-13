@@ -23,4 +23,8 @@
     <string name="no_detail_content_select">SELECT</string>
     <string name="no_detail_content_a">A</string>
     <string name="no_detail_content_film">FILM</string>
+
+    <string name="youTube_key">youTube_key</string>
+    <string name="movie_title">movie_title</string>
+    <string name="default_value">default_value</string>
 </resources>

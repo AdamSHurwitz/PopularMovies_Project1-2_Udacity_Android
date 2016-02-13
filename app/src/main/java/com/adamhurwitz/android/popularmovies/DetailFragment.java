@@ -11,9 +11,14 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -32,7 +37,6 @@ import com.squareup.picasso.Picasso;
 public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private final String LOG_TAG = DetailFragment.class.getSimpleName();
     private AsyncCursorAdapter asyncCursorAdapter;
-    String movieId = "";
     String mTitle = "";
     View detailView;
     static final String DETAIL_URI = "URI";
@@ -62,7 +66,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     String review3;
     String favorite;
     CardView mainDetailCard;
-    TextView noDetailContent;
+    String mMovieId;
     LinearLayout noDetailLayout;
 
     public DetailFragment() {
@@ -101,13 +105,15 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         review3Card = (CardView) view.findViewById(R.id.review3_card);
         mainDetailCard = (CardView) view.findViewById(R.id.main_detail_card);
         noDetailLayout = (LinearLayout) view.findViewById(R.id.no_detail_layout);
+
+        setHasOptionsMenu(true);
         return view;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        // Call AsyncTask to get Review Data
+        // Call Service to get Review Data
         //getReview(movieId, movieTitle);
     }
 
@@ -156,6 +162,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                     .COLUMN_NAME_SUMMARY));
             String movie_id = data.getString(data.getColumnIndex(CursorContract.MovieData
                     .COLUMN_NAME_MOVIEID));
+            mMovieId = movie_id;
             favorite = data.getString(data.getColumnIndex(CursorContract.MovieData
                     .COLUMN_NAME_FAVORITE));
 
@@ -234,13 +241,12 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             releaseDateView.setText(releaseDate);
             summaryView.setText(summary);
 
-            // Launch method that executes AsyncTask to build YouTube URL and Reviews and update DB
+            // Launch method that executes Service to build YouTube URL and Reviews and update DB
             if (mYouTubeUrl == null && review1 == null && review2 == null && review3 == null) {
-                // Launch AsyncTask to get YouTube URL
+                // Launch Service to get YouTube URL
                 getYouTubeKey(movie_id, mTitle);
-                // Launch AsyncTask to get Reviews
+                // Launch Service to get Reviews
                 getReview(movie_id, movieTitle);
-                //Log.v(LOG_TAG,"ALPHA movie_id"+" "+movie_id+" movieTitle "+movieTitle);
 
                 youTubeCursor = getContext().getContentResolver().query(
                         CursorContract.MovieData.CONTENT_URI,
@@ -292,6 +298,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             } else {
                 review3Card.setVisibility(View.INVISIBLE);
             }
+
+
         }
     }
 
@@ -300,20 +308,87 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     }
 
-    // Method to execute AsyncTask for YouTube URLs
+    // Method to execute Service for YouTube URLs
     private void getYouTubeKey(String movie_id, String title) {
         String[] youTubeArray = {movie_id, title};
         getActivity().startService(new Intent(getActivity(), YouTubeService.class)
                 .putExtra("YOUTUBE_QUERY", youTubeArray));
-        Log.v(LOG_TAG, "getYouTubeKey: " + youTubeArray[0] + " " + youTubeArray[1]);
     }
 
     private void getReview(String movie_id, String title) {
         String[] reviewArray = {movie_id, title};
         getActivity().startService(new Intent(getActivity(), ReviewService.class)
                 .putExtra("REVIEW_QUERY", reviewArray));
-        Log.v(LOG_TAG, "getReviews: " + reviewArray[0] + " " + reviewArray[1]);
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private Intent createShareIntent() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+        if (mYouTubeUrl == null) {
+            // Launch Service to get YouTube URL
+            getYouTubeKey(mMovieId, mTitle);
+            Log.v(LOG_TAG, "ALPHA: " + mYouTubeUrl + " movieId: " + mMovieId + "movieTitle: " + mMovieTitle);
+            Cursor c = getContext().getContentResolver().query(
+                    CursorContract.MovieData.CONTENT_URI,
+                    new String[]{CursorContract.MovieData.COLUMN_NAME_YOUTUBEURL},
+                    CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
+                    new String[]{mMovieTitle}, // The values for the WHERE clause
+                    null,                                     // don't group the rows
+                    null                                     // don't filter by row groups
+            );
+            c.moveToFirst();
+            String youTubeUrl = c.getString(c.getColumnIndex(CursorContract.MovieData
+                    .COLUMN_NAME_YOUTUBEURL));
+            Log.v(LOG_TAG, "youTubeUrl: " + youTubeUrl);
+            shareIntent.putExtra(Intent.EXTRA_TEXT,
+                    "Check out the " + mMovieTitle + " trailer: " + youTubeUrl);
+        } else {
+            shareIntent.putExtra(Intent.EXTRA_TEXT,
+                    "Check out the " + mMovieTitle + " trailer: " + mYouTubeUrl);
+            Log.v(LOG_TAG, "mYouTubeUrl: " + mYouTubeUrl);
+        }
+        return shareIntent;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        inflater.inflate(R.menu.menu_detail, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+
+        // Locate MenuItem with ShareActionProvider
+        MenuItem item = menu.findItem(R.id.action_share);
+
+        // Fetch and store ShareActionProvider
+        ShareActionProvider mShareActionProvider = (ShareActionProvider)
+                MenuItemCompat.getActionProvider(item);
+        // Attach an intent to this ShareActionProvider.  You can update this at any time,
+        // like when the user selects a new piece of data they might like to share.
+        if (mShareActionProvider != null) {
+            mShareActionProvider.setShareIntent(createShareIntent());
+        } else {
+            Log.d(LOG_TAG, "Share Action Provider is null?");
+        }
+
+        return;
+
+    /*     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        // no inspection SimplifiableIfStatement
+        if (id == R.id.action_share) {
+            createShareIntent();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }*/
+    }
 }
 

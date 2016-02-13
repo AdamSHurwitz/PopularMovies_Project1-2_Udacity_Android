@@ -1,14 +1,11 @@
 package com.adamhurwitz.android.popularmovies;
 
-import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.view.MenuItemCompat;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -28,6 +25,12 @@ public class DetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String defaultValue = getResources().getString(R.string.default_value);
+        String movieTitle = prefs.getString(getString(R.string.movie_title), defaultValue);
+        String youTubeUrl = prefs.getString(getString(R.string.youTube_key), defaultValue);
+
+        Log.v(LOG_TAG, "movieTitle: " + movieTitle + " youTubeUrl: " + youTubeUrl);
 
         if (savedInstanceState == null) {
             // Create the detail fragment and add it to the activity using a fragment transaction
@@ -35,7 +38,6 @@ public class DetailActivity extends AppCompatActivity {
             Bundle arguments = new Bundle();
             arguments.putParcelable(DetailFragment.DETAIL_URI, getIntent().getData());
             arguments.putString("mTitle", getIntent().getStringExtra("title"));
-            Log.v(LOG_TAG, "title: " + getIntent().getStringExtra("title"));
 
             // Set the Uri as the Arguments in the  new DetailFragment
 
@@ -53,7 +55,7 @@ public class DetailActivity extends AppCompatActivity {
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
-    @Override
+ /*   @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_detail, menu);
@@ -76,6 +78,7 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private Intent createShareIntent() {
+
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setType("text/plain");
@@ -98,7 +101,7 @@ public class DetailActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
+    }*/
 
     @Override
     public void onStart() {
