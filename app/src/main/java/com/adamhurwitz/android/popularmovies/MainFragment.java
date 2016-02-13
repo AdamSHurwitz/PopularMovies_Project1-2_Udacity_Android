@@ -30,7 +30,7 @@ import com.adamhurwitz.android.popularmovies.service.MovieDataService;
  */
 public class MainFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private final String LOG_TAG = MainFragment.class.getSimpleName();
-    private AsyncCursorAdapter mAsyncCursorAdapter;
+    private CursorAdapter mCursorAdapter;
     private static final int LOADER_FRAGMENT = 0;
 
     String whereColumns = "";
@@ -74,7 +74,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Initialize Adapter
-        mAsyncCursorAdapter = new com.adamhurwitz.android.popularmovies.AsyncCursorAdapter(
+        mCursorAdapter = new CursorAdapter(
                 getActivity(), null, 0);
 
         View view = inflater.inflate(R.layout.grid_view_layout, container, false);
@@ -84,7 +84,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 
         // Get a reference to the grid view layout and attach the adapter to it.
         mGridView = (GridView) view.findViewById(R.id.grid_view_layout);
-        mGridView.setAdapter(mAsyncCursorAdapter);
+        mGridView.setAdapter(mCursorAdapter);
 
         // Click listener when grid item is selected
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -202,7 +202,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
                     whereValue2,
                     // The sort order
                     sortOrder2);
-            mAsyncCursorAdapter.changeCursor(onResumeCursor);
+            mCursorAdapter.changeCursor(onResumeCursor);
         }
     }
 
@@ -279,7 +279,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mAsyncCursorAdapter.swapCursor(data);
+        mCursorAdapter.swapCursor(data);
         if (mPosition != ListView.INVALID_POSITION) {
             // If we don't need to restart the loader, and there's a desired position to restore
             // to, do so now.
@@ -289,7 +289,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        mAsyncCursorAdapter.swapCursor(null);
+        mCursorAdapter.swapCursor(null);
     }
 }
 

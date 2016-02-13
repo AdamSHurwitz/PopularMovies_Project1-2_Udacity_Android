@@ -36,7 +36,7 @@ import com.squareup.picasso.Picasso;
  */
 public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private final String LOG_TAG = DetailFragment.class.getSimpleName();
-    private AsyncCursorAdapter asyncCursorAdapter;
+    private CursorAdapter cursorAdapter;
     String mTitle = "";
     View detailView;
     static final String DETAIL_URI = "URI";
@@ -85,7 +85,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
         View view = inflater.inflate(R.layout.fragment_detail, container, false);
         detailView = view;
-        asyncCursorAdapter = new com.adamhurwitz.android.popularmovies.AsyncCursorAdapter(
+        cursorAdapter = new CursorAdapter(
                 getActivity(), null, 0);
 
 

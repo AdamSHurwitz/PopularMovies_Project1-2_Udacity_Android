@@ -33,10 +33,7 @@ public class MovieProvider extends ContentProvider{
     }
 
     /*
-       Students: Here is where you need to create the UriMatcher. This UriMatcher will
-       match each URI to the WEATHER, WEATHER_WITH_LOCATION, WEATHER_WITH_LOCATION_AND_DATE,
-       and LOCATION integer constants defined above.  You can test this by uncommenting the
-       testUriMatcher test within TestUriMatcher.
+       This UriMatcher will match each URI
     */
     static UriMatcher buildUriMatcher() {
         // All paths added to the UriMatcher have a corresponding code to return when a match is
@@ -193,7 +190,7 @@ public class MovieProvider extends ContentProvider{
     }
 
     // You do not need to call this method. This is a method specifically to assist the testing
-    // framework in running smoothly. You can read more at:
+    // framework in running smoothly. Info at:
     // http://developer.android.com/reference/android/content/ContentProvider.html#shutdown()
     @Override
     @TargetApi(11)

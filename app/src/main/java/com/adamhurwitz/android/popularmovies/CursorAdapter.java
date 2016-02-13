@@ -15,7 +15,7 @@ import com.adamhurwitz.android.popularmovies.data.CursorContract;
 import com.squareup.picasso.Picasso;
 
 
-public class AsyncCursorAdapter extends android.widget.CursorAdapter {
+public class CursorAdapter extends android.widget.CursorAdapter {
 
     // declare Context variable
     Context context;
@@ -29,11 +29,10 @@ public class AsyncCursorAdapter extends android.widget.CursorAdapter {
      * @param flags   Determine behavior of adapter
      */
     // creates constructor to create StaticArrayAdapter object
-    public AsyncCursorAdapter(Context context, Cursor cursor, int flags) {
+    public CursorAdapter(Context context, Cursor cursor, int flags) {
 
         super(context, cursor, flags);
         this.context = context;
-        this.title = title;
     }
 
     // getView to create view, telling Adapter what's included in the static_item_layout

@@ -42,7 +42,7 @@ public class MovieDataService extends IntentService {
     public static final String BASE_URL = "https://api.themoviedb.org/3/discover/movie";
     public static final String SORT_PARAMETER = "sort_by";
     public static final String KEY_PARAMETER = "api_key";
-    public static final String KEY_CODE = "";
+    public static final String KEY_CODE = "81696f0358507756b5119609b0fae31e";
 
     Vector<ContentValues> cVVector;
 
