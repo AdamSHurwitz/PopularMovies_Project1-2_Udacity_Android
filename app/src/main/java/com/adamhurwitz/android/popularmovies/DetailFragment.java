@@ -141,8 +141,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         return null;
     }
 
-    //TODO: Get values returned from Cursor and place into DetailFragment
-
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
