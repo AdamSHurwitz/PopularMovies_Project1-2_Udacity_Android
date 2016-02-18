@@ -1,6 +1,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <ListPreference
+        android:id="@+id/pref_general_content"
         android:defaultValue="popularity.desc"
         android:entries="@array/sort_entries"
         android:entryValues="@array/sort_entry_values"
@@ -8,7 +9,9 @@
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"
         android:summary="@string/pref_description_sortBy"
-        android:title="@string/pref_title_sortBy"></ListPreference>
+        android:title="@string/pref_title_sortBy">
+
+    </ListPreference>
 
 </PreferenceScreen>
 
