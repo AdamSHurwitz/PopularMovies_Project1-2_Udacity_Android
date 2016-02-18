@@ -3,7 +3,6 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat">
         <item name="displayOptions">useLogo|showHome</item>
-        <item name="logo">@drawable/movies</item>
         <!-- Customize your theme here. -->
         <!-- color of action bar (use 500 color) -->
         <item name="colorPrimary">#2196F3</item>
