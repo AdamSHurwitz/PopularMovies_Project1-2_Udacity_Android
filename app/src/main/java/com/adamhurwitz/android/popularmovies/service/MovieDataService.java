@@ -23,6 +23,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
+import com.adamhurwitz.android.popularmovies.Constants;
 import com.adamhurwitz.android.popularmovies.data.CursorContract;
 
 import org.json.JSONArray;
@@ -39,10 +40,10 @@ import java.util.Vector;
 
 public class MovieDataService extends IntentService {
     private static final String LOG_TAG = MovieDataService.class.getSimpleName();
-    public static final String BASE_URL = "https://api.themoviedb.org/3/discover/movie";
+/*    public static final String BASE_URL = "https://api.themoviedb.org/3/discover/movie";
     public static final String SORT_PARAMETER = "sort_by";
     public static final String KEY_PARAMETER = "api_key";
-    public static final String KEY_CODE = "81696f0358507756b5119609b0fae31e";
+    public static final String KEY_CODE = "81696f0358507756b5119609b0fae31e";*/
 
     Vector<ContentValues> cVVector;
 
@@ -63,9 +64,9 @@ public class MovieDataService extends IntentService {
 
         try {
             // Construct the URL to fetch data from and make the connection.
-            Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                    .appendQueryParameter(SORT_PARAMETER, movieQuery)
-                    .appendQueryParameter(KEY_PARAMETER, KEY_CODE)
+            Uri builtUri = Uri.parse(Constants.BASE_URL).buildUpon()
+                    .appendQueryParameter(movieQuery, movieQuery)
+                    .appendQueryParameter(Constants.KEY_PARAMETER, Constants.KEY_CODE)
                     .build();
             URL url = new URL(builtUri.toString());
             urlConnection = (HttpURLConnection) url.openConnection();
