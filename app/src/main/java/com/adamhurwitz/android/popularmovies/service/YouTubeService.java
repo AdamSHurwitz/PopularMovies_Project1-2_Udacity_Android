@@ -37,7 +37,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Vector;
 
 public class YouTubeService extends IntentService {
     private final String LOG_TAG = YouTubeService.class.getSimpleName();
@@ -49,8 +48,6 @@ public class YouTubeService extends IntentService {
     public static final String KEY_CODE = "81696f0358507756b5119609b0fae31e";
 
     public static final String SORT_PARAMETER = "sort_by";
-
-    Vector<ContentValues> cVVector;
 
     public YouTubeService() {
         super("YouTubeService");

@@ -167,13 +167,8 @@ public class MovieDataService extends IntentService {
             Integer movie_id, String title, String image_url, String summary, Double
                     vote_average, Double popularity, String release_date) {
 
-        // Access database
-        //CursorDbHelper mDbHelper = new CursorDbHelper(context);
 
         // Put Info into Database
-
-        // Gets the data repository in write mode
-        //SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
