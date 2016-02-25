@@ -59,7 +59,7 @@ public class ReviewService extends IntentService {
 
         try {
             // Construct the URL to fetch data from and make the connection.
-            Uri builtUri = Uri.parse(Constants.BASE_URL + reviewArray[0] + "/reviews").buildUpon()
+            Uri builtUri = Uri.parse(Constants.NOTBASE_URL + reviewArray[0] + "/reviews").buildUpon()
                     .appendQueryParameter(Constants.KEY_PARAMETER, Constants.KEY_CODE)
                     .build();
             URL url = new URL(builtUri.toString());

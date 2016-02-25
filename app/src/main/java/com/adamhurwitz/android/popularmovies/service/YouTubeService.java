@@ -64,7 +64,7 @@ public class YouTubeService extends IntentService {
 
         try {
             // Construct the URL to fetch data from and make the connection.
-            Uri builtUri = Uri.parse(Constants.BASE_URL + youTubeArray[0] + VIDEOS).buildUpon()
+            Uri builtUri = Uri.parse(Constants.NOTBASE_URL + youTubeArray[0] + VIDEOS).buildUpon()
                     .appendQueryParameter(Constants.KEY_PARAMETER, Constants.KEY_CODE)
                     .build();
             URL url = new URL(builtUri.toString());
