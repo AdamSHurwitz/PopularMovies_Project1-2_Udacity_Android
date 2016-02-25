@@ -2,11 +2,8 @@ package com.adamhurwitz.android.popularmovies;
 
 import android.annotation.TargetApi;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -71,8 +68,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     CardView mainDetailCard;
     String mMovieId;
     LinearLayout noDetailLayout;
-    ShareActionProvider mShareActionProvider;
-    Intent shareIntent;
 
     public DetailFragment() {
     }
@@ -245,7 +240,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             summaryView.setText(summary);
 
             // Launch method that executes Service to build YouTube URL and Reviews and update DB
-
             if (mYouTubeUrl == null && review1 == null && review2 == null && review3 == null) {
                 // Launch Service to get YouTube URL
                 getYouTubeKey(movie_id, mTitle);
@@ -261,20 +255,12 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                         null);
                 youTubeCursor.moveToFirst();
             }
+
             mYouTubeUrl = youTubeCursor.getString(data.getColumnIndex(CursorContract.MovieData
                     .COLUMN_NAME_YOUTUBEURL));
-            Log.v(LOG_TAG, "onLoadFinished() - mYouTubeUrl: " + mYouTubeUrl);
-
-            if (mShareActionProvider != null) {
-                // Create new Share Intent
-                shareIntent.putExtra(Intent.EXTRA_TEXT,
-                        "Check out the " + mMovieTitle + " trailer: " + mYouTubeUrl);
-                mShareActionProvider.setShareIntent(createShareIntent());
-            }
 
             playButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View view) {
-                    Log.v(LOG_TAG, "onClick() - mYouTubeUrl: " + mYouTubeUrl);
                     if (mYouTubeUrl == null) {
                     } else {
                         // Web Browser Intent
@@ -328,33 +314,38 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     private void getReview(String movie_id, String title) {
-        ConnectivityManager cm =
-                (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-
-        if (activeNetwork != null &&
-                activeNetwork.isConnectedOrConnecting()) {
-            String[] reviewArray = {movie_id, title};
-            getActivity().startService(new Intent(getActivity(), ReviewService.class)
-                    .putExtra("REVIEW_QUERY", reviewArray));
-        }
+        String[] reviewArray = {movie_id, title};
+        getActivity().startService(new Intent(getActivity(), ReviewService.class)
+                .putExtra("REVIEW_QUERY", reviewArray));
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private Intent createShareIntent() {
-        shareIntent = new Intent(Intent.ACTION_SEND);
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setType("text/plain");
         if (mYouTubeUrl == null) {
             // Launch Service to get YouTube URL
             getYouTubeKey(mMovieId, mTitle);
+            /*Log.v(LOG_TAG, "ALPHA: " + mYouTubeUrl + " movieId: " + mMovieId + "movieTitle: " + mMovieTitle);
+            Cursor c = getContext().getContentResolver().query(
+                    CursorContract.MovieData.CONTENT_URI,
+                    new String[]{CursorContract.MovieData.COLUMN_NAME_YOUTUBEURL},
+                    CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
+                    new String[]{mMovieTitle}, // The values for the WHERE clause
+                    null,                                     // don't group the rows
+                    null                                     // don't filter by row groups
+            );
+            c.moveToFirst();
+            String youTubeUrl = c.getString(c.getColumnIndex(CursorContract.MovieData
+                    .COLUMN_NAME_YOUTUBEURL));
+            Log.v(LOG_TAG, "youTubeUrl: " + youTubeUrl);*/
             shareIntent.putExtra(Intent.EXTRA_TEXT,
                     "Check out the " + mMovieTitle + " trailer: " + mYouTubeUrl);
         } else {
             shareIntent.putExtra(Intent.EXTRA_TEXT,
                     "Check out the " + mMovieTitle + " trailer: " + mYouTubeUrl);
-            Log.v(LOG_TAG, "createShareIntent() - mYouTubeUrl: " + mYouTubeUrl);
+            Log.v(LOG_TAG, "mYouTubeUrl: " + mYouTubeUrl);
         }
         return shareIntent;
     }
@@ -369,7 +360,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         MenuItem item = menu.findItem(R.id.action_share);
 
         // Fetch and store ShareActionProvider
-        mShareActionProvider = (ShareActionProvider)
+        ShareActionProvider mShareActionProvider = (ShareActionProvider)
                 MenuItemCompat.getActionProvider(item);
         // Attach an intent to this ShareActionProvider.  You can update this at any time,
         // like when the user selects a new piece of data they might like to share.
@@ -381,7 +372,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
         return;
 
-        // @Override
+       // @Override
     /*public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
