@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 
+import com.adamhurwitz.android.popularmovies.MovieConstantClass;
 import com.adamhurwitz.android.popularmovies.data.CursorContract;
 
 import org.json.JSONArray;
@@ -40,7 +41,7 @@ public class ReviewService extends IntentService {
     private final String LOG_TAG = ReviewService.class.getSimpleName();
     public static final String BASE_URL = "http://api.themoviedb.org/3/movie/";
     public static final String KEY_PARAMETER = "api_key";
-    public static final String KEY_CODE = "81696f0358507756b5119609b0fae31e";
+    public final static String KEY_CODE = MovieConstantClass.KEY_CODE;
 
     private View detailFragmentView;
 
