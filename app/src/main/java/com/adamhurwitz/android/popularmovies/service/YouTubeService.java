@@ -25,6 +25,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
+import com.adamhurwitz.android.popularmovies.Constants;
 import com.adamhurwitz.android.popularmovies.data.CursorContract;
 
 import org.json.JSONArray;
@@ -37,20 +38,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Vector;
 
 public class YouTubeService extends IntentService {
     private final String LOG_TAG = YouTubeService.class.getSimpleName();
-
-    public static final String BASE_URL = "https://api.themoviedb.org/3/movie/";
-    public static final String YOUTUBE_BASE_URL = "https://www.youtube.com/watch?v=";
     public String VIDEOS = "/videos";
-    public static final String KEY_PARAMETER = "api_key";
-    public static final String KEY_CODE = "81696f0358507756b5119609b0fae31e";
+    public static final String YOUTUBE_BASE_URL = "https://www.youtube.com/watch?v=";
 
     public static final String SORT_PARAMETER = "sort_by";
-
-    Vector<ContentValues> cVVector;
 
     public YouTubeService() {
         super("YouTubeService");
@@ -70,8 +64,8 @@ public class YouTubeService extends IntentService {
 
         try {
             // Construct the URL to fetch data from and make the connection.
-            Uri builtUri = Uri.parse(BASE_URL + youTubeArray[0] + VIDEOS).buildUpon()
-                    .appendQueryParameter(KEY_PARAMETER, KEY_CODE)
+            Uri builtUri = Uri.parse(Constants.BASE_URL + youTubeArray[0] + VIDEOS).buildUpon()
+                    .appendQueryParameter(Constants.KEY_PARAMETER, Constants.KEY_CODE)
                     .build();
             URL url = new URL(builtUri.toString());
             urlConnection = (HttpURLConnection) url.openConnection();
