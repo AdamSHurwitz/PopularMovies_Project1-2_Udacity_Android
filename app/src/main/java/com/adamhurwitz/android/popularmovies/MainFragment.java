@@ -1,11 +1,8 @@
 package com.adamhurwitz.android.popularmovies;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -222,14 +219,8 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 
     // Method for executing movie data AsyncTask
     private void getMovieData() {
-        ConnectivityManager connectivityManager = (ConnectivityManager)
-                this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
-
-        if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
-            getActivity().startService(new Intent(getActivity(), MovieDataService.class)
-                    .putExtra("MOVIE_QUERY", "popularity.desc"));
-        }
+        getActivity().startService(new Intent(getActivity(), MovieDataService.class)
+                .putExtra("MOVIE_QUERY", "popularity.desc"));
     }
 
     @Override

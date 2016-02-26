@@ -2,11 +2,8 @@ package com.adamhurwitz.android.popularmovies;
 
 import android.annotation.TargetApi;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -317,17 +314,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     private void getReview(String movie_id, String title) {
-        ConnectivityManager cm =
-                (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-
-        if (activeNetwork != null &&
-                activeNetwork.isConnectedOrConnecting()) {
-            String[] reviewArray = {movie_id, title};
-            getActivity().startService(new Intent(getActivity(), ReviewService.class)
-                    .putExtra("REVIEW_QUERY", reviewArray));
-        }
+        String[] reviewArray = {movie_id, title};
+        getActivity().startService(new Intent(getActivity(), ReviewService.class)
+                .putExtra("REVIEW_QUERY", reviewArray));
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
@@ -383,7 +372,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
         return;
 
-        // @Override
+       // @Override
     /*public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
