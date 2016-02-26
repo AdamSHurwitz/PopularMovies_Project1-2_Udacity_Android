@@ -207,10 +207,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                             values,
                             CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
                             new String[]{movieTitle});
-                    /*long rowId = db.update(CursorContract.MovieData.TABLE_NAME, values,
-                            CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
-                            new String[]{movieTitle});*/
-                    //cursor.close();
                 }
             });
 
@@ -340,19 +336,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         if (mYouTubeUrl == null) {
             // Launch Service to get YouTube URL
             getYouTubeKey(mMovieId, mTitle);
-            /*Log.v(LOG_TAG, "ALPHA: " + mYouTubeUrl + " movieId: " + mMovieId + "movieTitle: " + mMovieTitle);
-            Cursor c = getContext().getContentResolver().query(
-                    CursorContract.MovieData.CONTENT_URI,
-                    new String[]{CursorContract.MovieData.COLUMN_NAME_YOUTUBEURL},
-                    CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
-                    new String[]{mMovieTitle}, // The values for the WHERE clause
-                    null,                                     // don't group the rows
-                    null                                     // don't filter by row groups
-            );
-            c.moveToFirst();
-            String youTubeUrl = c.getString(c.getColumnIndex(CursorContract.MovieData
-                    .COLUMN_NAME_YOUTUBEURL));
-            Log.v(LOG_TAG, "youTubeUrl: " + youTubeUrl);*/
             shareIntent.putExtra(Intent.EXTRA_TEXT,
                     "Check out the " + mMovieTitle + " trailer: " + mYouTubeUrl);
         } else {
@@ -384,22 +367,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         }
 
         return;
-
-        // @Override
-    /*public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        // no inspection SimplifiableIfStatement
-        if (id == R.id.action_share) {
-            createShareIntent();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }*/
     }
 }
 
