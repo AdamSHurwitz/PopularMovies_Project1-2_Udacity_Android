@@ -66,10 +66,6 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onStart() {
         super.onStart();
-        // Call AsyncTask to get Movie Data
-        /*SharedPreferences sql_pref = PreferenceManager.getDefaultSharedPreferences(getContext());
-        String sort_value = sql_pref.getString("sort_key", "popularity.desc");
-        Log.v(LOG_TAG, "CALLED_ON_START | " + sort_value);*/
         getMovieData();
     }
 
