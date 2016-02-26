@@ -42,7 +42,7 @@ public class MovieDataService extends IntentService {
     public static final String BASE_URL = "https://api.themoviedb.org/3/discover/movie";
     public static final String SORT_PARAMETER = "sort_by";
     public static final String KEY_PARAMETER = "api_key";
-    public final static String KEY_CODE = "81696f0358507756b5119609b0fae31e";
+    public static final String KEY_CODE = "81696f0358507756b5119609b0fae31e";
 
     Vector<ContentValues> cVVector;
 
@@ -167,8 +167,13 @@ public class MovieDataService extends IntentService {
             Integer movie_id, String title, String image_url, String summary, Double
                     vote_average, Double popularity, String release_date) {
 
+        // Access database
+        //CursorDbHelper mDbHelper = new CursorDbHelper(context);
 
         // Put Info into Database
+
+        // Gets the data repository in write mode
+        //SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();

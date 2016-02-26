@@ -40,7 +40,7 @@ public class ReviewService extends IntentService {
     private final String LOG_TAG = ReviewService.class.getSimpleName();
     public static final String BASE_URL = "http://api.themoviedb.org/3/movie/";
     public static final String KEY_PARAMETER = "api_key";
-    public final static String KEY_CODE = "81696f0358507756b5119609b0fae31e";
+    public static final String KEY_CODE = "81696f0358507756b5119609b0fae31e";
 
     private View detailFragmentView;
 
