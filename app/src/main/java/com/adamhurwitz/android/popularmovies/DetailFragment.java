@@ -47,6 +47,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private static final int DETAIL_LOADER = 0;
     Cursor mData;
     String mMovieTitle;
+    ShareActionProvider mShareActionProvider;
+    Intent shareIntent;
 
     //Initialize views
     ImageButton favoriteButton;
@@ -185,13 +187,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
             favoriteButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                  /*  CursorDbHelper cursorDbHelper = new CursorDbHelper(getContext());
-                    SQLiteDatabase db = cursorDbHelper.getReadableDatabase();
-                    Cursor cursor = db.query(CursorContract.MovieData.TABLE_NAME, null,
-                            CursorContract.MovieData.COLUMN_NAME_TITLE + "= ?",
-                            new String[]{movieTitle},
-                            null, null, CursorContract.MovieData._ID + " DESC");*/
-
                     ContentValues values = new ContentValues();
 
                     // Perform action on click
@@ -262,6 +257,15 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             mYouTubeUrl = youTubeCursor.getString(data.getColumnIndex(CursorContract.MovieData
                     .COLUMN_NAME_YOUTUBEURL));
 
+            Log.v(LOG_TAG, "onLoadFinished() - mYouTubeUrl: " + mYouTubeUrl);
+
+            if (mShareActionProvider != null) {
+                // Create new Share Intent
+                shareIntent.putExtra(Intent.EXTRA_TEXT,
+                        "Check out the " + mMovieTitle + " trailer: " + mYouTubeUrl);
+                mShareActionProvider.setShareIntent(createShareIntent());
+            }
+
             playButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View view) {
                     if (mYouTubeUrl == null) {
@@ -330,7 +334,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private Intent createShareIntent() {
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+       shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setType("text/plain");
         if (mYouTubeUrl == null) {
@@ -369,7 +373,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         MenuItem item = menu.findItem(R.id.action_share);
 
         // Fetch and store ShareActionProvider
-        ShareActionProvider mShareActionProvider = (ShareActionProvider)
+        mShareActionProvider = (ShareActionProvider)
                 MenuItemCompat.getActionProvider(item);
         // Attach an intent to this ShareActionProvider.  You can update this at any time,
         // like when the user selects a new piece of data they might like to share.
